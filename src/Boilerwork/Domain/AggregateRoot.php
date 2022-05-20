@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Domain;
 
 use Boilerwork\Domain\ValueObjects\Identity;
+use Boilerwork\Events\EventPublisher;
 
 abstract class AggregateRoot implements TracksEvents, IsEventSourced
 {
@@ -63,7 +64,7 @@ abstract class AggregateRoot implements TracksEvents, IsEventSourced
         $this->latestRecordedEvents[] = $event;
         $this->apply($event);
 
-        eventsPublisher()->raise(event: $event);
+        EventPublisher::getInstance()->raise(event: $event);
     }
 
     /*

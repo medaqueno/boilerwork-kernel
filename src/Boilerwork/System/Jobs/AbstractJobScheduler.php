@@ -86,7 +86,7 @@ abstract class AbstractJobScheduler
                     } else {
                         $message = 'Task ' . $jobToExecute . ' should implement JobInterface';
 
-                        error($message, \RuntimeException::class);
+                        // error($message, \RuntimeException::class);
 
                         throw new \RuntimeException($message);
                     }

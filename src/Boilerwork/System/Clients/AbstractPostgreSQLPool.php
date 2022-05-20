@@ -39,7 +39,7 @@ class AbstractPostgreSQLPool
             $res = $postgresql->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s", $host, $port, $dbname, $username, $password));
 
             if ($res === false) {
-                error('failed to connect PostgreSQL server.');
+                // error('failed to connect PostgreSQL server.');
                 echo 'failed to connect PostgreSQL server.';
                 var_dump($res);
                 throw new \RuntimeException("failed to connect PostgreSQL server.");

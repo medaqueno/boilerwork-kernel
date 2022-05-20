@@ -47,7 +47,7 @@ class MQTTPool
                     );
 
                     if ($res === false) {
-                        error('failed to connect RabbitMq server.');
+                        // error('failed to connect RabbitMq server.');
                         echo 'failed to connect RabbitMq server.';
                         throw new \RuntimeException("failed to connect RabbitMq server.");
                     } else {
@@ -64,7 +64,7 @@ class MQTTPool
                     );
 
                     if ($res === false) {
-                        error('failed to connect RabbitMq server.');
+                        // error('failed to connect RabbitMq server.');
                         echo 'failed to connect RabbitMq server.';
                         throw new \RuntimeException("failed to connect RabbitMq server.");
                     } else {
@@ -81,7 +81,7 @@ class MQTTPool
                     $this->status = 1;
                 }
             } catch (\Exception $e) {
-                error($e->getMessage());
+                // error($e->getMessage());
                 $this->status = 0;
                 $this->close();
             }

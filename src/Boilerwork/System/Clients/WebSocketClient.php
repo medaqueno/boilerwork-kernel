@@ -51,10 +51,10 @@ class WebSocketClient
         try {
             while ($frame = $this->client->recv(timeout: $timeout)) {
                 if ($frame == false) {
-                    logger("WS Error : {$this->getErrMsg()}");
+                    // logger("WS Error : {$this->getErrMsg()}");
                     break;
                 } elseif ($frame == '') {
-                    logger("Disconnect from WS");
+                    // logger("Disconnect from WS");
                     $this->close();
                     break;
                 }
@@ -62,7 +62,7 @@ class WebSocketClient
                 yield $frame;
             }
         } catch (\Exception $e) {
-            logger($e->getMessage());
+            // logger($e->getMessage());
             $this->close();
         }
     }

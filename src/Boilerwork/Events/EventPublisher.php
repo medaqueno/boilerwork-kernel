@@ -30,7 +30,7 @@ final class EventPublisher
         if (class_exists($eventSubscriber)) {
             $this->subscribers->push($eventSubscriber);
         } else {
-            error(sprintf('%s: %s class does not exist', __class__, $eventSubscriber), RuntimeException::class);
+            // error(sprintf('%s: %s class does not exist', __class__, $eventSubscriber), RuntimeException::class);
         }
     }
 
@@ -65,9 +65,9 @@ final class EventPublisher
                             $class->handle($event);
                             // (app()->container()->get($class))->handle($event);
                         } catch (RuntimeException $e) {
-                            error($e->getMessage(), RuntimeException::class);
+                            // error($e->getMessage(), RuntimeException::class);
                         } catch (Throwable $e) {
-                            error($e->getMessage());
+                            // error($e->getMessage());
                         }
                     });
                 }

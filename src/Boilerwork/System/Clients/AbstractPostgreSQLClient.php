@@ -130,9 +130,9 @@ class AbstractPostgreSQLClient
         var_dump($resultDiag);
 
         // May be a handled error
-        error(
-            sprintf('DB error/warning: severity: %s, sqlstate: %s, table_name: %s, message_primary: %s, message_detail: %s, constraint_name: %s', $resultDiag['severity'], $resultDiag['sqlstate'], $resultDiag['table_name'], $resultDiag['message_primary'], $resultDiag['message_detail'], $resultDiag['constraint_name'])
-        );
+        // error(
+        //     sprintf('DB error/warning: severity: %s, sqlstate: %s, table_name: %s, message_primary: %s, message_detail: %s, constraint_name: %s', $resultDiag['severity'], $resultDiag['sqlstate'], $resultDiag['table_name'], $resultDiag['message_primary'], $resultDiag['message_detail'], $resultDiag['constraint_name'])
+        // );
 
         match ($resultDiag['sqlstate']) {
             '23505' => throw new PersistenceException('Duplicate key value violates unique constraint', 409),

@@ -31,7 +31,7 @@ final class MQTTScheduler implements IsProcessInterface
 
                     if ($connection === false || $pool->status === 0 || $pool->downstreamPool->capacity < 1) {
                         echo 'Error opening connection to AMQP';
-                        error('Error opening connection to AMQP');
+                        // error('Error opening connection to AMQP');
 
                         return;
                     }

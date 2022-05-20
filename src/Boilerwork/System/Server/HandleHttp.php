@@ -64,7 +64,7 @@ final class HandleHttp
             $response->setStatusCode($result->getStatusCode(), $result->getReasonPhrase());
             $result = $result->getBody()->__toString();
         } catch (\Throwable $e) {
-            error($e);
+            // error($e);
 
             if ($e instanceof CustomAssertionFailedException || $e instanceof \Assert\InvalidArgumentException) {
                 // var_dump($e->getErrorExceptions());
