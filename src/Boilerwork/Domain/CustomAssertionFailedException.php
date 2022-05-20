@@ -1,6 +1,6 @@
 <?php
 
-namespace Kernel\Domain;
+namespace Boilerwork\Domain;
 
 // use Assert\InvalidArgumentException;
 // use Assert\LazyAssertionException;

@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Application;
+namespace Boilerwork\Application;
 
 interface CommandInterface
 {

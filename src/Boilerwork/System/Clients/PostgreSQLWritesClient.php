@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Clients;
+namespace Boilerwork\System\Clients;
 
 class PostgreSQLWritesClient extends AbstractPostgreSQLClient
 {

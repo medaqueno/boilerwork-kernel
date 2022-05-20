@@ -3,11 +3,11 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Infra\Persistence;
+namespace Boilerwork\Infra\Persistence;
 
-use Kernel\Domain\AggregateHistory;
-use Kernel\Domain\ValueObjects\Identity;
-use Kernel\System\Clients\RedisClient;
+use Boilerwork\Domain\AggregateHistory;
+use Boilerwork\Domain\ValueObjects\Identity;
+use Boilerwork\System\Clients\RedisClient;
 use Redis;
 
 final class RedisEventStore implements EventStore

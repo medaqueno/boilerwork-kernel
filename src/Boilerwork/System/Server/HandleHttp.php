@@ -3,11 +3,11 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Server;
+namespace Boilerwork\System\Server;
 
-use Kernel\Domain\CustomAssertionFailedException;
-use Kernel\Helpers\Environments;
-use Kernel\System\Http\Request;
+use Boilerwork\Domain\CustomAssertionFailedException;
+use Boilerwork\Helpers\Environments;
+use Boilerwork\System\Http\Request;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;

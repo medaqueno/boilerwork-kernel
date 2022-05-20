@@ -3,8 +3,8 @@
 
 declare(strict_types=1);
 
-use Kernel\Events\EventPublisher;
-use Kernel\System\Http\Response;
+use Boilerwork\Events\EventPublisher;
+use Boilerwork\System\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 

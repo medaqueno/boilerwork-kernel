@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain\ValueObjects;
+namespace Boilerwork\Domain\ValueObjects;
 
-use Kernel\Domain\ValueObjects\Uuid;
+use Boilerwork\Domain\ValueObjects\Uuid;
 
 class Identity extends Uuid
 {

@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Container;
+namespace Boilerwork\System\Container;
 
 use Psr\Container\ContainerInterface;
 use Illuminate\Container\Container as ContainerImplementation;
@@ -11,10 +11,10 @@ use App\Core\BC\Domain\UserRepository;
 use App\Core\BC\Infra\Persistence\UserInMemoryRepository;
 use App\Core\BC\Infra\Persistence\UserPostgreSQLRepository;
 use App\Core\BC\Infra\Persistence\UserRedisRepository;
-use Kernel\System\Clients\MQTTPool;
-use Kernel\System\Clients\PostgreSQLReadsPool;
-use Kernel\System\Clients\PostgreSQLWritesPool;
-use Kernel\System\Clients\RedisPool;
+use Boilerwork\System\Clients\MQTTPool;
+use Boilerwork\System\Clients\PostgreSQLReadsPool;
+use Boilerwork\System\Clients\PostgreSQLWritesPool;
+use Boilerwork\System\Clients\RedisPool;
 
 /**
  * Dependency Injection Container

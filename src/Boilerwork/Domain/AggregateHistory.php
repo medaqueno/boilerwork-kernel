@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain;
+namespace Boilerwork\Domain;
 
-use Kernel\Domain\ValueObjects\Identity;
+use Boilerwork\Domain\ValueObjects\Identity;
 
 /**
  * Receive Events from persistence, check events belong to their owner aggregate and convert them to an array of DomainEvents

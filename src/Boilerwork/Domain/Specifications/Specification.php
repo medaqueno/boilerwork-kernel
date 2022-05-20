@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain\Specifications;
+namespace Boilerwork\Domain\Specifications;
 
 use BadMethodCallException;
 

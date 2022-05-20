@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Infra\Persistence\Exceptions;
+namespace Boilerwork\Infra\Persistence\Exceptions;
 
 use Swoole\Exception;
 

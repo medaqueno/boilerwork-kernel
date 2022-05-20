@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Server;
+namespace Boilerwork\System\Server;
 
 final class RunServer
 {

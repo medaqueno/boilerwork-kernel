@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Clients;
+namespace Boilerwork\System\Clients;
 
-use Kernel\Infra\Persistence\Exceptions\PersistenceException;
+use Boilerwork\Infra\Persistence\Exceptions\PersistenceException;
 use Swoole\Coroutine\PostgreSQL;
 
 /**

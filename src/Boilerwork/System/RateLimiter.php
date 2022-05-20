@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System;
+namespace Boilerwork\System;
 
-use Kernel\Helpers\Singleton;
+use Boilerwork\Helpers\Singleton;
 use Swoole\Table;
 use Swoole\Timer;
 

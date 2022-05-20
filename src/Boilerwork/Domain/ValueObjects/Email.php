@@ -3,10 +3,10 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain\ValueObjects;
+namespace Boilerwork\Domain\ValueObjects;
 
-use Kernel\Domain\ValueObjects\ValueObject;
-use Kernel\Domain\Assert;
+use Boilerwork\Domain\ValueObjects\ValueObject;
+use Boilerwork\Domain\Assert;
 
 /**
  * @internal

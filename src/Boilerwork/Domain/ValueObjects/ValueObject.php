@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain\ValueObjects;
+namespace Boilerwork\Domain\ValueObjects;
 
 abstract class ValueObject
 {

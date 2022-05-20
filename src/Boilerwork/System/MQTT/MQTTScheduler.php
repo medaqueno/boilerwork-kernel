@@ -3,11 +3,11 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\MQTT;
+namespace Boilerwork\System\MQTT;
 
 use App\Shared\Providers\MQTTProvider;
-use Kernel\System\Clients\MQTTPool;
-use Kernel\System\IsProcessInterface;
+use Boilerwork\System\Clients\MQTTPool;
+use Boilerwork\System\IsProcessInterface;
 use Swoole\Process;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;

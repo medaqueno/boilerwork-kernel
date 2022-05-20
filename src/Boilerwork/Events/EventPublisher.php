@@ -3,13 +3,13 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Events;
+namespace Boilerwork\Events;
 
 use Ds\Queue;
 use Ds\Vector;
-use Kernel\Domain\DomainEvent;
-use Kernel\Helpers\Singleton;
-use Kernel\System\Clients\MessagingClient;
+use Boilerwork\Domain\DomainEvent;
+use Boilerwork\Helpers\Singleton;
+use Boilerwork\System\Clients\MessagingClient;
 use RuntimeException;
 use Throwable;
 

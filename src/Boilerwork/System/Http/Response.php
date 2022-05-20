@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Http;
+namespace Boilerwork\System\Http;
 
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\Response\TextResponse;

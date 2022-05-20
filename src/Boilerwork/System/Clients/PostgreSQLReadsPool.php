@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Clients;
+namespace Boilerwork\System\Clients;
 
-use Kernel\Helpers\Singleton;
+use Boilerwork\Helpers\Singleton;
 
 final class PostgreSQLReadsPool extends AbstractPostgreSQLPool
 {

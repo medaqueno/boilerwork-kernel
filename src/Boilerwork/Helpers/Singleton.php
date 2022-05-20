@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Helpers;
+namespace Boilerwork\Helpers;
 
 trait Singleton
 {

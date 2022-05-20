@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain;
+namespace Boilerwork\Domain;
 
-use Kernel\Domain\ValueObjects\Identity;
+use Boilerwork\Domain\ValueObjects\Identity;
 
 abstract class AggregateRoot implements TracksEvents, IsEventSourced
 {

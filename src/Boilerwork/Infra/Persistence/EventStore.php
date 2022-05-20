@@ -3,10 +3,10 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Infra\Persistence;
+namespace Boilerwork\Infra\Persistence;
 
-use Kernel\Domain\TracksEvents;
-use Kernel\Domain\ValueObjects\Identity;
+use Boilerwork\Domain\TracksEvents;
+use Boilerwork\Domain\ValueObjects\Identity;
 
 interface EventStore
 {

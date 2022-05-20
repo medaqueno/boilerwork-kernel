@@ -3,11 +3,11 @@
 
 declare(strict_types=1);
 
-namespace Kernel\UI;
+namespace Boilerwork\UI;
 
-use Kernel\Application\CommandBus;
+use Boilerwork\Application\CommandBus;
 use Psr\Http\Message\ResponseInterface;
-use Kernel\System\Http\Request;
+use Boilerwork\System\Http\Request;
 
 abstract class AbstractHTTPPort
 {

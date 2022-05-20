@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Events;
+namespace Boilerwork\Events;
 
-use Kernel\Domain\DomainEvent;
+use Boilerwork\Domain\DomainEvent;
 
 interface EventSubscriberInterface
 {

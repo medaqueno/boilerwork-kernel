@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Helpers;
+namespace Boilerwork\Helpers;
 
 class Collection implements \ArrayAccess
 {

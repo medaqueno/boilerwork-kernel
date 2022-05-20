@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Jobs;
+namespace Boilerwork\System\Jobs;
 
 use DateTimeImmutable;
 

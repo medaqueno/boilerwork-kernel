@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain;
+namespace Boilerwork\Domain;
 
 /**
  * An AggregateRoot, that can be reconstituted from an AggregateHistory.

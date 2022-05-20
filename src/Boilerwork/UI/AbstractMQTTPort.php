@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\UI;
+namespace Boilerwork\UI;
 
-use Kernel\Application\CommandBus;
+use Boilerwork\Application\CommandBus;
 use PhpAmqpLib\Message\AMQPMessage;
 
 abstract class AbstractMQTTPort

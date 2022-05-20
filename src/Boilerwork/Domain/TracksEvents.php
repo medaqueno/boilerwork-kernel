@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain;
+namespace Boilerwork\Domain;
 
 /**
  * An object that records the events that happened to it since the last time it was cleared, or since it was

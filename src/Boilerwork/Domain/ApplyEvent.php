@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Kernel\Domain;
+namespace Boilerwork\Domain;
 
-use Kernel\Domain\DomainEvent;
+use Boilerwork\Domain\DomainEvent;
 
 trait ApplyEvent
 {

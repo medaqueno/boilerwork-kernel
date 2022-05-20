@@ -3,10 +3,10 @@
 
 declare(strict_types=1);
 
-namespace Kernel\System\Jobs;
+namespace Boilerwork\System\Jobs;
 
 use App\Shared\Providers\JobProvider;
-use Kernel\System\IsProcessInterface;
+use Boilerwork\System\IsProcessInterface;
 use Swoole\Process;
 
 final class JobScheduler implements IsProcessInterface
