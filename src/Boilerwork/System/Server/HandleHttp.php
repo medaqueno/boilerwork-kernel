@@ -87,7 +87,8 @@ final class HandleHttp
                         "errors" => []
                     ]
                 ];
-                if (app()->getEnvironment() !== Environments::PRODUCTION) {
+
+                if ($_ENV['APP_DEBUG'] === 'true') {
                     array_push($result['error']['errors'], [
                         "message" =>  $e->getMessage(),
                         "file" => $e->getFile(),
