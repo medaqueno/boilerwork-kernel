@@ -78,7 +78,7 @@ abstract class AbstractJobScheduler
         foreach ($this->jobsToBeExecuted as $jobToExecute) {
             // Task is in time but has not been executed yet
             if ($jobToExecute !== 'executed') {
-                $job = container()->get($jobToExecute);
+                $job = \Boilerwork\System\Container\Container::getInstance()->get($jobToExecute);
 
                 go(function () use ($jobToExecute, $job) {
                     if ($job instanceof JobInterface) {

@@ -24,7 +24,7 @@ final class MQTTScheduler implements IsProcessInterface
         $this->process = (new Process(
             function () {
                 Coroutine\run(function () {
-                    $pool = container()->get(MQTTPool::class);
+                    $pool = \Boilerwork\System\Container\Container::getInstance()->get(MQTTPool::class);
                     $connection = $pool->getDownstreamConn();
 
                     Coroutine\System::wait(5);
@@ -61,7 +61,7 @@ final class MQTTScheduler implements IsProcessInterface
                         // Consume message from queue and callback corresponding class
                         $channel->basic_consume($item['queue'], '', false, true, false, false, function (AMQPMessage $msg) use ($item) {
                             go(function () use ($msg, $item) {
-                                $class = container()->get($item['target']);
+                                $class = \Boilerwork\System\Container\Container::getInstance()->get($item['target']);
                                 call_user_func($class, $msg);
                             });
                         });

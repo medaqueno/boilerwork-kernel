@@ -63,7 +63,7 @@ final class EventPublisher
                                 );
                             }
                             $class->handle($event);
-                            // (app()->container()->get($class))->handle($event);
+                            // (\Boilerwork\System\Container\Container::getInstance()->get($class))->handle($event);
                         } catch (RuntimeException $e) {
                             // error($e->getMessage(), RuntimeException::class);
                         } catch (Throwable $e) {

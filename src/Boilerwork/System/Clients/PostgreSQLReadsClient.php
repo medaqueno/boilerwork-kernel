@@ -11,6 +11,6 @@ class PostgreSQLReadsClient extends AbstractPostgreSQLClient
 
     public function __construct()
     {
-        $this->pool = app()->container()->get(PostgreSQLReadsPool::class);
+        $this->pool = \Boilerwork\System\Container\Container::getInstance()->get(PostgreSQLReadsPool::class);
     }
 }

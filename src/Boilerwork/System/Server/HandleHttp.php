@@ -149,11 +149,11 @@ final class HandleHttp
                     // Custom method in class
                     $className = $handler[0];
                     $method = $handler[1];
-                    $class = container()->get($className);
+                    $class = \Boilerwork\System\Container\Container::getInstance()->get($className);
                     $result = $class->$method($request, $vars);
                 } else {
                     // invokable class  __invoke
-                    $result = (container()->get($handler))($request, $vars);
+                    $result = (\Boilerwork\System\Container\Container::getInstance()->get($handler))($request, $vars);
                     // $result = (new $handler)($request, $vars);
                 }
 
