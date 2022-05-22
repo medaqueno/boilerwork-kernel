@@ -9,7 +9,7 @@ use Boilerwork\Helpers\Singleton;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Swoole\Coroutine\Channel;
 
-class MQTTPool
+class MessagePool
 {
     use Singleton;
 
@@ -20,10 +20,10 @@ class MQTTPool
 
     private function __construct()
     {
-        $host = $_ENV['MQTT_HOST'] ?? 'rabbitmq';
-        $port = $_ENV['MQTT_PORT'] ?? 5672;
-        $username = $_ENV['MQTT_USERNAME'] ?? 'guest';
-        $password = $_ENV['MQTT_PASSWORD'] ?? 'guest';
+        $host = $_ENV['Message_HOST'] ?? 'rabbitmq';
+        $port = $_ENV['Message_PORT'] ?? 5672;
+        $username = $_ENV['Message_USERNAME'] ?? 'guest';
+        $password = $_ENV['Message_PASSWORD'] ?? 'guest';
 
         $size = 1;
 
@@ -72,8 +72,8 @@ class MQTTPool
                     }
                 }
 
-                echo "MQTT POOL UPSTREAM CREATED. " . $this->upstreamPool->capacity . " connections opened\n";
-                echo "MQTT POOL DOWNSTREAM CREATED. " . $this->downstreamPool->capacity . " connections opened\n";
+                echo "Message POOL UPSTREAM CREATED. " . $this->upstreamPool->capacity . " connections opened\n";
+                echo "Message POOL DOWNSTREAM CREATED. " . $this->downstreamPool->capacity . " connections opened\n";
 
                 if ($this->upstreamPool->capacity === 0  && $this->downstreamPool->capacity === 0) {
                     $this->status = 0;

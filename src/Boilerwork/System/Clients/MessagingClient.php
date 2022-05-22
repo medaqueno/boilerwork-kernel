@@ -8,17 +8,17 @@ namespace Boilerwork\System\Clients;
 use PhpAmqpLib\Message\AMQPMessage;
 
 /**
- * Communicate with MQTT Broker
+ * Communicate with Message Broker
  *
- * Subscribing must be done in MQTTProvider
+ * Subscribing must be done in MessageProvider
  **/
 class MessagingClient implements MessagingInterface
 {
-    private readonly MQTTPool $pool;
+    private readonly MessagePool $pool;
 
     public function __construct()
     {
-        $this->pool = MQTTPool::getInstance();
+        $this->pool = MessagePool::getInstance();
     }
 
     /**
@@ -46,12 +46,12 @@ class MessagingClient implements MessagingInterface
     }
 
     /***
-     * Subscribing must be done in MQTTProvider
+     * Subscribing must be done in MessageProvider
      *
-     * @use \App\Shared\Providers\MQTTProvider
+     * @use \App\Shared\Providers\MessageProvider
      **/
     public function subscribe(string $queue, string $exchange = null, callable $fn): void
     {
-        throw new \Exception("Use MQTTProvider to subscribe to messaging");
+        throw new \Exception("Use MessageProvider to subscribe to messaging");
     }
 }

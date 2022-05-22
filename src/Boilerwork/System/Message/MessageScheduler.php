@@ -3,28 +3,27 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\MQTT;
+namespace Boilerwork\System\Message;
 
-use App\Shared\Providers\MQTTProvider;
-use Boilerwork\System\Clients\MQTTPool;
+use Boilerwork\System\Clients\MessagePool;
 use Boilerwork\System\IsProcessInterface;
 use Swoole\Process;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Swoole\Coroutine;
 
-final class MQTTScheduler implements IsProcessInterface
+final class MessageScheduler implements IsProcessInterface
 {
     private Process $process;
 
     public AMQPStreamConnection|bool $connection;
 
-    public function __construct(private readonly MQTTProvider $subscriptionProvider)
+    public function __construct(private $subscriptionProvider)
     {
         $this->process = (new Process(
             function () {
                 Coroutine\run(function () {
-                    $pool = \Boilerwork\System\Container\Container::getInstance()->get(MQTTPool::class);
+                    $pool = \Boilerwork\System\Container\Container::getInstance()->get(MessagePool::class);
                     $connection = $pool->getDownstreamConn();
 
                     Coroutine\System::wait(5);

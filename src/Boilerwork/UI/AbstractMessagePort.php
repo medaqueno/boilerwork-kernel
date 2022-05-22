@@ -8,7 +8,7 @@ namespace Boilerwork\UI;
 use Boilerwork\Application\CommandBus;
 use PhpAmqpLib\Message\AMQPMessage;
 
-abstract class AbstractMQTTPort
+abstract class AbstractMessagePort
 {
     abstract public function __invoke(AMQPMessage $msg): void;
 
