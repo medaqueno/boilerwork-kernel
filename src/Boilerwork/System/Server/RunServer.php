@@ -50,7 +50,7 @@ final class RunServer
         // Websocket server may receive requests too, we leave option to
         // comment out and allow it (take care of control the right requests to each server)
         $handleWebSocket = null;
-        if ($this->server instanceof \Swoole\WebSocket\Server) {
+        /*        if ($this->server instanceof \Swoole\WebSocket\Server) {
             $handleWebSocket = new HandleWebSocket();
             $this->server->on(
                 "Open",
@@ -66,10 +66,10 @@ final class RunServer
                 "Close",
                 [$handleWebSocket, 'onClose']
             );
-        }
+        } */
 
         if ($this->server instanceof \Swoole\Http\Server) {
-            $handleHttp = new HandleHttp();
+            $handleHttp = new HandleHttp(BASE_PATH . '/routes/httpApi.php');
             $this->server->on(
                 "request",
                 function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) use ($handleHttp, $handleWebSocket) {
@@ -89,6 +89,8 @@ final class RunServer
                 $this->server->addProcess($process->process());
             }
         }
+
+        getMemoryStatus();
 
         $this->server->start();
     }

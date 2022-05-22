@@ -19,19 +19,18 @@ final class HandleHttp
 {
     private \FastRoute\Dispatcher $httpDispatcher;
 
-    public function __construct()
+    public function __construct(string $routesPath)
     {
         // Init Routing
-        $this->httpDispatcher = $this->initRouting();
+        $this->httpDispatcher = $this->initRouting($routesPath);
     }
 
-    private function initRouting(): \FastRoute\Dispatcher
+    private function initRouting(string $routesPath): \FastRoute\Dispatcher
     {
         // Init Routing
         return \FastRoute\simpleDispatcher(
-            function (\FastRoute\RouteCollector $r) {
-                $routes = include(base_path('/routes/httpApi.php'));
-
+            function (\FastRoute\RouteCollector $r) use ($routesPath) {
+                $routes = include($routesPath);
                 foreach ($routes as $route) {
                     $r->addRoute($route[0], $route[1], $route[2]);
                 }
@@ -150,11 +149,11 @@ final class HandleHttp
                     // Custom method in class
                     $className = $handler[0];
                     $method = $handler[1];
-                    $class = app()->container()->get($className);
+                    $class = container()->get($className);
                     $result = $class->$method($request, $vars);
                 } else {
                     // invokable class  __invoke
-                    $result = (app()->container()->get($handler))($request, $vars);
+                    $result = (container()->get($handler))($request, $vars);
                     // $result = (new $handler)($request, $vars);
                 }
 
