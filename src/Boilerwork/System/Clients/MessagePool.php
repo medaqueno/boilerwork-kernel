@@ -20,10 +20,10 @@ class MessagePool
 
     private function __construct()
     {
-        $host = $_ENV['Message_HOST'] ?? 'rabbitmq';
-        $port = $_ENV['Message_PORT'] ?? 5672;
-        $username = $_ENV['Message_USERNAME'] ?? 'guest';
-        $password = $_ENV['Message_PASSWORD'] ?? 'guest';
+        $host = $_ENV['MESSAGE_HOST'] ?? 'rabbitmq';
+        $port = $_ENV['MESSAGE_PORT'] ?? 5672;
+        $username = $_ENV['MESSAGE_USERNAME'] ?? 'guest';
+        $password = $_ENV['MESSAGE_PASSWORD'] ?? 'guest';
 
         $size = 1;
 
