@@ -39,6 +39,6 @@
       "name": "CarlosJ - medaqueno"
     }
   ],
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "prefer-stable": true
 }
