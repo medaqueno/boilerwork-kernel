@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Infra\Persistence;
 
-use Boilerwork\Domain\TracksEvents;
+use Boilerwork\Domain\IsEventSourced;
 use Boilerwork\Domain\ValueObjects\Identity;
 
 interface EventStore
@@ -14,10 +14,10 @@ interface EventStore
      *  Add Events to Persistence
      *
      **/
-    public function append(TracksEvents $events): void;
+    public function append(IsEventSourced $events): void;
 
     /**
      *  Get Event Stream in persistence where id = X
      **/
-    public function getAggregateHistoryFor(Identity $id): TracksEvents;
+    public function reconstituteHistoryFor(Identity $id): IsEventSourced;
 }

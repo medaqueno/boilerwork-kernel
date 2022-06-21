@@ -21,7 +21,7 @@ trait ApplyEvent
     /**
      * Extract Class name without namespace
      **/
-    private function getName(string $event): string
+    final private function getName(string $event): string
     {
         if ($pos = strrpos($event, '\\')) {
             $eventName = substr($event, $pos + 1);

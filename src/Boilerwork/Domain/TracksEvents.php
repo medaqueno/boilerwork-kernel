@@ -22,7 +22,5 @@ interface TracksEvents
      */
     public function clearRecordedEvents(): void;
 
-    public function currentVersion(): int;
-
-    public function getAggregateId(): string;
+    public function raise(DomainEvent $event): void;
 }
