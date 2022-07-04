@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\UI;
+namespace Boilerwork\System\Http;
 
 use Boilerwork\Application\CommandBus;
 use Psr\Http\Message\ResponseInterface;
