@@ -11,7 +11,7 @@ use Boilerwork\Domain\ValueObjects\Identity;
 use Boilerwork\Infra\Persistence\EventStore;
 use Boilerwork\System\Clients\PostgreSQLWritesClient;
 
-abstract class PostgreSQLEventStore implements EventStore
+abstract class PostgreSQLEventStoreAdapter implements EventStore
 {
     public function __construct(
         private readonly PostgreSQLWritesClient $client
