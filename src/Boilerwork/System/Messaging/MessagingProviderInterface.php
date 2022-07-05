@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\System\Messaging;
 
-interface MessageProviderInterface
+interface MessagingProviderInterface
 {
     public function getSubscriptions(): array;
 }

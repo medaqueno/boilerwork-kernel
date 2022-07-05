@@ -3,13 +3,13 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Infra\Persistence;
+namespace Boilerwork\Infra\Persistence\Adapters\PostgreSQL;
 
 use Boilerwork\Domain\AggregateHistory;
 use Boilerwork\Domain\IsEventSourced;
 use Boilerwork\Domain\ValueObjects\Identity;
 use Boilerwork\Infra\Persistence\EventStore;
-use Boilerwork\System\Clients\PostgreSQLWritesClient;
+use Boilerwork\Infra\Persistence\Adapters\PostgreSQL\PostgreSQLWritesClient;
 
 abstract class PostgreSQLEventStoreAdapter implements EventStore
 {

@@ -27,7 +27,7 @@ trait TracksEventsTrait
         $this->latestRecordedEvents = [];
     }
 
-    final public function raise(DomainEvent $event): void
+    final public function raise(AbstractEvent $event): void
     {
         $this->increaseVersion();
 

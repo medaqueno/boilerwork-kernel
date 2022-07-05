@@ -22,5 +22,5 @@ interface TracksEvents
      */
     public function clearRecordedEvents(): void;
 
-    public function raise(DomainEvent $event): void;
+    public function raise(AbstractEvent $event): void;
 }

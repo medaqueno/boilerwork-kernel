@@ -7,7 +7,7 @@ namespace Boilerwork\Events;
 
 use Ds\Queue;
 use Ds\Vector;
-use Boilerwork\Domain\DomainEvent;
+use Boilerwork\Domain\AbstractEvent;
 use Boilerwork\Helpers\Singleton;
 use RuntimeException;
 use Throwable;
@@ -22,7 +22,7 @@ final class EventPublisher
     ) {
     }
 
-    public function raise(DomainEvent $event): void
+    public function raise(AbstractEvent $event): void
     {
         $this->events->push($event);
     }

@@ -5,14 +5,12 @@ declare(strict_types=1);
 
 namespace Boilerwork\Domain;
 
-use Boilerwork\Domain\DomainEvent;
-
 trait ApplyEvent
 {
     /**
      * Execute apply<eventClassName> methods automatically
      **/
-    final protected function apply(DomainEvent $event)
+    final protected function apply(AbstractEvent $event)
     {
         $method = 'apply' .  $this->getName($event::class);
         $this->$method($event);

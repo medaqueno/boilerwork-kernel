@@ -7,9 +7,15 @@ namespace Boilerwork\Domain;
 
 use DateTimeImmutable;
 
-abstract class AbstractEvent implements DomainEvent
+abstract class AbstractEvent
 {
     protected string $topic;
+
+    abstract public function getAggregateId(): string;
+
+    abstract public function serialize(): array;
+
+    abstract public static function unserialize(array $event): self;
 
     public function wrapSerialize(array $data): array
     {

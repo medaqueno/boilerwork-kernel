@@ -8,7 +8,7 @@ namespace Boilerwork\System\Messaging;
 use Boilerwork\Application\CommandBus;
 use Boilerwork\System\Messaging\Message;
 
-abstract class AbstractMessagePort
+abstract class AbstractMessageSubscriberPort
 {
     abstract public function __invoke(Message $message): void;
 

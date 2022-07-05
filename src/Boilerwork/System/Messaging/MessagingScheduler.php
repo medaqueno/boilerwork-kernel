@@ -7,17 +7,17 @@ namespace Boilerwork\System\Messaging;
 
 use Boilerwork\System\IsProcessInterface;
 use Boilerwork\System\Messaging\MessagingClientInterface;
-use Boilerwork\System\Messaging\MessageProviderInterface;
+use Boilerwork\System\Messaging\MessagingProviderInterface;
 use Boilerwork\System\Messaging\Message;
 use DateTime;
 use Swoole\Process;
 
-final class MessageScheduler implements IsProcessInterface
+final class MessagingScheduler implements IsProcessInterface
 {
     private Process $process;
 
     public function __construct(
-        private MessageProviderInterface $subscriptionProvider
+        private MessagingProviderInterface $subscriptionProvider
     ) {
         $topics = [];
         $messageClient = container()->getInstance()->get(MessagingClientInterface::class);
@@ -64,7 +64,7 @@ final class MessageScheduler implements IsProcessInterface
                             echo "Kafka: No more messages; will wait for more\n";
                             break;
                         case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                            echo "Kafka: Timed out\n";
+                            // echo "Kafka: Timed out\n";
                             break;
                         default:
                             error($messageReceived->errstr());

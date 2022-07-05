@@ -21,6 +21,7 @@ abstract class AggregateRoot
 
     final protected function increaseVersion(): void
     {
-        $this->version = ++$this->currentVersion();
+        $version = $this->currentVersion();
+        $this->version = ++$version;
     }
 }

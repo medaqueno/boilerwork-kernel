@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Clients;
+namespace Boilerwork\Infra\Persistence\Adapters\Redis;
 
 use Redis;
 
