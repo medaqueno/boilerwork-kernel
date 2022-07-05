@@ -97,8 +97,6 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         $this->client->endTransaction();
 
         $this->client->putConnection();
-
-        $aggregate->clearRecordedEvents();
     }
 
     /**

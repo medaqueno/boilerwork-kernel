@@ -15,7 +15,5 @@ interface DomainEvent
 
     public function isPublic(): bool;
 
-    public function getQueue(): ?string;
-
-    public function getExchange(): ?string;
+    public function getTopic(): ?string;
 }

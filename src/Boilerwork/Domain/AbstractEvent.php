@@ -9,11 +9,9 @@ use DateTimeImmutable;
 
 abstract class AbstractEvent implements DomainEvent
 {
-    protected bool $isPublic = false;
+    protected bool $isPublic = true;
 
-    protected ?string $queue;
-
-    protected ?string $exchange;
+    protected string $topic;
 
     public function wrapSerialize(array $data): array
     {
@@ -31,13 +29,8 @@ abstract class AbstractEvent implements DomainEvent
         return $this->isPublic;
     }
 
-    public function getQueue(): ?string
+    public function getTopic(): ?string
     {
-        return $this->queue;
-    }
-
-    public function getExchange(): ?string
-    {
-        return $this->exchange;
+        return $this->topic;
     }
 }
