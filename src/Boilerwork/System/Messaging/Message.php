@@ -18,4 +18,9 @@ final class Message
         public readonly array $headers,
     ) {
     }
+
+    public function getParsedPayload()
+    {
+        return json_decode($this->payload);
+    }
 }

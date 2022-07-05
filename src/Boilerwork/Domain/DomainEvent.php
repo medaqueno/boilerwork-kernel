@@ -13,7 +13,5 @@ interface DomainEvent
 
     public static function unserialize(array $event): self;
 
-    public function isPublic(): bool;
-
     public function getTopic(): ?string;
 }

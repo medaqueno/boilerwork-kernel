@@ -16,7 +16,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
 {
     const TIMEOUT = 60; // Seconds
 
-    public function publish(string $message, string $topic, ?string $partition = null): void
+    public function publish(string $message, string $topic): void
     {
         $conf = new \RdKafka\Conf();
         $conf->set('metadata.broker.list', $_ENV['MESSAGE_BROKER_HOST'] . ':' . $_ENV['MESSAGE_BROKER_PORT']);

@@ -9,8 +9,6 @@ use DateTimeImmutable;
 
 abstract class AbstractEvent implements DomainEvent
 {
-    protected bool $isPublic = true;
-
     protected string $topic;
 
     public function wrapSerialize(array $data): array
@@ -22,11 +20,6 @@ abstract class AbstractEvent implements DomainEvent
             'ocurredOn' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
             'data' => $data,
         ];
-    }
-
-    public function isPublic(): bool
-    {
-        return $this->isPublic;
     }
 
     public function getTopic(): ?string

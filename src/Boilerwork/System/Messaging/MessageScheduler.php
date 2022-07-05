@@ -19,7 +19,6 @@ final class MessageScheduler implements IsProcessInterface
     public function __construct(
         private MessageProviderInterface $subscriptionProvider
     ) {
-
         $topics = [];
         $messageClient = container()->getInstance()->get(MessagingClientInterface::class);
 
