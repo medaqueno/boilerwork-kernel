@@ -20,4 +20,13 @@ final class HandleWorkers
     {
         echo "\nWorker Stop " . $workerId, "\n";
     }
+
+    public function onWorkerError(\Swoole\Server $server, int $workerId): void
+    {
+        echo "\nWorker Error " . $workerId, "\n";
+        error('############### Worker Error: ' . $workerId);
+        // $server->stop($workerId);
+        // $server->finish(true);
+        // $server->shutdown();
+    }
 }

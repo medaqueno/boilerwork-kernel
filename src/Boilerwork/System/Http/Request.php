@@ -67,6 +67,6 @@ class Request extends ServerRequest
      **/
     public function input(string|int $key): mixed
     {
-        return $this->getParsedBody()[$key];
+        return $this->getParsedBody()[$key] ?? null;
     }
 }

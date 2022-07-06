@@ -16,8 +16,14 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
 {
     const TIMEOUT = 60; // Seconds
 
+    private bool $isWorking = true;
+
     public function publish(string $message, string $topic): void
     {
+        if ($this->isWorking === false) {
+            throw new \Swoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
+        }
+
         $conf = new \RdKafka\Conf();
         $conf->set('metadata.broker.list', $_ENV['MESSAGE_BROKER_HOST'] . ':' . $_ENV['MESSAGE_BROKER_PORT']);
 
@@ -45,8 +51,13 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         }
     }
 
-    public function subscribe(array $topics): \RdKafka\KafkaConsumer
+    public function subscribe(array $topics): ?\RdKafka\KafkaConsumer
     {
+        if ($this->isWorking === false) {
+            throw new \Swoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
+            return null;
+        }
+
         $conf = new \RdKafka\Conf();
 
         // Set a rebalance callback to log partition assignments (optional)
@@ -82,6 +93,20 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         $conf->set('auto.offset.reset', 'latest');
 
         $consumer = new \RdKafka\KafkaConsumer($conf);
+
+
+        try {
+            $partitionsInfo = [];
+            foreach ($consumer->getMetadata(true, null, 10000)->getTopics() as $topic) {
+                $partitionsInfo[$topic->getTopic()] = count($topic->getPartitions());
+            }
+            var_dump($partitionsInfo);
+        } catch (\Throwable $th) {
+            $this->isWorking = false;
+            return null;
+        }
+
+
 
         // Subscribe to topic
         $consumer->subscribe(array_unique($topics));

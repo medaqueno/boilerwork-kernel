@@ -8,6 +8,7 @@ namespace Boilerwork\System\Server;
 use Boilerwork\Domain\CustomAssertionFailedException;
 use Boilerwork\Helpers\Environments;
 use Boilerwork\System\Http\Request;
+use Boilerwork\System\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
@@ -40,6 +41,8 @@ final class HandleHttp
 
     public function onRequest(SwooleRequest $request, SwooleResponse $response): void
     {
+        $response->setHeader('Content-Type', 'application/json');
+
         // Rate Limit -> It should be a middleware
         /*
         $Ratelimiter = RateLimiter::getInstance();
@@ -54,7 +57,6 @@ final class HandleHttp
 
         try {
             $result = $this->handleRequest($request);
-
 
             foreach ($result->getHeaders() as $key => $value) {
                 $response->setHeader($key, $value[0]);
@@ -93,7 +95,7 @@ final class HandleHttp
                         "message" =>  $e->getMessage(),
                         "file" => $e->getFile(),
                         "line" => $e->getLine(),
-                        "trace" => $e->getTrace(),
+                        // "trace" => $e->getTrace(),
                     ]);
                 }
             }
@@ -121,7 +123,7 @@ final class HandleHttp
         $dispatched = $this->httpDispatcher->dispatch($request_method, $request_uri);
 
         if (count($dispatched) === 1) {
-            return null;
+            return Response::empty(404);
         }
 
         $code = $dispatched[0];
@@ -130,20 +132,10 @@ final class HandleHttp
 
         switch ($code) {
             case \FastRoute\Dispatcher::NOT_FOUND:
-                $result = [
-                    'message' => 'Not Found',
-                    'errors' => [
-                        sprintf('The URI "%s" was not found', $request_uri)
-                    ]
-                ];
+                $result = Response::empty(404);
                 break;
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                $result = [
-                    'message' => 'Method Not Allowed',
-                    'errors' => [
-                        sprintf('Method "%s" is not allowed', $request_method)
-                    ]
-                ];
+                $result = Response::empty(405);
                 break;
             case \FastRoute\Dispatcher::FOUND:
                 if (is_array($handler)) {
@@ -160,12 +152,16 @@ final class HandleHttp
 
                 break;
             default:
-                $result = [
-                    'message' => 'Server Error',
-                    'errors' => [
-                        sprintf('Server Error')
+                $data = [
+                    "error" =>
+                    [
+                        "code" => "serverError",
+                        "message" => "Server error. Contact system administrator",
+                        "errors" => []
                     ]
                 ];
+
+                $result = Response::json($data, 500);
         }
 
         return $result;

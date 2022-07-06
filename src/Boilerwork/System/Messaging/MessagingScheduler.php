@@ -10,6 +10,7 @@ use Boilerwork\System\Messaging\MessagingClientInterface;
 use Boilerwork\System\Messaging\MessagingProviderInterface;
 use Boilerwork\System\Messaging\Message;
 use DateTime;
+use Exception;
 use Swoole\Process;
 
 final class MessagingScheduler implements IsProcessInterface
@@ -35,7 +36,16 @@ final class MessagingScheduler implements IsProcessInterface
 
         $this->process = (new Process(
             callback: function () use ($messageClient, $topics) {
+
                 $consumer = $messageClient->subscribe(topics: $topics);
+
+                if ($consumer === null) {
+                    echo "\n\n########\nERROR CONNECTING TO KAFKA BROKER\n########\n\n ";
+                    unset($consumer);
+                    throw new \Swoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
+                    return;
+                }
+
                 while (true) {
                     $messageReceived = $consumer->consume($messageClient::TIMEOUT * 1000);
                     switch ($messageReceived->err) {
@@ -68,8 +78,8 @@ final class MessagingScheduler implements IsProcessInterface
                             break;
                         default:
                             error($messageReceived->errstr());
-                            var_dump($messageReceived);
-                            // throw new \Exception($message->errstr(), $message->err);
+                            // var_dump($messageReceived);
+                            throw new \Swoole\Exception($messageReceived->errstr(), $messageReceived->err);
                             break;
                     }
                 }
@@ -77,6 +87,7 @@ final class MessagingScheduler implements IsProcessInterface
             enableCoroutine: true
         ));
     }
+
 
     public function process(): Process
     {

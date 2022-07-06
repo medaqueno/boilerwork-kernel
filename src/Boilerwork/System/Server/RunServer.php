@@ -41,6 +41,11 @@ final class RunServer
             [$handleWorkers, 'onWorkerStop']
         );
 
+        $this->server->on(
+            "WorkerError",
+            [$handleWorkers, 'onWorkerError']
+        );
+
         $handleTasks = new HandleTasks();
         $this->server->on(
             "task",
@@ -82,7 +87,7 @@ final class RunServer
                 }
             );
         }
-
+        // var_dump($processes);
         // Add dedicated processes to Server Event Loop
         if (count($processes) > 0) {
             foreach ($processes as $process) {
@@ -91,7 +96,7 @@ final class RunServer
         }
 
         getMemoryStatus();
-
+        // var_dump($this->server);
         $this->server->start();
     }
 
