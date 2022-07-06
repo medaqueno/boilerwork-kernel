@@ -20,7 +20,7 @@ final class MessagingScheduler implements IsProcessInterface
         private MessagingProviderInterface $subscriptionProvider
     ) {
         $topics = [];
-        $messageClient = container()->getInstance()->get(MessagingClientInterface::class);
+        $messageClient = \Boilerwork\System\Container\Container::getInstance()->get(MessagingClientInterface::class);
 
         // Safe check: No consumer subscriptions, create empty process that will be attached to Server
         if (count($this->subscriptionProvider->getSubscriptions()) === 0) {
@@ -54,7 +54,7 @@ final class MessagingScheduler implements IsProcessInterface
                                     );
 
                                     go(function () use ($message, $item) {
-                                        $class = container()->getInstance()->get($item['target']);
+                                        $class = \Boilerwork\System\Container\Container::getInstance()->get($item['target']);
                                         call_user_func($class, $message);
                                     });
                                 }

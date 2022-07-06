@@ -34,7 +34,10 @@
   "autoload": {
     "psr-4": {
       "Boilerwork\\": "src/Boilerwork/"
-    }
+    },
+    "files": [
+      "src/Boilerwork/Helpers/functions.php"
+    ]
   },
   "authors": [
     {
