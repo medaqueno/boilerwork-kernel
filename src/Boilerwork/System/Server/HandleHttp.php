@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\System\Server;
 
-use Boilerwork\Domain\CustomAssertionFailedException;
+use Boilerwork\Domain\Exceptions\CustomAssertionFailedException;
 use Boilerwork\Helpers\Environments;
 use Boilerwork\System\Http\Request;
 use Boilerwork\System\Http\Response;
@@ -19,11 +19,23 @@ use Swoole\Http\Response as SwooleResponse;
 final class HandleHttp
 {
     private \FastRoute\Dispatcher $httpDispatcher;
+    private \FastRoute\RouteCollector $r;
+    private array $routes;
 
     public function __construct(string $routesPath)
     {
         // Init Routing
         $this->httpDispatcher = $this->initRouting($routesPath);
+    }
+
+    public function getRouteCollector(): \FastRoute\RouteCollector
+    {
+        return $this->r;
+    }
+
+    public function getRoutes(): array
+    {
+        return $this->routes;
     }
 
     private function initRouting(string $routesPath): \FastRoute\Dispatcher
@@ -32,9 +44,13 @@ final class HandleHttp
         return \FastRoute\simpleDispatcher(
             function (\FastRoute\RouteCollector $r) use ($routesPath) {
                 $routes = include($routesPath);
+                $this->routes = $routes;
+                // var_dump($routes);
                 foreach ($routes as $route) {
                     $r->addRoute($route[0], $route[1], $route[2]);
                 }
+
+                $this->r = $r;
             }
         );
     }
@@ -138,6 +154,10 @@ final class HandleHttp
                 $result = Response::empty(405);
                 break;
             case \FastRoute\Dispatcher::FOUND:
+
+                $this->checkMiddlewares(request: $request, uri: $request_uri, method: $request_method);
+
+
                 if (is_array($handler)) {
                     // Custom method in class
                     $className = $handler[0];
@@ -165,5 +185,21 @@ final class HandleHttp
         }
 
         return $result;
+    }
+
+    private function checkMiddlewares(Request $request, $uri, $method): void
+    {
+        foreach ($this->getRoutes() as $item) {
+            if (isset($item[3]) && count($item[3]) > 0 && $item[0] === $method && $item[1] === $uri) {
+
+                foreach ($item[3] as $middleware) {
+                    try {
+                        (\Boilerwork\System\Container\Container::getInstance()->get($middleware))($request);
+                    } catch (\Illuminate\Container\EntryNotFoundException $e) {
+                        throw new \RuntimeException('Middleware class not found in container', 500, $e);
+                    }
+                }
+            }
+        }
     }
 }

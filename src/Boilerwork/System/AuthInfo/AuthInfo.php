@@ -3,11 +3,11 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Domain;
+namespace Boilerwork\System\AuthInfo;
 
 use Boilerwork\Domain\ValueObjects\Identity;
 
-final class AuthInfo
+class AuthInfo
 {
     public function __construct(
         public readonly Identity $userId,

@@ -9,7 +9,8 @@ use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Boilerwork\Domain\ValueObjects\Identity;
-use Boilerwork\Domain\AuthInfo;
+use Boilerwork\System\AuthInfo\AuthInfo;
+use Boilerwork\System\AuthInfo\AuthInfoNotFound;
 
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17, Psr\Http\Message\ServerRequestInterface
@@ -36,7 +37,7 @@ class Request extends ServerRequest implements ServerRequestInterface
             protocol: '1.1'
         );
 
-        container()->instance('AuthInfo', $this->getAuthInfo());
+        $this->setAuthInfo();
     }
 
     private function parseBody(SwooleRequest $request): array
@@ -67,15 +68,29 @@ class Request extends ServerRequest implements ServerRequestInterface
     }
 
     /**
+     * Adds AuthInfo in the Container
+     **/
+    public function setAuthInfo(): void
+    {
+        container()->instance('AuthInfo', $this->getAuthInfo());
+    }
+
+    /**
      * Return user metadata relative.
      **/
     public function getAuthInfo(): AuthInfo
     {
-        return new AuthInfo(
-            userId: new Identity($this->getHeaderLine('userId')),
-            permissions: explode(',', $this->getHeaderLine('permissions')),
-            tenantId: new Identity($this->getHeaderLine('tenantId')),
-            region: $this->getHeaderLine('region') ?: null,
-        );
+        try {
+            $response =  new AuthInfo(
+                userId: new Identity($this->getHeaderLine('userId')),
+                permissions: explode(',', $this->getHeaderLine('permissions')),
+                tenantId: new Identity($this->getHeaderLine('tenantId')),
+                region: $this->getHeaderLine('region') ?: null,
+            );
+        } catch (\Exception $e) {
+            $response = new AuthInfoNotFound();
+        }
+
+        return $response;
     }
 }

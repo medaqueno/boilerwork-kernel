@@ -100,13 +100,10 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
             foreach ($consumer->getMetadata(true, null, 10000)->getTopics() as $topic) {
                 $partitionsInfo[$topic->getTopic()] = count($topic->getPartitions());
             }
-            var_dump($partitionsInfo);
         } catch (\Throwable $th) {
             $this->isWorking = false;
             return null;
         }
-
-
 
         // Subscribe to topic
         $consumer->subscribe(array_unique($topics));

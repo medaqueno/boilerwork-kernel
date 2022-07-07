@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Boilerwork\Domain\AuthInfo;
+use Boilerwork\System\AuthInfo\AuthInfo;
 
 if (!function_exists('getMemoryStatus')) {
     // Monitor memory

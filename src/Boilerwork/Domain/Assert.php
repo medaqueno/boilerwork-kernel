@@ -9,6 +9,6 @@ use Assert\Assert as BaseAssertion;
 
 class Assert extends BaseAssertion
 {
-    protected static $lazyAssertionExceptionClass = '\Boilerwork\Domain\CustomAssertionFailedException';
-    // protected static $exceptionClass = '\Boilerwork\Domain\CustomAssertionFailedException';
+    protected static $lazyAssertionExceptionClass = '\Boilerwork\Domain\Exceptions\CustomAssertionFailedException';
+    // protected static $exceptionClass = '\Boilerwork\Domain\Exceptions\CustomAssertionFailedException';
 }
