@@ -8,12 +8,14 @@ namespace Boilerwork\System\Http;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Request as SwooleRequest;
+use Boilerwork\Domain\ValueObjects\Identity;
+use Boilerwork\Domain\AuthInfo;
 
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17, Psr\Http\Message\ServerRequestInterface
  * https://docs.laminas.dev/laminas-diactoros/v2/overview/
  **/
-class Request extends ServerRequest
+class Request extends ServerRequest implements ServerRequestInterface
 {
     /**
      * Builds Psr\Http\Message\ServerRequestInterface
@@ -33,6 +35,8 @@ class Request extends ServerRequest
             parsedBody: $this->parseBody($swooleRequest),
             protocol: '1.1'
         );
+
+        container()->instance('AuthInfo', $this->getAuthInfo());
     }
 
     private function parseBody(SwooleRequest $request): array
@@ -55,18 +59,23 @@ class Request extends ServerRequest
     }
 
     /**
-     * Return all input received in body or post
-     **/
-    public function all(): null|array|object
-    {
-        return $this->getParsedBody();
-    }
-
-    /**
      * Return specific input received in body or post
      **/
     public function input(string|int $key): mixed
     {
         return $this->getParsedBody()[$key] ?? null;
+    }
+
+    /**
+     * Return user metadata relative.
+     **/
+    public function getAuthInfo(): AuthInfo
+    {
+        return new AuthInfo(
+            userId: new Identity($this->getHeaderLine('userId')),
+            permissions: explode(',', $this->getHeaderLine('permissions')),
+            tenantId: new Identity($this->getHeaderLine('tenantId')),
+            region: $this->getHeaderLine('region') ?: null,
+        );
     }
 }
