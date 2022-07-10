@@ -52,8 +52,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         $this->client->getConnection();
         $this->client->initTransaction();
 
-        $result = $this->client->run('SELECT "version" FROM "aggregates" WHERE "aggregate_id" = $1', [$aggregateId]);
-        $currentPersistedAggregate =  $this->client->fetchOne($result);
+        $currentPersistedAggregate =  $this->client->fetchOne('SELECT "version" FROM "aggregates" WHERE "aggregate_id" = $1', [$aggregateId]);
 
         if (!$currentPersistedAggregate) {
             $version = 0;
@@ -95,7 +94,6 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         );
 
         $this->client->endTransaction();
-
         $this->client->putConnection();
     }
 
@@ -106,16 +104,14 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
     {
         $this->client->getConnection();
 
-        $query = $this->client->run('SELECT "data", "aggregate_type" FROM "events" WHERE "aggregate_id" = $1 ORDER BY "version"', [$aggregateId->toPrimitive()]);
-        $array  = $this->client->fetchAll($query);
-
+        $eventStream  = $this->client->fetchAll('SELECT "data", "aggregate_type" FROM "events" WHERE "aggregate_id" = $1 ORDER BY "version"', [$aggregateId->toPrimitive()]);
         $this->client->putConnection();
 
-        if (count($array) === 0) {
+        if (count($eventStream) === 0) {
             throw new \Exception(sprintf('No aggregate has been found with aggregateId: %s', $aggregateId->toPrimitive()), 404);
         }
 
-        $aggregateType = $array[0]['aggregate_type'];
+        $aggregateType = $eventStream[0]['aggregate_type'];
 
         return $aggregateType::reconstituteFrom(
             new AggregateHistory(
@@ -123,7 +119,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
                 // Only extract Data column specific to a Domain Event
                 array_map(function (array $event) {
                     return json_decode($event['data'], true);
-                }, $array)
+                }, $eventStream)
             )
         );
     }

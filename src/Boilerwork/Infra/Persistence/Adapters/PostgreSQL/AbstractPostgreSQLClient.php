@@ -81,8 +81,9 @@ class AbstractPostgreSQLClient
         return $result;
     }
 
-    public function fetchAll($result): array
+    public function fetchAll(string $query, array $args = []): array
     {
+        $result = $this->run($query, $args);
         return $this->conn->fetchAll($result);
         // $resp = [];
         // while ($row = $this->conn->fetchRow($result)) {
@@ -92,8 +93,9 @@ class AbstractPostgreSQLClient
         // return $resp;
     }
 
-    public function fetchOne($result): ?array
+    public function fetchOne(string $query, array $args = []): ?array
     {
+        $result = $this->run($query, $args);
         return $this->conn->fetchAssoc($result) ?: null;
     }
 
@@ -112,14 +114,12 @@ class AbstractPostgreSQLClient
 
     public function initTransaction(): void
     {
-        // $this->getConnection();
         $this->conn->query('BEGIN');
     }
 
     public function endTransaction(): void
     {
         $this->conn->query('COMMIT');
-        // $this->putConnection($this->conn);
     }
 
     public function status()
