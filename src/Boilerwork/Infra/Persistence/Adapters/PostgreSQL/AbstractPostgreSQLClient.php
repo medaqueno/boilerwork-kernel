@@ -92,6 +92,11 @@ class AbstractPostgreSQLClient
         // return $resp;
     }
 
+    public function fetchOne($result): ?array
+    {
+        return $this->conn->fetchAssoc($result) ?: null;
+    }
+
     private function prepare(string $query): string
     {
         $queryName = (string)(uniqid());

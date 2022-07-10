@@ -3,20 +3,22 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Infra\Persistence\Adapters\PostgreSQL;
+namespace Boilerwork\Infra\Persistence\Adapters\InMemory;
 
 use Boilerwork\Domain\AggregateHistory;
 use Boilerwork\Domain\IsEventSourced;
 use Boilerwork\Domain\ValueObjects\Identity;
 use Boilerwork\Infra\Persistence\EventStore;
-use Boilerwork\Infra\Persistence\Adapters\PostgreSQL\PostgreSQLWritesClient;
 
-abstract class PostgreSQLEventStoreAdapter implements EventStore
+abstract class InMemoryEventStoreAdapter implements EventStore
 {
-    public function __construct(
-        private readonly PostgreSQLWritesClient $client
-    ) {
-    }
+    /**
+     *  Store events in memory
+     **/
+    private array $memory = [
+        'aggregates' => [],
+        'events' => [],
+    ];
 
     /**
      * {@inheritDoc}
@@ -49,25 +51,24 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         $aggregateId = $aggregate->getAggregateId();
         $events = $aggregate->getRecordedEvents();
 
-        $this->client->getConnection();
-        $this->client->initTransaction();
-
-        $result = $this->client->run('SELECT "version" FROM "aggregates" WHERE "aggregate_id" = $1', [$aggregateId]);
-        $currentPersistedAggregate =  $this->client->fetchOne($result);
+        // Retrieve events by aggregateId. Same as select <fields> where aggregateId = <aggregateId>;
+        $currentPersistedAggregate = array_filter(
+            $this->memory['aggregates'],
+            function ($event) use ($aggregateId) {
+                return $event[0] === $aggregateId;
+            }
+        );
 
         if (!$currentPersistedAggregate) {
             $version = 0;
 
-            $this->client->run(
-                'INSERT INTO "aggregates" ("aggregate_id", "type", "version") VALUES($1, $2, $3)',
-                [
-                    $aggregateId,
-                    get_class($aggregate),
-                    $version // Will be updated after persisting events
-                ]
-            );
+            $this->memory['aggregates'][] = [
+                $aggregateId,
+                get_class($aggregate),
+                $version,
+            ];
         } else {
-            $version = $currentPersistedAggregate['version'];
+            $version = $currentPersistedAggregate[0][2];
         }
 
         if ($version + count($events) !== $aggregate->currentVersion()) {
@@ -75,28 +76,20 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         }
 
         foreach ($events as $event) {
-            $this->client->run(
-                'INSERT INTO "events" ("aggregate_id", "aggregate_type", "data", "version") VALUES($1, $2, $3, $4)',
-                [
-                    $event->getAggregateId(),
-                    get_class($aggregate),
-                    json_encode($event->serialize()),
-                    $aggregate->currentVersion()
-                ]
-            );
+            $this->memory['events'][] = [
+                $event->getAggregateId(),
+                get_class($aggregate),
+                json_encode($event->serialize()),
+                $aggregate->currentVersion()
+            ];
         }
 
-        $this->client->run(
-            'UPDATE "aggregates" SET "version" = $1 WHERE "aggregate_id" = $2',
-            [
-                $aggregate->currentVersion(),
-                $aggregateId
-            ],
-        );
-
-        $this->client->endTransaction();
-
-        $this->client->putConnection();
+        foreach ($this->memory['aggregates'] as $key => $value) {
+            if ($value[0] === $aggregateId) {
+                $this->memory['aggregates'][$key][2] = $aggregate->currentVersion();
+                break;
+            }
+        }
     }
 
     /**
@@ -104,26 +97,28 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
      **/
     public function reconstituteHistoryFor(Identity $aggregateId): IsEventSourced
     {
-        $this->client->getConnection();
+        $aggregateIdParsed =  $aggregateId->toPrimitive();
+        // Filter events by aggregateID And map them to be reconstituted
+        $eventStream = array_filter( // Retrieve events by aggregateId. Same as select <fields> where aggregateId = <aggregateId>;
+            $this->memory['events'],
+            function (array $event) use ($aggregateIdParsed) {
+                return $event[0] === $aggregateIdParsed;
+            }
+        );
 
-        $query = $this->client->run('SELECT "data", "aggregate_type" FROM "events" WHERE "aggregate_id" = $1 ORDER BY "version"', [$aggregateId->toPrimitive()]);
-        $array  = $this->client->fetchAll($query);
-
-        $this->client->putConnection();
-
-        if (count($array) === 0) {
-            throw new \Exception(sprintf('No aggregate has been found with aggregateId: %s', $aggregateId->toPrimitive()), 404);
+        if (count($eventStream) === 0) {
+            throw new \Exception(sprintf('No aggregate has been found with aggregateId: %s', $aggregateIdParsed), 404);
         }
 
-        $aggregateType = $array[0]['aggregate_type'];
+        $aggregateType = $eventStream[0][1];
 
         return $aggregateType::reconstituteFrom(
             new AggregateHistory(
                 $aggregateId,
                 // Only extract Data column specific to a Domain Event
                 array_map(function (array $event) {
-                    return json_decode($event['data'], true);
-                }, $array)
+                    return json_decode($event[2], true);
+                }, $eventStream)
             )
         );
     }
