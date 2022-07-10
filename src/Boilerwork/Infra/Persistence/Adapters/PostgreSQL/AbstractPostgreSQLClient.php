@@ -22,8 +22,7 @@ use Swoole\Coroutine\PostgreSQL;
  * @example
         $pgClient = new PostgreSQLClient();
         $pgClient->getConnection();
-        $query = $pgClient->run('select * from events where "aggregateId" = $1', ["1e1ec9be-2c19-48c5-9580-5de4088cbcf6"]);
-        $arr = $pgClient->fetchAll($query);
+        $arr = $pgClient->fetchAll('select * from events where "aggregateId" = $1', ["1e1ec9be-2c19-48c5-9580-5de4088cbcf6"]);
         var_dump($arr);
         $pgClient->putConnection();
  *
