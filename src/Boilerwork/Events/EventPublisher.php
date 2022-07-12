@@ -34,7 +34,6 @@ final class EventPublisher
     {
         // Ds\Queue -> destructive iteration
         foreach ($this->events as $event) {
-
             // Publish public events as Messages to Brokers
             go(function () use ($event) {
                 try {
@@ -42,7 +41,7 @@ final class EventPublisher
 
                     $messagingClient->publish(
                         message: json_encode($event->serialize()),
-                        topic: $event->getTopic(),
+                        topic: sprintf('%s-%s', $_ENV['APP_ENV'], $event->getTopic()),
                     );
                 } catch (RuntimeException $e) {
                     error($e->getMessage(), RuntimeException::class);

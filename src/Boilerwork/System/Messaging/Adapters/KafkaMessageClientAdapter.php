@@ -94,7 +94,6 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
 
         $consumer = new \RdKafka\KafkaConsumer($conf);
 
-
         try {
             $partitionsInfo = [];
             foreach ($consumer->getMetadata(true, null, 10000)->getTopics() as $topic) {

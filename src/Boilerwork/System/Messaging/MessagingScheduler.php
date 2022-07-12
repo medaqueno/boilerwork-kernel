@@ -31,8 +31,11 @@ final class MessagingScheduler implements IsProcessInterface
         }
 
         foreach ($this->subscriptionProvider->getSubscriptions() as $item) {
-            $topics[] = $item['topic'];
+            $topics[] = sprintf('%s-%s', $_ENV['APP_ENV'], $item['topic']);
         }
+
+        echo "\nMessagingScheduler Topics Subscription Active:\n";
+        var_dump($topics);
 
         $this->process = (new Process(
             callback: function () use ($messageClient, $topics) {
@@ -52,7 +55,9 @@ final class MessagingScheduler implements IsProcessInterface
                         case RD_KAFKA_RESP_ERR_NO_ERROR:
                             foreach ($this->subscriptionProvider->getSubscriptions() as $item) {
 
-                                if ($messageReceived->topic_name === $item['topic']) {
+                                $topicReceived = explode('-', $messageReceived->topic_name)[1];
+
+                                if ($topicReceived === $item['topic']) {
 
                                     $message = new Message(
                                         payload: $messageReceived->payload,
