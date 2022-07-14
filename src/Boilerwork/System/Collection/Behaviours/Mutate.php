@@ -54,9 +54,11 @@ trait Mutate
     {
         foreach ($value as $item) {
             if ($this->contains($item)) {
+
                 throw new \Exception(sprintf(
-                    'The set already contains a value with type "%s" at key "%s"',
-                    is_object($value) ? get_class($value) : gettype($value),
+                    'The set already contains a value: "%s" at key "%s"',
+                    $item,
+                    // is_object($value) ? get_class($value) : gettype($value),
                     $this->keys($item)->first()
                 ));
             }
