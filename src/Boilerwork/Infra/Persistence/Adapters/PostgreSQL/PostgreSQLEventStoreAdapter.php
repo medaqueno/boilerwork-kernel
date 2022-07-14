@@ -49,6 +49,10 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         $aggregateId = $aggregate->getAggregateId();
         $events = $aggregate->getRecordedEvents();
 
+        if (count($events) === 0) {
+            throw new \Boilerwork\Infra\Persistence\Exceptions\PersistenceException(sprintf("No events found in aggregate %s. Nothing will be persisted.", $aggregateId), 409);
+        }
+
         $this->client->getConnection();
         $this->client->initTransaction();
 

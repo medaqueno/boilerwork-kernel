@@ -86,17 +86,10 @@ trait Query
         return $this->notMatching($criteria);
     }
 
-
-    public function toArray(): array
-    {
-        return $this->all();
-    }
-
     public function all(): array
     {
         return $this->items;
     }
-
 
     /**
      * Returns true if value is in the collection
