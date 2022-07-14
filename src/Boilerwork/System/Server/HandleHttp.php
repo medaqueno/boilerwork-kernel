@@ -7,6 +7,7 @@ namespace Boilerwork\System\Server;
 
 use Boilerwork\Domain\Exceptions\CustomAssertionFailedException;
 use Boilerwork\Helpers\Environments;
+use Boilerwork\System\AuthInfo\AuthInfoNotFound;
 use Boilerwork\System\Http\Request;
 use Boilerwork\System\Http\Response;
 use Psr\Http\Message\ResponseInterface;
@@ -92,6 +93,17 @@ final class HandleHttp
                         "code" => "validationError",
                         "message" => "Request is invalid or malformed",
                         "errors" => json_decode($e->getMessage())
+                    ]
+                ];
+            } else if ($e instanceof AuthInfoNotFound) {
+                // var_dump($e->getErrorExceptions());
+                $response->setStatusCode($e->getCode());
+                $result = [
+                    "error" =>
+                    [
+                        "code" => "authInfoError",
+                        "message" => $e->getMessage(),
+                        "errors" => []
                     ]
                 ];
             } else {
