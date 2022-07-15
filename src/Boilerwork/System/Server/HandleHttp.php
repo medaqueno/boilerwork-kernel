@@ -123,7 +123,7 @@ final class HandleHttp
                         "message" =>  $e->getMessage(),
                         "file" => $e->getFile(),
                         "line" => $e->getLine(),
-                        // "trace" => $e->getTrace(),
+                        "trace" => $_ENV['TRACE_ERRORS'] ?? $e->getTrace(),
                     ]);
                 }
             }
