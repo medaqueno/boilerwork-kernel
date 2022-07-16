@@ -68,10 +68,8 @@ final class MessagingScheduler implements IsProcessInterface
                                         headers: $messageReceived->headers,
                                     );
 
-                                    go(function () use ($message, $item) {
-                                        $class = \Boilerwork\System\Container\Container::getInstance()->get($item['target']);
-                                        call_user_func($class, $message);
-                                    });
+                                    $class = container()->get($item['target']);
+                                    call_user_func($class, $message);
                                 }
                             }
                             break;
