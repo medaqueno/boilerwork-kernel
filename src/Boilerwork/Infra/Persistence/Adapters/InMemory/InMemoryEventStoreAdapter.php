@@ -84,7 +84,7 @@ abstract class InMemoryEventStoreAdapter implements EventStore
                 $event->getAggregateId(),
                 get_class($aggregate),
                 json_encode($event->serialize()),
-                $aggregate->currentVersion()
+                ++$version
             ];
         }
 
