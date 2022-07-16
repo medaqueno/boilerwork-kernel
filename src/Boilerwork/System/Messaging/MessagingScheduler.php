@@ -55,7 +55,7 @@ final class MessagingScheduler implements IsProcessInterface
                         case RD_KAFKA_RESP_ERR_NO_ERROR:
                             foreach ($this->subscriptionProvider->getSubscriptions() as $item) {
 
-                                $topicReceived = explode('-', $messageReceived->topic_name)[1];
+                                $topicReceived = explode('__', $messageReceived->topic_name)[1];
 
                                 if ($topicReceived === $item['topic']) {
 
