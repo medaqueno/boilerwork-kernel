@@ -41,7 +41,7 @@ final class EventPublisher
 
                     $messagingClient->publish(
                         message: json_encode($event->serialize()),
-                        topic: sprintf('%s-%s', $_ENV['APP_ENV'], $event->getTopic()),
+                        topic: sprintf('%s__%s', $_ENV['APP_ENV'], $event->getTopic()),
                     );
                 } catch (RuntimeException $e) {
                     error($e->getMessage(), RuntimeException::class);

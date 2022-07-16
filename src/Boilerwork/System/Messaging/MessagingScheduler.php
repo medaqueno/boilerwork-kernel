@@ -31,7 +31,7 @@ final class MessagingScheduler implements IsProcessInterface
         }
 
         foreach ($this->subscriptionProvider->getSubscriptions() as $item) {
-            $topics[] = sprintf('%s-%s', $_ENV['APP_ENV'], $item['topic']);
+            $topics[] = sprintf('%s__%s', $_ENV['APP_ENV'], $item['topic']);
         }
 
         echo "\nMessagingScheduler Topics Subscription Active:\n";
