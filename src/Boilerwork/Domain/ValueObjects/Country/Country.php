@@ -60,12 +60,23 @@ final class Country extends ValueObject
 
     public function equals(ValueObject $object): bool
     {
-        return true;
-        // return $this->iso31661Alpha2Code->sameValueAs($object->iso31661Alpha2Code()) && $this->iso31661Alpha3Code->sameValueAs($object->iso31661Alpha3Code()) && $this->englishName->sameValueAs($object->englishName()) && $this->phoneNumberPrefix->sameValueAs($object->phoneNumberPrefix);
+        return $this->iso31661Alpha2Code->toPrimitive() === $object->iso31661Alpha2Code->toPrimitive()
+            && $this->iso31661Alpha3Code->toPrimitive() === $object->iso31661Alpha3Code->toPrimitive()
+            && $this->englishName === $object->englishName
+            && $object instanceof self;
     }
 
     public function toPrimitive(): string
     {
         return $this->iso31661Alpha2Code()->toPrimitive();
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'iso31661Alpha2Code' => $this->iso31661Alpha2Code()->toPrimitive(),
+            'iso31661Alpha3Code' => $this->iso31661Alpha3Code()->toPrimitive(),
+            'englishName' => $this->englishName(),
+        ];
     }
 }
