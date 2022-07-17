@@ -30,6 +30,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         //If you need to produce exactly once and want to keep the original produce order, uncomment the line below
         $conf->set('enable.idempotence', 'true');
 
+        $conf->set('client.id', $_ENV['APP_ENV'] . '-' . $_ENV['APP_NAME']);
         // $conf->set('transactional.id', 'HERE_ID');
 
         $producer = new \RdKafka\Producer($conf);
@@ -83,6 +84,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         // Configure the group.id. All consumer with the same group.id will consume
         // different partitions.
         $conf->set('group.id', $_ENV['APP_ENV'] . '-' .  $_ENV['APP_NAME']);
+        $conf->set('client.id', $_ENV['APP_ENV'] . '-' .  $_ENV['APP_NAME']);
 
         // Initial list of Kafka brokers
         $conf->set('metadata.broker.list', $_ENV['MESSAGE_BROKER_HOST'] . ':' . $_ENV['MESSAGE_BROKER_PORT']);
@@ -91,26 +93,57 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         // offset store or the desired offset is out of range.
         // 'earliest': start from the beginning
         $conf->set('auto.offset.reset', 'latest');
+        $conf->set('allow.auto.create.topics', 'true'); // Need to check if really works or must be applied on broker
 
         $consumer = new \RdKafka\KafkaConsumer($conf);
 
-
         try {
             $partitionsInfo = [];
+            $existingTopics = [];
             foreach ($consumer->getMetadata(true, null, 10000)->getTopics() as $topic) {
                 $partitionsInfo[$topic->getTopic()] = count($topic->getPartitions());
+                $existingTopics[] = $topic->getTopic();
             }
         } catch (\Throwable $th) {
             $this->isWorking = false;
             return null;
         }
 
-        // Subscribe to topic
+        $this->preCreateTopics($consumer, $topics, $existingTopics);
+
+        // // Subscribe to topic
         $consumer->subscribe(array_unique($topics));
 
         echo "Waiting for Kafka partition assignment... (make take some time when\n";
         echo "quickly re-joining the group after leaving it.)\n";
 
         return $consumer;
+    }
+
+    private function preCreateTopics($consumer, $topics, $existingTopics)
+    {
+        $filtered = array_filter($topics, function ($item) use ($existingTopics) {
+            return !in_array($item, $existingTopics);
+        });
+        echo "\n Topics to be auto created in Kafka:\n";
+        var_dump($filtered);
+
+        if (count($filtered) === 0) {
+            return;
+        }
+
+        $conf = new \RdKafka\Conf();
+        $conf->set('metadata.broker.list', $_ENV['MESSAGE_BROKER_HOST'] . ':' . $_ENV['MESSAGE_BROKER_PORT']);
+        $producer = new \RdKafka\Producer($conf);
+        foreach ($filtered as $item) {
+            $topic = $producer->newTopic($item);
+            $topic->produce(RD_KAFKA_PARTITION_UA, 0, '');
+        }
+        for ($flushRetries = 0; $flushRetries < 10; $flushRetries++) {
+            $result = $producer->flush(10000);
+            if (RD_KAFKA_RESP_ERR_NO_ERROR === $result) {
+                break;
+            }
+        }
     }
 }

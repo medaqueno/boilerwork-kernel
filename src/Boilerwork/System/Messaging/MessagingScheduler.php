@@ -24,11 +24,11 @@ final class MessagingScheduler implements IsProcessInterface
         $messageClient = \Boilerwork\System\Container\Container::getInstance()->get(MessagingClientInterface::class);
 
         // Safe check: No consumer subscriptions, create empty process that will be attached to Server
-        if (count($this->subscriptionProvider->getSubscriptions()) === 0) {
-            $this->process = (new Process(function () {
-            }));
-            return;
-        }
+        // if (count($this->subscriptionProvider->getSubscriptions()) === 0) {
+        //     $this->process = (new Process(function () {
+        //     }));
+        //     return;
+        // }
 
         foreach ($this->subscriptionProvider->getSubscriptions() as $item) {
             $topics[] = sprintf('%s__%s', $_ENV['APP_ENV'], $item['topic']);
@@ -57,7 +57,8 @@ final class MessagingScheduler implements IsProcessInterface
 
                                 $topicReceived = explode('__', $messageReceived->topic_name)[1];
 
-                                if ($topicReceived === $item['topic']) {
+                                // Empty Payload checks if message is a test or only used to pre-create topic
+                                if ($topicReceived === $item['topic'] && $messageReceived->payload !== '') {
 
                                     $message = new Message(
                                         payload: $messageReceived->payload,
