@@ -25,17 +25,17 @@ abstract class PersonName extends ValueObject
     ) {
         Assert::lazy()->tryAll()
             ->that($firstName)
-            ->regex($this->latinUnicodePattern, 'Only latin unicode letters and - \' allowed', 'personName.invalidValue')
-            ->maxLength(64, 'Maximum 64 characters length', 'personName.maxLength')
+            ->regex($this->latinUnicodePattern, 'Only latin unicode letters and - \' allowed', 'personNameFirstName.invalidValue')
+            ->maxLength(32, 'Maximum 32 characters length', 'personNameFirstName.maxLength')
             ->that($lastName)
-            ->regex($this->latinUnicodePattern, 'Only latin unicode letters and - \' allowed', 'personName.invalidValue')
-            ->maxLength(64, 'Maximum 64 characters length', 'personName.maxLength')
+            ->regex($this->latinUnicodePattern, 'Only latin unicode letters and - \' allowed', 'personNameLastName.invalidValue')
+            ->maxLength(32, 'Maximum 32 characters length', 'personNameLastName.maxLength')
             ->that($middleName)
-            ->regex($this->latinUnicodeOrEmptyStringPattern, 'Only latin unicode letters and - \' allowed or empty string', 'personName.invalidValue')
-            ->maxLength(64, 'Maximum 64 characters length', 'personName.maxLength')
+            ->regex($this->latinUnicodeOrEmptyStringPattern, 'Only latin unicode letters and - \' allowed or empty string', 'personNameMiddleName.invalidValue')
+            ->maxLength(32, 'Maximum 32 characters length', 'personNameMiddleName.maxLength')
             ->that($lastName2)
-            ->regex($this->latinUnicodeOrEmptyStringPattern, 'Only latin unicode letters and - \' allowed or empty string', 'personName.invalidValue')
-            ->maxLength(64, 'Maximum 64 characters length', 'personName.maxLength')
+            ->regex($this->latinUnicodeOrEmptyStringPattern, 'Only latin unicode letters and - \' allowed or empty string', 'personNameLastName2.invalidValue')
+            ->maxLength(32, 'Maximum 32 characters length', 'personNameLastName2.maxLength')
             ->verifyNow();
     }
 
