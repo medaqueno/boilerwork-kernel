@@ -8,6 +8,7 @@ namespace Boilerwork\System\Server;
 use Boilerwork\Domain\Exceptions\CustomAssertionFailedException;
 use Boilerwork\Helpers\Environments;
 use Boilerwork\System\AuthInfo\AuthInfoNotFound;
+use Boilerwork\System\AuthInfo\Exceptions\AuthInfoException;
 use Boilerwork\System\Http\Request;
 use Boilerwork\System\Http\Response;
 use Psr\Http\Message\ResponseInterface;
@@ -84,8 +85,11 @@ final class HandleHttp
         } catch (\Throwable $e) {
             // error($e);
 
+            var_dump($e);
+            echo "\n\n";
+
             if ($e instanceof CustomAssertionFailedException || $e instanceof \Assert\InvalidArgumentException) {
-                // var_dump($e->getErrorExceptions());
+                var_dump($e->getMessage());
                 $response->setStatusCode(422);
                 $result = [
                     "error" =>
@@ -96,7 +100,6 @@ final class HandleHttp
                     ]
                 ];
             } else if ($e instanceof AuthInfoNotFound) {
-                $response->setStatusCode(401);
                 // var_dump($e->getErrorExceptions());
                 $response->setStatusCode($e->getCode());
                 $result = [
@@ -168,6 +171,7 @@ final class HandleHttp
                 break;
             case \FastRoute\Dispatcher::FOUND:
 
+                $this->checkAuthorization(uri: $request_uri, method: $request_method);
                 $this->checkMiddlewares(request: $request, uri: $request_uri, method: $request_method);
 
 
@@ -200,12 +204,25 @@ final class HandleHttp
         return $result;
     }
 
+    private function checkAuthorization($uri, $method): void
+    {
+        if (getAuthInfo() instanceof AuthInfoNotFound) {
+            throw new AuthInfoException();
+        }
+
+        foreach ($this->getRoutes() as $item) {
+            if (isset($item[3]) && $item[0] === $method && $item[1] === $uri) {
+                getAuthInfo()->hasPermission($item[3]) === true ?: throw new \Exception("User has not permission", 403);
+            }
+        }
+    }
+
     private function checkMiddlewares(Request $request, $uri, $method): void
     {
         foreach ($this->getRoutes() as $item) {
-            if (isset($item[3]) && count($item[3]) > 0 && $item[0] === $method && $item[1] === $uri) {
+            if (isset($item[4]) && count($item[4]) > 0 && $item[0] === $method && $item[1] === $uri) {
 
-                foreach ($item[3] as $middleware) {
+                foreach ($item[4] as $middleware) {
                     try {
                         (\Boilerwork\System\Container\Container::getInstance()->get($middleware))($request);
                     } catch (\Illuminate\Container\EntryNotFoundException $e) {

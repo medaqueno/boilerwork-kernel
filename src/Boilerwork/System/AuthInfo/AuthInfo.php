@@ -18,9 +18,11 @@ class AuthInfo
     ) {
     }
 
-    public function hasPermission(string $permission): bool
+    public function hasPermission(array $allowedPermissions): bool
     {
-        return in_array($permission, $this->permissions);
+        $result = array_filter($allowedPermissions, fn ($item) => in_array($item, $this->permissions) || $item === 'public');
+
+        return count($result) > 0;
     }
 
     public function serialize(): array
