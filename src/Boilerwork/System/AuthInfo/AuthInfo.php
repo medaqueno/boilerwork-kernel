@@ -13,6 +13,7 @@ class AuthInfo
         public readonly Identity $userId,
         public readonly array $permissions,
         public readonly Identity $tenantId,
+        public readonly Identity $transactionId,
         public readonly ?string $region,
     ) {
     }
@@ -28,6 +29,7 @@ class AuthInfo
             'userId' => $this->userId->toPrimitive(),
             'permissions' => $this->permissions,
             'tenantId' => $this->tenantId->toPrimitive(),
+            'transactionId' => $this->transactionId->toPrimitive(),
             'region' => $this->region,
         ];
     }

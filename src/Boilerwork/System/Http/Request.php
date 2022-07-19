@@ -85,6 +85,7 @@ class Request extends ServerRequest implements ServerRequestInterface
                 userId: new Identity($this->getHeaderLine('userId')),
                 permissions: explode(',', $this->getHeaderLine('permissions')),
                 tenantId: new Identity($this->getHeaderLine('tenantId')),
+                transactionId: $this->getHeaderLine('transactionId') ?: Identity::create(),
                 region: $this->getHeaderLine('region') ?: null,
             );
         } catch (\Exception $e) {
