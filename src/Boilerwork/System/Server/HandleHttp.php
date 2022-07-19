@@ -86,7 +86,7 @@ final class HandleHttp
 
             if ($e instanceof CustomAssertionFailedException || $e instanceof \Assert\InvalidArgumentException) {
                 // var_dump($e->getErrorExceptions());
-                $response->setStatusCode(400);
+                $response->setStatusCode(422);
                 $result = [
                     "error" =>
                     [
@@ -96,6 +96,7 @@ final class HandleHttp
                     ]
                 ];
             } else if ($e instanceof AuthInfoNotFound) {
+                $response->setStatusCode(401);
                 // var_dump($e->getErrorExceptions());
                 $response->setStatusCode($e->getCode());
                 $result = [
