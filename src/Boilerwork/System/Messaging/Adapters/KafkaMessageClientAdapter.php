@@ -65,8 +65,8 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         $conf->setRebalanceCb(function (\RdKafka\KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
                 case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
-                    echo "Assign: ";
-                    var_dump($partitions);
+                    echo "Assigned Partitions";
+                    // var_dump($partitions);
                     $kafka->assign($partitions);
                     break;
 

@@ -18,9 +18,18 @@ class AuthInfo
     ) {
     }
 
+    /**
+     * Check if User has permissions needed in the permissions provided.
+     * 
+     * CanOperateAll permission is checked automatically.
+     *
+     */
     public function hasPermission(array $allowedPermissions): bool
     {
-        $result = array_filter($allowedPermissions, fn ($item) => in_array($item, $this->permissions) || $item === 'public');
+        // Add Permission by default
+        array_push($allowedPermissions, 'CanOperateAll');
+
+        $result = array_filter($allowedPermissions, fn ($item) => in_array($item, $this->permissions) || $item === 'Public');
 
         return count($result) > 0;
     }
