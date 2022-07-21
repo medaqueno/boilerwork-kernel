@@ -54,6 +54,8 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
 
     public function subscribe(array $topics): ?\RdKafka\KafkaConsumer
     {
+
+
         if ($this->isWorking === false) {
             throw new \Swoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
             return null;
@@ -65,8 +67,8 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         $conf->setRebalanceCb(function (\RdKafka\KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
                 case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
-                    echo "Assigned Partitions";
-                    // var_dump($partitions);
+                    echo "Assign: ";
+                    var_dump($partitions);
                     $kafka->assign($partitions);
                     break;
 
@@ -111,8 +113,10 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
 
         $this->preCreateTopics($consumer, $topics, $existingTopics);
 
-        // // Subscribe to topic
-        $consumer->subscribe(array_unique($topics));
+        if (count($topics) > 0) {
+            // Subscribe to topics
+            $consumer->subscribe(array_unique($topics));
+        }
 
         echo "Waiting for Kafka partition assignment... (make take some time when\n";
         echo "quickly re-joining the group after leaving it.)\n";
@@ -125,7 +129,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         $filtered = array_filter($topics, function ($item) use ($existingTopics) {
             return !in_array($item, $existingTopics);
         });
-        echo "\n Topics to be auto created in Kafka:\n";
+        echo "\nTopics to be auto created in Kafka:\n";
         var_dump($filtered);
 
         if (count($filtered) === 0) {
