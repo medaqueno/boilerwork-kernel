@@ -10,7 +10,7 @@ namespace Boilerwork\Application\Permissions;
  */
 enum GenericPermissionsProvider: string
 {
-    case CAN_OPERATE_ALL = 'CanOperateAll';
+    case CAN_MANAGE_ALL = 'CanManageAll';
     case PUBLIC = 'Public';
 
     case CAN_ACCESS_WHOLESAVER = 'CanAccessWholesaver';
