@@ -21,7 +21,7 @@ final class MessagingScheduler implements IsProcessInterface
         private MessagingProviderInterface $subscriptionProvider
     ) {
         $topics = [];
-        $messageClient = \Boilerwork\System\Container\Container::getInstance()->get(MessagingClientInterface::class);
+        $messageClient = container()->get(MessagingClientInterface::class);
 
         // Safe check: No consumer subscriptions, create empty process that will be attached to Server
         // if (count($this->subscriptionProvider->getSubscriptions()) === 0) {

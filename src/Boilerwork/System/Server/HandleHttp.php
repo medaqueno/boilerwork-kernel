@@ -179,11 +179,11 @@ final class HandleHttp
                     // Custom method in class
                     $className = $handler[0];
                     $method = $handler[1];
-                    $class = \Boilerwork\System\Container\Container::getInstance()->get($className);
+                    $class = container()->get($className);
                     $result = $class->$method($request, $vars);
                 } else {
                     // invokable class  __invoke
-                    $result = (\Boilerwork\System\Container\Container::getInstance()->get($handler))($request, $vars);
+                    $result = (container()->get($handler))($request, $vars);
                     // $result = (new $handler)($request, $vars);
                 }
 
@@ -224,7 +224,7 @@ final class HandleHttp
 
                 foreach ($item[4] as $middleware) {
                     try {
-                        (\Boilerwork\System\Container\Container::getInstance()->get($middleware))($request);
+                        (container()->get($middleware))($request);
                     } catch (\Illuminate\Container\EntryNotFoundException $e) {
                         throw new \RuntimeException('Middleware class not found in container', 500, $e);
                     }

@@ -40,7 +40,7 @@ if (!function_exists('app')) {
 if (!function_exists('container')) {
     function container()
     {
-        return \Boilerwork\System\Container\Container::getInstance();
+        return container();
     }
 }
 

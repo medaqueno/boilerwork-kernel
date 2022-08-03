@@ -11,12 +11,13 @@ use Swoole\Http\Request as SwooleRequest;
 use Boilerwork\Domain\ValueObjects\Identity;
 use Boilerwork\System\AuthInfo\AuthInfo;
 use Boilerwork\System\AuthInfo\AuthInfoNotFound;
+use Boilerwork\System\AuthInfo\HasAuthInfo;
 
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17, Psr\Http\Message\ServerRequestInterface
  * https://docs.laminas.dev/laminas-diactoros/v2/overview/
  **/
-class Request extends ServerRequest implements ServerRequestInterface
+class Request extends ServerRequest implements ServerRequestInterface, HasAuthInfo
 {
     /**
      * Builds Psr\Http\Message\ServerRequestInterface

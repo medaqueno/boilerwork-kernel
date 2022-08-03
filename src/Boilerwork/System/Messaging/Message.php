@@ -5,9 +5,13 @@ declare(strict_types=1);
 
 namespace Boilerwork\System\Messaging;
 
+use Boilerwork\Domain\ValueObjects\Identity;
+use Boilerwork\System\AuthInfo\AuthInfo;
+use Boilerwork\System\AuthInfo\AuthInfoNotFound;
+use Boilerwork\System\AuthInfo\HasAuthInfo;
 use DateTimeInterface;
 
-final class Message
+final class Message implements HasAuthInfo
 {
     public function __construct(
         public readonly string $payload,
@@ -17,10 +21,40 @@ final class Message
         public readonly ?string $key,
         public readonly array $headers,
     ) {
+        $this->setAuthInfo();
     }
 
     public function getParsedPayload()
     {
         return json_decode($this->payload);
+    }
+
+    /**
+     * Adds AuthInfo in the Container
+     **/
+    public function setAuthInfo(): void
+    {
+        container()->instance('AuthInfo', $this->getAuthInfo());
+    }
+
+    /**
+     * Return user metadata relative.
+     **/
+    public function getAuthInfo(): AuthInfo
+    {
+        $payload = $this->getParsedPayload();
+        try {
+            $response =  new AuthInfo(
+                userId: new Identity($payload->metadata->userId),
+                permissions: $payload->metadata->permissions,
+                tenantId: new Identity($payload->metadata->tenantId),
+                transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
+                region: $payload->metadata->region,
+            );
+        } catch (\Exception $e) {
+            $response = new AuthInfoNotFound();
+        }
+
+        return $response;
     }
 }

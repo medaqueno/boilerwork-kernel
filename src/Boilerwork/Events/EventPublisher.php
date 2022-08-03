@@ -37,7 +37,7 @@ final class EventPublisher
             // Publish public events as Messages to Brokers
             go(function () use ($event) {
                 try {
-                    $messagingClient = \Boilerwork\System\Container\Container::getInstance()->get(\Boilerwork\System\Messaging\MessagingClientInterface::class);
+                    $messagingClient = container()->get(\Boilerwork\System\Messaging\MessagingClientInterface::class);
 
                     $messagingClient->publish(
                         message: json_encode($event->serialize()),
