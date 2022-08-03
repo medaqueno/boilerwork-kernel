@@ -31,6 +31,10 @@ final class CommandBus
      */
     public function handle(CommandInterface $command): void
     {
+        if (\Swoole\Coroutine::getCid() <= 1) {
+            throw new \RuntimeException("Already running inside a Coroutine (Experimental)");
+        }
+
         go(function () use ($command) {
             // With DI
             $commandHandler = container()->get(get_class($command) . 'Handler');
