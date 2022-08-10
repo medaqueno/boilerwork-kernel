@@ -11,7 +11,7 @@ use Boilerwork\Domain\Assert;
 /**
  * @internal
  **/
-abstract class Email extends ValueObject
+class Email extends ValueObject
 {
     public function __construct(
         public readonly string $value
