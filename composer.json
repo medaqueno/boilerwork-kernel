@@ -1,7 +1,7 @@
 {
   "name": "medaqueno/boilerwork-kernel",
   "description": "Boilerwork Kernel",
-  "type": "project",
+  "type": "library",
   "license": "MIT",
   "require": {
     "php": "^8.1.0",
