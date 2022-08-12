@@ -3,10 +3,10 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Messaging;
+namespace Boilerwork\Infra\Messaging;
 
 use Boilerwork\Application\CommandBus;
-use Boilerwork\System\Messaging\Message;
+use Boilerwork\Infra\Messaging\Message;
 
 abstract class AbstractMessageSubscriberPort
 {

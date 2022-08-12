@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\WebSocket;
+namespace Boilerwork\Infra\WebSocket;
 
 use Generator;
 use Swoole\Coroutine\Http\Client;

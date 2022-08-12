@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Messaging;
+namespace Boilerwork\Infra\Messaging;
 
 use Boilerwork\Domain\ValueObjects\Identity;
 use Boilerwork\System\AuthInfo\AuthInfo;

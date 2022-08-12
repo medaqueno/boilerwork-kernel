@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Messaging\Adapters;
+namespace Boilerwork\Infra\Messaging\Adapters;
 
-use Boilerwork\System\Messaging\MessagingClientInterface;
+use Boilerwork\Infra\Messaging\MessagingClientInterface;
 
 /**
  * Uses rdkafka extension and librdkafka library in order to work.
@@ -67,13 +67,13 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         $conf->setRebalanceCb(function (\RdKafka\KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
                 case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
-                    echo "Assign: \n";
+                    echo "-- Partitions Assigned --\n";
                     // var_dump($partitions);
                     $kafka->assign($partitions);
                     break;
 
                 case RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS:
-                    echo "Revoke: ";
+                    echo "Revoke Partitions: ";
                     var_dump($partitions);
                     $kafka->assign(NULL);
                     break;

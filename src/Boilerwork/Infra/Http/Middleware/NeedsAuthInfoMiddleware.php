@@ -3,12 +3,12 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Http\Middleware;
+namespace Boilerwork\Infra\Http\Middleware;
 
 use Boilerwork\System\AuthInfo\AuthInfoNotFound;
 use Boilerwork\System\AuthInfo\Exceptions\AuthInfoException;
-use Boilerwork\System\Http\Middleware\MiddlewareInterface;
-use Boilerwork\System\Http\Request;
+use Boilerwork\Infra\Http\Middleware\MiddlewareInterface;
+use Boilerwork\Infra\Http\Request;
 
 final class NeedsAuthInfoMiddleware implements MiddlewareInterface
 {

@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Messaging;
+namespace Boilerwork\Infra\Messaging;
 
 /**
  * Binded in Application container as singleton.

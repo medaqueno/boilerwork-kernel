@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Http;
+namespace Boilerwork\Infra\Http;
 
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;

@@ -3,12 +3,12 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Messaging;
+namespace Boilerwork\Infra\Messaging;
 
 use Boilerwork\System\IsProcessInterface;
-use Boilerwork\System\Messaging\MessagingClientInterface;
-use Boilerwork\System\Messaging\MessagingProviderInterface;
-use Boilerwork\System\Messaging\Message;
+use Boilerwork\Infra\Messaging\MessagingClientInterface;
+use Boilerwork\Infra\Messaging\MessagingProviderInterface;
+use Boilerwork\Infra\Messaging\Message;
 use DateTime;
 use Exception;
 use Swoole\Process;

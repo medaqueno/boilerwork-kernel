@@ -32,13 +32,13 @@ final class EventPublisher
      **/
     public function releaseEvents(): void
     {
+        $messagingClient = container()->get(\Boilerwork\Infra\Messaging\MessagingClientInterface::class);
+
         // Ds\Queue -> destructive iteration
         foreach ($this->events as $event) {
             // Publish public events as Messages to Brokers
-            go(function () use ($event) {
+            go(function () use ($event, $messagingClient) {
                 try {
-                    $messagingClient = container()->get(\Boilerwork\System\Messaging\MessagingClientInterface::class);
-
                     $messagingClient->publish(
                         message: json_encode($event->serialize()),
                         topic: sprintf('%s__%s', $_ENV['APP_ENV'], $event->getTopic()),

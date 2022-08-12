@@ -3,11 +3,11 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Http;
+namespace Boilerwork\Infra\Http;
 
 use Boilerwork\Application\CommandBus;
 use Psr\Http\Message\ResponseInterface;
-use Boilerwork\System\Http\Request;
+use Boilerwork\Infra\Http\Request;
 
 abstract class AbstractHttpPort
 {

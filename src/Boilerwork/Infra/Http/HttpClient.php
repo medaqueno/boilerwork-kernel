@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\System\Http;
+namespace Boilerwork\Infra\Http;
 
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;

@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Infra\Persistence;
+namespace Boilerwork\Domain;
 
 use Boilerwork\Domain\IsEventSourced;
 use Boilerwork\Domain\ValueObjects\Identity;
