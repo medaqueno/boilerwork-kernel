@@ -85,11 +85,11 @@ final class HandleHttp
         } catch (\Throwable $e) {
             // error($e);
 
-            var_dump($e);
-            echo "\n\n";
+            // var_dump($e);
+            // echo "\n\n";
 
             if ($e instanceof CustomAssertionFailedException || $e instanceof \Assert\InvalidArgumentException) {
-                var_dump($e->getMessage());
+                // var_dump($e->getMessage());
                 $response->setStatusCode(422);
                 $result = [
                     "error" =>
