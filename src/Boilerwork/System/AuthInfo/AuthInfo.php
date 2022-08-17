@@ -11,10 +11,10 @@ class AuthInfo
 {
     public function __construct(
         public readonly Identity $userId,
-        public readonly array $permissions = [],
         public readonly Identity $tenantId,
         public readonly Identity $transactionId,
         public readonly ?string $region,
+        public readonly array $permissions = [],
     ) {
     }
 
