@@ -11,7 +11,7 @@ class AuthInfo
 {
     public function __construct(
         public readonly Identity $userId,
-        public readonly array $permissions,
+        public readonly array $permissions = [],
         public readonly Identity $tenantId,
         public readonly Identity $transactionId,
         public readonly ?string $region,
@@ -20,7 +20,7 @@ class AuthInfo
 
     /**
      * Check if User has permissions needed in the permissions provided.
-     * 
+     *
      * CanManageAll permission is checked automatically.
      *
      */
@@ -29,7 +29,12 @@ class AuthInfo
         // Add Permission by default
         array_push($allowedPermissions, 'CanManageAll');
 
-        $result = array_filter($allowedPermissions, fn ($item) => in_array($item, $this->permissions) || $item === 'Public');
+        $result = array_filter(
+            $allowedPermissions,
+            function ($item) {
+                return in_array($item, $this->permissions) || $item === 'Public';
+            }
+        );
 
         return count($result) > 0;
     }

@@ -85,11 +85,11 @@ final class HandleHttp
         } catch (\Throwable $e) {
             // error($e);
 
-            // var_dump($e);
-            // echo "\n\n";
+            var_dump($e);
+            echo "\n\n";
 
             if ($e instanceof CustomAssertionFailedException || $e instanceof \Assert\InvalidArgumentException) {
-                // var_dump($e->getMessage());
+                var_dump($e->getMessage());
                 $response->setStatusCode(422);
                 $result = [
                     "error" =>
@@ -206,13 +206,11 @@ final class HandleHttp
 
     private function checkAuthorization($uri, $method): void
     {
-        if (getAuthInfo() instanceof AuthInfoNotFound) {
-            throw new AuthInfoException();
-        }
-
         foreach ($this->getRoutes() as $item) {
             if (isset($item[3]) && $item[0] === $method && $item[1] === $uri) {
+
                 getAuthInfo()->hasPermission($item[3]) === true ?: throw new \Exception("User has not permission", 403);
+                break;
             }
         }
     }
