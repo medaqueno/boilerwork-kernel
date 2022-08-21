@@ -8,7 +8,7 @@ namespace Boilerwork\Infra\Persistence\Adapters\InMemory;
 use Boilerwork\Domain\AggregateHistory;
 use Boilerwork\Domain\IsEventSourced;
 use Boilerwork\Domain\ValueObjects\Identity;
-use Boilerwork\Infra\Persistence\EventStore;
+use Boilerwork\Domain\EventStore;
 
 abstract class InMemoryEventStoreAdapter implements EventStore
 {
@@ -48,8 +48,8 @@ abstract class InMemoryEventStoreAdapter implements EventStore
      **/
     public function append(IsEventSourced $aggregate): void
     {
-        $aggregateId = $aggregate->getAggregateId();
-        $events = $aggregate->getRecordedEvents();
+        $aggregateId = $aggregate->aggregateId();
+        $events = $aggregate->recordedEvents();
 
         if (count($events) === 0) {
             throw new \Boilerwork\Infra\Persistence\Exceptions\PersistenceException(sprintf("No events found in aggregate %s. Nothing will be persisted.", $aggregateId), 409);
@@ -81,7 +81,7 @@ abstract class InMemoryEventStoreAdapter implements EventStore
 
         foreach ($events as $event) {
             $this->memory['events'][] = [
-                $event->getAggregateId(),
+                $event->aggregateId(),
                 get_class($aggregate),
                 json_encode($event->serialize()),
                 ++$version

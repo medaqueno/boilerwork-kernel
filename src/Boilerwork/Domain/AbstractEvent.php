@@ -29,7 +29,7 @@ abstract class AbstractEvent
         ];
     }
 
-    public function getTopic(): ?string
+    public function topic(): ?string
     {
         return $this->topic;
     }

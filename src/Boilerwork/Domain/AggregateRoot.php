@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Domain;
 
+use Boilerwork\Domain\ValueObjects\Identity;
 use Boilerwork\Events\EventPublisher;
 
 abstract class AggregateRoot
@@ -14,6 +15,11 @@ abstract class AggregateRoot
     private array $latestRecordedEvents = [];
 
     private int $version = 0;
+
+    private function __construct(
+        private readonly Identity $aggregateId,
+    ) {
+    }
 
     final public function aggregateId(): string
     {
