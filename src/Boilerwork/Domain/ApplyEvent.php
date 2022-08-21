@@ -12,14 +12,14 @@ trait ApplyEvent
      **/
     final protected function apply(AbstractEvent $event)
     {
-        $method = 'apply' .  $this->getName($event::class);
+        $method = 'apply' .  $this->className($event::class);
         $this->$method($event);
     }
 
     /**
      * Extract Class name without namespace
      **/
-    private function getName(string $event): string
+    private function className(string $event): string
     {
         if ($pos = strrpos($event, '\\')) {
             $eventName = substr($event, $pos + 1);
