@@ -5,11 +5,17 @@ declare(strict_types=1);
 
 namespace Boilerwork\Domain;
 
+use Boilerwork\Events\EventPublisher;
+
 abstract class AggregateRoot
 {
+    use ApplyEvent;
+
+    private array $latestRecordedEvents = [];
+
     private int $version = 0;
 
-    final public function getAggregateId(): string
+    final public function aggregateId(): string
     {
         return $this->aggregateId->toPrimitive();
     }
@@ -23,5 +29,25 @@ abstract class AggregateRoot
     {
         $version = $this->currentVersion();
         $this->version = ++$version;
+    }
+
+    final public function recordedEvents(): array
+    {
+        return $this->latestRecordedEvents;
+    }
+
+    final public function clearRecordedEvents(): void
+    {
+        $this->latestRecordedEvents = [];
+    }
+
+    final public function raise(AbstractEvent $event): void
+    {
+        $this->increaseVersion();
+
+        $this->latestRecordedEvents[] = $event;
+        $this->apply($event);
+
+        EventPublisher::getInstance()->raise(event: $event);
     }
 }

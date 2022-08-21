@@ -8,11 +8,11 @@ namespace Boilerwork\Domain;
 /**
  * An AggregateRoot, that can be reconstituted from an AggregateHistory.
  */
-interface IsEventSourced extends TracksEvents
+interface IsEventSourced
 {
-    public function getAggregateId(): string;
+    public function aggregateId(): string;
 
     public function currentVersion(): int;
 
-    public static function reconstituteFrom(AggregateHistory $aggregateHistory): TracksEvents;
+    public static function reconstituteFrom(AggregateHistory $aggregateHistory): AggregateRoot;
 }

@@ -20,7 +20,7 @@ use Psr\Http\Message\UriInterface;
  */
 class HttpClient implements ClientInterface
 {
-    private function __construct(private Client $client)
+    public function __construct(private Client $client)
     {
     }
 
