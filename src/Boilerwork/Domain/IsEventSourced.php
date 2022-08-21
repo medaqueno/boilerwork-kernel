@@ -16,5 +16,5 @@ interface IsEventSourced
 
     public function currentVersion(): int;
 
-    public static function reconstituteFrom(AggregateHistory $aggregateHistory): AggregateRoot;
+    public static function reconstituteFrom(AggregateHistory $aggregateHistory): IsEventSourced;
 }
