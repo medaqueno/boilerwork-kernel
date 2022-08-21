@@ -59,4 +59,16 @@ class HttpClient implements ClientInterface
     {
         return $this->client->send(request: $request, options: $options);
     }
+
+    /**
+     * Wrap response and convert it in a resource ready to be iterarated (yield)
+     *
+     * @see https://docs.guzzlephp.org/en/stable/psr7.html#streams
+     *
+     * @return resource
+     */
+    public function streamWrapper(StreamInterface $stream)
+    {
+        return \GuzzleHttp\Psr7\StreamWrapper::getResource($stream);
+    }
 }
