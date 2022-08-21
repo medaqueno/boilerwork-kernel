@@ -70,7 +70,7 @@ if (!function_exists('base_path')) {
 }
 
 if (!function_exists('error')) {
-    function error(string|Stringable|array $message, string $exception = \Exception::class, ?string $channel = 'error'): void
+    function error(string|Stringable|array $message, string $exception = \Throwable::class, ?string $channel = 'error'): void
     {
         $debug = $_ENV['APP_DEBUG'] ?? false;
         if (boolval($debug) === false) {
