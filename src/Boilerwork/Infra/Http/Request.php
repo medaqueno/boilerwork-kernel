@@ -73,13 +73,13 @@ class Request extends ServerRequest implements ServerRequestInterface, HasAuthIn
      **/
     public function setAuthInfo(): void
     {
-        container()->instance('AuthInfo', $this->getAuthInfo());
+        container()->instance('AuthInfo', $this->authInfo());
     }
 
     /**
      * Return user metadata relative.
      **/
-    public function getAuthInfo(): AuthInfo
+    public function authInfo(): AuthInfo
     {
         try {
             $response =  new AuthInfo(

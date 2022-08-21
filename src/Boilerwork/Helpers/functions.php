@@ -44,8 +44,8 @@ if (!function_exists('container')) {
     }
 }
 
-if (!function_exists('getAuthInfo')) {
-    function getAuthInfo(): AuthInfo
+if (!function_exists('authInfo')) {
+    function authInfo(): AuthInfo
     {
         return container()->get('AuthInfo');
     }

@@ -24,7 +24,7 @@ final class Message implements HasAuthInfo
         $this->setAuthInfo();
     }
 
-    public function getParsedPayload()
+    public function parsedPayload()
     {
         return json_decode($this->payload);
     }
@@ -34,15 +34,15 @@ final class Message implements HasAuthInfo
      **/
     public function setAuthInfo(): void
     {
-        container()->instance('AuthInfo', $this->getAuthInfo());
+        container()->instance('AuthInfo', $this->authInfo());
     }
 
     /**
      * Return user metadata relative.
      **/
-    public function getAuthInfo(): AuthInfo
+    public function authInfo(): AuthInfo
     {
-        $payload = $this->getParsedPayload();
+        $payload = $this->parsedPayload();
         try {
             $response =  new AuthInfo(
                 userId: new Identity($payload->metadata->userId),

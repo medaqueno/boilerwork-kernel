@@ -16,11 +16,6 @@ abstract class AggregateRoot
 
     private int $version = 0;
 
-    private function __construct(
-        private readonly Identity $aggregateId,
-    ) {
-    }
-
     final public function aggregateId(): string
     {
         return $this->aggregateId->toPrimitive();

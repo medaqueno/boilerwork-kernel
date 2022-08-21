@@ -8,5 +8,6 @@ namespace Boilerwork\System\AuthInfo;
 interface HasAuthInfo
 {
     public function setAuthInfo(): void;
-    public function getAuthInfo(): AuthInfo;
+
+    public function authInfo(): AuthInfo;
 }

@@ -21,22 +21,20 @@ final class AggregateHistory
         foreach ($events as $event) {
             $event = $event['type']::unserialize($event);
 
-            if ($event->getAggregateId() !== $aggregateId->toPrimitive()) {
+            if ($event->aggregateId() !== $aggregateId->toPrimitive()) {
                 throw new \Exception('Aggregate history is corrupted');
             }
 
             $this->history[] = $event;
         }
-
-        $this->aggregateId = $aggregateId;
     }
 
-    public function getAggregateId(): Identity
+    public function aggregateId(): Identity
     {
         return $this->aggregateId;
     }
 
-    public function getAggregateHistory(): array
+    public function aggregateHistory(): array
     {
         return $this->history;
     }

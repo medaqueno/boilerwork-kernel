@@ -209,7 +209,7 @@ final class HandleHttp
         foreach ($this->getRoutes() as $item) {
             if (isset($item[3]) && $item[0] === $method && $item[1] === $uri) {
 
-                getAuthInfo()->hasPermission($item[3]) === true ?: throw new \Exception("User has not permission", 403);
+                authInfo()->hasPermission($item[3]) === true ?: throw new \Exception("User has not permission", 403);
                 break;
             }
         }
