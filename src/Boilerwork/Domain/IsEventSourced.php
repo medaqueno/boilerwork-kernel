@@ -12,6 +12,8 @@ interface IsEventSourced
 {
     public function aggregateId(): string;
 
+    public function recordedEvents(): array;
+
     public function currentVersion(): int;
 
     public static function reconstituteFrom(AggregateHistory $aggregateHistory): AggregateRoot;

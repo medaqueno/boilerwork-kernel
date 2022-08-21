@@ -11,7 +11,7 @@ abstract class AbstractEvent
 {
     protected string $topic;
 
-    abstract public function getAggregateId(): string;
+    abstract public function aggregateId(): string;
 
     abstract public function serialize(): array;
 
@@ -20,7 +20,7 @@ abstract class AbstractEvent
     public function wrapSerialize(array $data): array
     {
         return [
-            'aggregateId' => $this->getAggregateId(),
+            'aggregateId' => $this->aggregateId(),
             // 'aggregateVersion' => $this->getAggregateVersion(),
             'type' => static::class,
             'ocurredOn' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),

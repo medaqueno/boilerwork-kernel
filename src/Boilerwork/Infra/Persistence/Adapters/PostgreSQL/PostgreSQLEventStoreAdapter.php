@@ -46,8 +46,8 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
      **/
     public function append(IsEventSourced $aggregate): void
     {
-        $aggregateId = $aggregate->getAggregateId();
-        $events = $aggregate->getRecordedEvents();
+        $aggregateId = $aggregate->aggregateId();
+        $events = $aggregate->recordedEvents();
 
         if (count($events) === 0) {
             throw new \Boilerwork\Infra\Persistence\Exceptions\PersistenceException(sprintf("No events found in aggregate %s. Nothing will be persisted.", $aggregateId), 409);
@@ -81,7 +81,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
             $this->client->run(
                 'INSERT INTO "events" ("aggregate_id", "aggregate_type", "data", "version") VALUES($1, $2, $3, $4)',
                 [
-                    $event->getAggregateId(),
+                    $event->aggregateId(),
                     get_class($aggregate),
                     json_encode($event->serialize()),
                     ++$version
