@@ -15,16 +15,8 @@ final class CheckHealthPort extends AbstractHttpPort
     public function __invoke(Request $request, array $vars): ResponseInterface
     {
         return Response::json([
-            'appName' => isset($_ENV['APP_NAME']) ? $_ENV['APP_NAME'] : 'nopes',
-            'APP_TIMEZONE' => isset($_ENV['APP_TIMEZONE']) ? $_ENV['APP_TIMEZONE'] : 'nopesa',
-            'status' => 'OK',
-            'MESSAGE_BROKER_HOST' => isset($_ENV['MESSAGE_BROKER_HOST']) ? $_ENV['MESSAGE_BROKER_HOST'] : 'nope',
-            'POSTGRESQL_READS_HOST' => isset($_ENV['POSTGRESQL_READS_HOST']) ? $_ENV['POSTGRESQL_READS_HOST'] : 'nope',
-            'POSTGRESQL_READS_USERNAME' => isset($_ENV['POSTGRESQL_READS_USERNAME']) ? $_ENV['POSTGRESQL_READS_USERNAME'] : 'nope',
-            'POSTGRESQL_READS_PASSWORD' => isset($_ENV['POSTGRESQL_READS_PASSWORD']) ? $_ENV['POSTGRESQL_READS_PASSWORD'] : 'nope',
-            'POSTGRESQL_WRITES_HOST' => isset($_ENV['POSTGRESQL_WRITES_HOST']) ? $_ENV['POSTGRESQL_WRITES_HOST'] : 'nope',
-            'POSTGRESQL_WRITES_USERNAME' => isset($_ENV['POSTGRESQL_WRITES_USERNAME']) ? $_ENV['POSTGRESQL_WRITES_USERNAME'] : 'nope',
-            'POSTGRESQL_WRITES_PASSWORD' => isset($_ENV['POSTGRESQL_WRITES_PASSWORD']) ? $_ENV['POSTGRESQL_WRITES_PASSWORD'] : 'nope',
+            'appName' => env('APP_NAME'),
+            'status' => 'OK'
         ]);
     }
 }

@@ -7,6 +7,20 @@ use Boilerwork\System\AuthInfo\AuthInfo;
 use Boilerwork\Events\EventPublisher;
 use Boilerwork\Helpers\Logger;
 
+
+if (!function_exists('env')) {
+    function env(string $name, mixed $defaultValue = null): mixed
+    {
+        if (isset($_ENV[$name])) {
+            return $_ENV[$name];
+        } else if (getenv($name) !== false) {
+            return getenv($name);
+        }
+
+        return $defaultValue;
+    }
+}
+
 if (!function_exists('getMemoryStatus')) {
     // Monitor memory
     function getMemoryStatus(): void
@@ -72,7 +86,7 @@ if (!function_exists('base_path')) {
 if (!function_exists('error')) {
     function error(string|Stringable|array $message, string $exception = \Throwable::class, ?string $channel = 'error'): void
     {
-        $debug = $_ENV['APP_DEBUG'] ?? false;
+        $debug = env('APP_DEBUG') ?? false;
         if (boolval($debug) === false) {
             return;
         }
@@ -84,7 +98,7 @@ if (!function_exists('error')) {
 if (!function_exists('logger')) {
     function logger(string|Stringable|array $message, string $mode = 'DEBUG', string $channel = 'default'): void
     {
-        $debug = $_ENV['APP_DEBUG'] ?? false;
+        $debug = env('APP_DEBUG') ?? false;
         if (boolval($debug) === false) {
             return;
         }

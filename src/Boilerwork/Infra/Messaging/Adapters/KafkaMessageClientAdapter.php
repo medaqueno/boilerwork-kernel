@@ -25,12 +25,12 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         }
 
         $conf = new \RdKafka\Conf();
-        $conf->set('metadata.broker.list', $_ENV['MESSAGE_BROKER_HOST'] . ':' . $_ENV['MESSAGE_BROKER_PORT']);
+        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST') . ':' . env('MESSAGE_BROKER_PORT'));
 
         //If you need to produce exactly once and want to keep the original produce order, uncomment the line below
         $conf->set('enable.idempotence', 'true');
 
-        $conf->set('client.id', $_ENV['APP_ENV'] . '-' . $_ENV['APP_NAME']);
+        $conf->set('client.id', env('APP_ENV') . '-' . env('APP_NAME'));
         // $conf->set('transactional.id', 'HERE_ID');
 
         $producer = new \RdKafka\Producer($conf);
@@ -85,11 +85,11 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
 
         // Configure the group.id. All consumer with the same group.id will consume
         // different partitions.
-        $conf->set('group.id', $_ENV['APP_ENV'] . '-' .  $_ENV['APP_NAME']);
-        $conf->set('client.id', $_ENV['APP_ENV'] . '-' .  $_ENV['APP_NAME']);
+        $conf->set('group.id', env('APP_ENV') . '-' .  env('APP_NAME'));
+        $conf->set('client.id', env('APP_ENV') . '-' .  env('APP_NAME'));
 
         // Initial list of Kafka brokers
-        $conf->set('metadata.broker.list', $_ENV['MESSAGE_BROKER_HOST'] . ':' . $_ENV['MESSAGE_BROKER_PORT']);
+        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST') . ':' . env('MESSAGE_BROKER_PORT'));
 
         // Set where to start consuming messages when there is no initial offset in
         // offset store or the desired offset is out of range.
@@ -137,7 +137,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         }
 
         $conf = new \RdKafka\Conf();
-        $conf->set('metadata.broker.list', $_ENV['MESSAGE_BROKER_HOST'] . ':' . $_ENV['MESSAGE_BROKER_PORT']);
+        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST') . ':' . env('MESSAGE_BROKER_PORT'));
         $producer = new \RdKafka\Producer($conf);
         foreach ($filtered as $item) {
             $topic = $producer->newTopic($item);

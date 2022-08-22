@@ -13,7 +13,7 @@ final class RunServer
         private array $processes = [],
     ) {
 
-        $this->server = new $serverType($_ENV['SERVER_IP'], intval($_ENV['SERVER_PORT']));
+        $this->server = new $serverType(env('SERVER_IP'), intval(env('SERVER_PORT')));
 
         // https://openswoole.com/docs/modules/swoole-server/configuration
         $this->server->set($config);

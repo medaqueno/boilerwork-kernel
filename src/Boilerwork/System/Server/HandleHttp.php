@@ -122,12 +122,12 @@ final class HandleHttp
                     ]
                 ];
 
-                if ($_ENV['APP_DEBUG'] === 'true') {
+                if (env('APP_DEBUG') === 'true') {
                     array_push($result['error']['errors'], [
                         "message" =>  $e->getMessage(),
                         "file" => $e->getFile(),
                         "line" => $e->getLine(),
-                        "trace" => $_ENV['TRACE_ERRORS'] === "true" ? $e->getTrace() : null,
+                        "trace" => env('TRACE_ERRORS') === "true" ? $e->getTrace() : null,
                     ]);
                 }
             }

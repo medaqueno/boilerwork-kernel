@@ -21,10 +21,10 @@ final class RedisPool
      */
     private function __construct()
     {
-        $host = $_ENV['REDIS_HOST'] ?? 'redis-boiler';
-        $port = $_ENV['REDIS_PORT'] ?? 6379;
-        $password = $_ENV['REDIS_PASSWORD'] ?? '';
-        $size = $_ENV['REDIS_SIZE_CONN'] ?? 64;
+        $host = env('REDIS_HOST') ?? 'quadrant-redis';
+        $port = env('REDIS_PORT') ?? 6379;
+        $password = env('REDIS_PASSWORD') ?? '';
+        $size = env('REDIS_SIZE_CONN') ?? 64;
 
         $this->pool = new SwooleRedisPool(
             (new RedisConfig())
