@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Boilerwork\Events;
 
 use Ds\Queue;
-use Ds\Vector;
 use Boilerwork\Domain\AbstractEvent;
 use Boilerwork\Helpers\Singleton;
 use RuntimeException;
@@ -17,7 +16,6 @@ final class EventPublisher
     use Singleton;
 
     private function __construct(
-        private Vector $subscribers = new Vector(),
         private Queue $events = new Queue(),
     ) {
     }
