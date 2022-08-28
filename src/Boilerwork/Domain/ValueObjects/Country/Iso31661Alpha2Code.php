@@ -31,7 +31,7 @@ class Iso31661Alpha2Code extends ValueObject
     const AO  = 'AO';
     const AQ  = 'AQ';
     const AR  = 'AR';
-    const AS_ = 'AS_'; // AS is a PHP reserved keyword
+    const AS = 'AS';
     const AT  = 'AT';
     const AU  = 'AU';
     const AW  = 'AW';
@@ -82,7 +82,7 @@ class Iso31661Alpha2Code extends ValueObject
     const DJ  = 'DJ';
     const DK  = 'DK';
     const DM  = 'DM';
-    const DO_ = 'DO_'; // DO is a PHP reserved keyword
+    const DO  = 'DO';
     const DZ  = 'DZ';
     const EC  = 'EC';
     const EE  = 'EE';

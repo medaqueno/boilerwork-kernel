@@ -20,7 +20,7 @@ class DataProvider
      * @var array alpha2 => alpha3, numeric, english name
      */
     protected static $data = [
-        ['AD', 'AND_', '', "Andorra"],
+        ['AD', 'AND', '', "Andorra"],
         ['AE', 'ARE', '', "United Arab Emirates"],
         ['AF', 'AFG', '', "Afghanistan"],
         ['AG', 'ATG', '', "Antigua and Barbuda"],
@@ -31,7 +31,7 @@ class DataProvider
         ['AO', 'AGO', '', "Angola"],
         ['AQ', 'ATA', '', "Antarctica"],
         ['AR', 'ARG', '', "Argentina"],
-        ['AS_', 'ASM', '', "American Samoa"],
+        ['AS', 'ASM', '', "American Samoa"],
         ['AT', 'AUT', '', "Austria"],
         ['AU', 'AUS', '', "Australia"],
         ['AW', 'ABW', '', "Aruba"],
@@ -82,7 +82,7 @@ class DataProvider
         ['DJ', 'DJI', '', "Djibouti"],
         ['DK', 'DNK', '', "Denmark"],
         ['DM', 'DMA', '', "Dominica"],
-        ['DO_', 'DOM', '', "Dominican Republic"],
+        ['DO', 'DOM', '', "Dominican Republic"],
         ['DZ', 'DZA', '', "Algeria"],
         ['EC', 'ECU', '', "Ecuador"],
         ['EE', 'EST', '', "Estonia"],
@@ -248,6 +248,7 @@ class DataProvider
         ['TM', 'TKM', '', "Turkmenistan"],
         ['TN', 'TUN', '', "Tunisia"],
         ['TO', 'TON', '', "Tonga"],
+        ['TP', 'TMP', '', "Timor-Leste"],
         ['TR', 'TUR', '', "Turkey"],
         ['TT', 'TTO', '', "Trinidad and Tobago"],
         ['TV', 'TUV', '', "Tuvalu"],
