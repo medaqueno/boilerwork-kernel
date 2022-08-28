@@ -209,6 +209,7 @@ class Iso31661Alpha3Code extends ValueObject
     const QAT  = 'QAT';
     const REU  = 'REU';
     const ROU  = 'ROU';
+    const ROM  = 'ROU';
     const SRB  = 'SRB';
     const RUS  = 'RUS';
     const RWA  = 'RWA';

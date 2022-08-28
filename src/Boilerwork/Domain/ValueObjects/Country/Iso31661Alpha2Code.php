@@ -251,6 +251,7 @@ class Iso31661Alpha2Code extends ValueObject
     const TZ  = 'TZ';
     const UA  = 'UA';
     const UG  = 'UG';
+    const UK  = 'GB'; // Exception
     const UM  = 'UM';
     const US  = 'US';
     const UY  = 'UY';
