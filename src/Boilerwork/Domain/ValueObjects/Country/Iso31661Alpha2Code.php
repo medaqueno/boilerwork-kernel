@@ -27,6 +27,7 @@ class Iso31661Alpha2Code extends ValueObject
     const AI  = 'AI';
     const AL  = 'AL';
     const AM  = 'AM';
+    const AN  = 'AN';
     const AO  = 'AO';
     const AQ  = 'AQ';
     const AR  = 'AR';
@@ -53,6 +54,7 @@ class Iso31661Alpha2Code extends ValueObject
     const BR  = 'BR';
     const BS  = 'BS';
     const BT  = 'BT';
+    const BU  = 'BU';
     const BV  = 'BV';
     const BW  = 'BW';
     const BY  = 'BY';
@@ -217,6 +219,7 @@ class Iso31661Alpha2Code extends ValueObject
     const SC  = 'SC';
     const SD  = 'SD';
     const SE  = 'SE';
+    const SF  = 'SF';
     const SG  = 'SG';
     const SH  = 'SH';
     const SI  = 'SI';
@@ -244,6 +247,7 @@ class Iso31661Alpha2Code extends ValueObject
     const TM  = 'TM';
     const TN  = 'TN';
     const TO  = 'TO';
+    const TP  = 'TP';
     const TR  = 'TR';
     const TT  = 'TT';
     const TV  = 'TV';
@@ -269,6 +273,7 @@ class Iso31661Alpha2Code extends ValueObject
     const YT  = 'YT';
     const ZA  = 'ZA';
     const ZM  = 'ZM';
+    const ZR  = 'ZR';
     const ZW  = 'ZW';
 
     public function __construct(
