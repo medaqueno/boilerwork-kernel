@@ -69,6 +69,14 @@ class Request extends ServerRequest implements ServerRequestInterface, HasAuthIn
     }
 
     /**
+     * Return specific query param
+     **/
+    public function query(string|int $param): mixed
+    {
+        return $this->getQueryParams()[$param] ?? null;
+    }
+
+    /**
      * Adds AuthInfo in the Container
      **/
     public function setAuthInfo(): void
