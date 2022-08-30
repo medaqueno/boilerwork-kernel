@@ -25,7 +25,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         }
 
         $conf = new \RdKafka\Conf();
-        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST') . ':' . env('MESSAGE_BROKER_PORT'));
+        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST'));
 
         //If you need to produce exactly once and want to keep the original produce order, uncomment the line below
         $conf->set('enable.idempotence', 'true');
@@ -89,7 +89,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         $conf->set('client.id', env('APP_ENV') . '-' .  env('APP_NAME'));
 
         // Initial list of Kafka brokers
-        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST') . ':' . env('MESSAGE_BROKER_PORT'));
+        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST'));
 
         // Set where to start consuming messages when there is no initial offset in
         // offset store or the desired offset is out of range.
@@ -137,7 +137,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         }
 
         $conf = new \RdKafka\Conf();
-        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST') . ':' . env('MESSAGE_BROKER_PORT'));
+        $conf->set('metadata.broker.list', env('MESSAGE_BROKER_HOST'));
         $producer = new \RdKafka\Producer($conf);
         foreach ($filtered as $item) {
             $topic = $producer->newTopic($item);
