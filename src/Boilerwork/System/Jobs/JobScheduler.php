@@ -24,7 +24,8 @@ final class JobScheduler implements IsProcessInterface
                     // Use native sleep only with Swoole hooks enabled
                     sleep(self::LOOP_INTERVAL);
                 }
-            }
+            },
+            enableCoroutine: true
         ));
     }
 
