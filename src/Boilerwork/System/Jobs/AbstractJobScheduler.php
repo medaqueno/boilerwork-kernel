@@ -81,7 +81,7 @@ abstract class AbstractJobScheduler
                 $job = container()->get($jobToExecute);
 
                 go(function () use ($jobToExecute, $job) {
-                    if ($job instanceof JobInterface) {
+                    if ($job instanceof AbstractJob) {
                         $job->handle();
                     } else {
                         $message = 'Task ' . $jobToExecute . ' should implement JobInterface';

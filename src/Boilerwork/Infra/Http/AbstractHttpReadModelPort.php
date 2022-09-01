@@ -8,7 +8,7 @@ namespace Boilerwork\Infra\Http;
 use Psr\Http\Message\ResponseInterface;
 use Boilerwork\Infra\Http\Request;
 
-abstract class AbstractHttpViewModelPort
+abstract class AbstractHttpReadModelPort
 {
     abstract public function __invoke(Request $request, array $vars): ResponseInterface;
 }
