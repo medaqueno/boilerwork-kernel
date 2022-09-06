@@ -56,14 +56,19 @@ final class RedisClient
         return $this->conn->hSet($key, $hashKey, $value);
     }
 
-    public function get($key): ?string
+    public function get($key): mixed
     {
         return $this->conn->get($key);
     }
 
-    public function set($key, $value): mixed
+    public function set($key, $value, $timeout = null): mixed
     {
-        return $this->conn->set($key, $value);
+        return $this->conn->set($key, $value, $timeout);
+    }
+
+    public function del($key, ...$otherKeys): mixed
+    {
+        return $this->conn->del($key, ...$otherKeys);
     }
 
     public function initTransaction(): Redis
