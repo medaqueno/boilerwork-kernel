@@ -71,15 +71,22 @@ final class JobScheduler implements IsProcessInterface
     {
         go(function () use ($job) {
             $jobId = $job->getId();
+
             $this->client->getConnection();
 
             if ($this->client->get($jobId) === false) {
 
                 $this->client->set($jobId, 'JobInProgress');
 
+                $this->client->putConnection();
+
+                echo "\nExecuting " . $jobId . "\n";
+
                 $job->run();
 
                 var_dump($job->getOutput());
+
+                $this->client->getConnection();
 
                 $this->client->del($jobId);
             }
@@ -91,13 +98,20 @@ final class JobScheduler implements IsProcessInterface
     private function addJobs(): void
     {
         foreach ($this->jobsProvider->jobs as $job) {
-            $interval = $job[1][0];
-            $args = $job[1][1];
-
-            $this->scheduler->call(
+            $task =  $this->scheduler->call(
                 fn: [new $job[0], 'handle'],
                 id: $job[0],
-            )->$interval($args);
+            );
+
+            $interval = $job[1][0];
+            $args = $job[1][1] ?: null;
+
+            if ($args !== null && $args !== '') {
+                $task->$interval($args);
+                return;
+            }
+
+            $task->$interval();
         }
     }
 }
