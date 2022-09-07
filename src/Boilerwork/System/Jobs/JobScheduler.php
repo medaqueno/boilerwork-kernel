@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 namespace Boilerwork\System\Jobs;
 
-use App\Shared\Providers\JobsProvider;
 use Boilerwork\Infra\Persistence\Adapters\Redis\RedisClient;
 use Boilerwork\System\IsProcessInterface;
 use DateTime;
@@ -26,8 +25,9 @@ final class JobScheduler implements IsProcessInterface
 
     private const LOOP_INTERVAL = 60; // Execute each 60 seconds as is the default cron job interval
 
-    public function __construct()
-    {
+    public function __construct(
+        private $jobsProvider
+    ) {
         $this->scheduler = new Scheduler();
         $this->client = new RedisClient();
 
@@ -90,7 +90,7 @@ final class JobScheduler implements IsProcessInterface
 
     private function addJobs(): void
     {
-        foreach (JobsProvider::$jobs as $job) {
+        foreach ($this->jobsProvider->jobs as $job) {
             $interval = $job[1][0];
             $args = $job[1][1];
 
