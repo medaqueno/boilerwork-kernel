@@ -6,9 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\System\Server;
 
 use Boilerwork\Domain\Exceptions\CustomAssertionFailedException;
-use Boilerwork\Helpers\Environments;
 use Boilerwork\System\AuthInfo\AuthInfoNotFound;
-use Boilerwork\System\AuthInfo\Exceptions\AuthInfoException;
 use Boilerwork\Infra\Http\Request;
 use Boilerwork\Infra\Http\Response;
 use Psr\Http\Message\ResponseInterface;

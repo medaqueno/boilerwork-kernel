@@ -21,7 +21,7 @@ final class Message implements HasAuthInfo
         public readonly ?string $key,
         public readonly array $headers,
     ) {
-        $this->setAuthInfo();
+        // $this->setAuthInfo();
     }
 
     public function parsedPayload()

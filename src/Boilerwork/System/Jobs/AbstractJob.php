@@ -20,7 +20,7 @@ abstract class AbstractJob implements HasAuthInfo
 
     final public function __construct()
     {
-        $this->setAuthInfo();
+        // $this->setAuthInfo();
     }
 
     /**

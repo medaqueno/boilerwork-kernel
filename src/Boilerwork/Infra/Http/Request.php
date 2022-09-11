@@ -38,7 +38,7 @@ class Request extends ServerRequest implements ServerRequestInterface, HasAuthIn
             protocol: '1.1'
         );
 
-        $this->setAuthInfo();
+        // $this->setAuthInfo();
     }
 
     private function parseBody(SwooleRequest $request): array
