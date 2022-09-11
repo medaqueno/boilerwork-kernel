@@ -169,8 +169,8 @@ final class HandleHttp
                 break;
             case \FastRoute\Dispatcher::FOUND:
 
-                $this->checkAuthorization(uri: $request_uri, method: $request_method);
-                $this->checkMiddlewares(request: $request, uri: $request_uri, method: $request_method);
+                // $this->checkAuthorization(uri: $request_uri, method: $request_method);
+                // $this->checkMiddlewares(request: $request, uri: $request_uri, method: $request_method);
 
 
                 if (is_array($handler)) {
