@@ -11,6 +11,6 @@ class PostgreSQLWritesClient extends AbstractPostgreSQLClient
 
     public function __construct()
     {
-        $this->pool = container()->get(PostgreSQLWritesPool::class);
+        $this->pool = globalContainer()->get(PostgreSQLWritesPool::class);
     }
 }

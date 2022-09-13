@@ -6,7 +6,7 @@ declare(strict_types=1);
 use Boilerwork\System\AuthInfo\AuthInfo;
 use Boilerwork\Events\EventPublisher;
 use Boilerwork\Helpers\Logger;
-
+use Boilerwork\System\Container\IsolatedContainer;
 
 if (!function_exists('env')) {
     function env(string $name, mixed $defaultValue = null): mixed
@@ -52,7 +52,22 @@ if (!function_exists('app')) {
 }
 
 if (!function_exists('container')) {
+    /**
+     * Return Container instance to be used in local/isolated requests/jobs/messages
+     * @return IsolatedContainer
+     */
     function container()
+    {
+        return (\Boilerwork\System\Container\Container::getInstance())->getIsolatedContainer();
+    }
+}
+
+if (!function_exists('globalContainer')) {
+    /**
+     * Return Global Container instance with shared data across application memory
+     *
+     **/
+    function globalContainer()
     {
         return \Boilerwork\System\Container\Container::getInstance();
     }

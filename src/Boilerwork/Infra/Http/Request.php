@@ -17,8 +17,10 @@ use Boilerwork\System\AuthInfo\HasAuthInfo;
  * Implements Laminas Diactoros PSR-7 and PSR-17, Psr\Http\Message\ServerRequestInterface
  * https://docs.laminas.dev/laminas-diactoros/v2/overview/
  **/
-class Request extends ServerRequest implements ServerRequestInterface, HasAuthInfo
+class Request extends ServerRequest implements ServerRequestInterface
 {
+    use HasAuthInfo;
+
     /**
      * Builds Psr\Http\Message\ServerRequestInterface
      * with extra methods
@@ -38,7 +40,7 @@ class Request extends ServerRequest implements ServerRequestInterface, HasAuthIn
             protocol: '1.1'
         );
 
-        // $this->setAuthInfo();
+        $this->setAuthInfo();
     }
 
     private function parseBody(SwooleRequest $request): array
@@ -74,14 +76,6 @@ class Request extends ServerRequest implements ServerRequestInterface, HasAuthIn
     public function query(string|int $param): mixed
     {
         return $this->getQueryParams()[$param] ?? null;
-    }
-
-    /**
-     * Adds AuthInfo in the Container
-     **/
-    public function setAuthInfo(): void
-    {
-        container()->instance('AuthInfo', $this->authInfo());
     }
 
     /**

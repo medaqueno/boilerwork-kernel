@@ -16,7 +16,7 @@ final class CommandBus
 
     public function syncHandle(CommandInterface $command)
     {
-        $commandHandler = container()->get(get_class($command) . 'Handler');
+        $commandHandler = globalContainer()->get(get_class($command) . 'Handler');
 
         // Execute commandHandler
         try {
@@ -33,7 +33,7 @@ final class CommandBus
     {
         go(function () use ($command) {
             // With DI
-            $commandHandler = container()->get(get_class($command) . 'Handler');
+            $commandHandler = globalContainer()->get(get_class($command) . 'Handler');
 
             // Without DI, should add ..$args
             // $class = get_class($command) . 'Handler';

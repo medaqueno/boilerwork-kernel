@@ -25,10 +25,7 @@ abstract class AbstractEvent
             'type' => static::class,
             'ocurredOn' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
             'data' => $data,
-            'metadata' => [
-                'pending'
-            ],
-            // 'metadata' => authInfo()->serialize(),
+            'metadata' => authInfo()->serialize(),
         ];
     }
 

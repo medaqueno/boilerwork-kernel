@@ -5,9 +5,13 @@ declare(strict_types=1);
 
 namespace Boilerwork\System\AuthInfo;
 
-interface HasAuthInfo
+trait HasAuthInfo
 {
-    public function setAuthInfo(): void;
-
-    public function authInfo(): AuthInfo;
+    /**
+     * Adds AuthInfo to the Isolated Container
+     **/
+    public function setAuthInfo(): void
+    {
+        container()->instance('AuthInfo', $this->authInfo());
+    }
 }

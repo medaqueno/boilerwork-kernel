@@ -6,9 +6,14 @@ declare(strict_types=1);
 namespace Boilerwork\System\Server;
 
 use Boilerwork\Domain\Exceptions\CustomAssertionFailedException;
+use Boilerwork\Helpers\Environments;
 use Boilerwork\System\AuthInfo\AuthInfoNotFound;
+use Boilerwork\System\AuthInfo\Exceptions\AuthInfoException;
 use Boilerwork\Infra\Http\Request;
 use Boilerwork\Infra\Http\Response;
+use Boilerwork\System\Container\Container;
+use Boilerwork\System\Container\IsolatedContainer;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
@@ -142,6 +147,8 @@ final class HandleHttp
 
     private function handleRequest(SwooleRequest $swooleRequest): ResponseInterface
     {
+        $isolatedContainer = new IsolatedContainer;
+        globalContainer()->setIsolatedContainer($isolatedContainer);
 
         // Convert Swoole Request to Psr\Http\Message\ServerRequestInterface
         // $request = HttpRequest::createFromSwoole($swooleRequest);
@@ -177,12 +184,12 @@ final class HandleHttp
                     // Custom method in class
                     $className = $handler[0];
                     $method = $handler[1];
-                    $class = container()->get($className);
+                    $class = globalContainer()->get($className);
                     $result = $class->$method($request, $vars);
                 } else {
                     // invokable class  __invoke
-                    $result = (container()->get($handler))($request, $vars);
-                    // $result = (new $handler)($request, $vars);
+                    // $result = (globalContainer()->get($handler))($request, $vars);
+                    $result = (new $handler)($request, $vars);
                 }
 
                 break;
@@ -220,7 +227,7 @@ final class HandleHttp
 
                 foreach ($item[4] as $middleware) {
                     try {
-                        (container()->get($middleware))($request);
+                        (globalContainer()->get($middleware))($request);
                     } catch (\Illuminate\Container\EntryNotFoundException $e) {
                         throw new \RuntimeException('Middleware class not found in container', 500, $e);
                     }

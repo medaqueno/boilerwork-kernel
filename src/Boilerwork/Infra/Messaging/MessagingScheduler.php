@@ -9,6 +9,7 @@ use Boilerwork\System\IsProcessInterface;
 use Boilerwork\Infra\Messaging\MessagingClientInterface;
 use Boilerwork\Infra\Messaging\MessagingProviderInterface;
 use Boilerwork\Infra\Messaging\Message;
+use Boilerwork\System\Container\IsolatedContainer;
 use DateTime;
 use Exception;
 use Swoole\Process;
@@ -20,8 +21,11 @@ final class MessagingScheduler implements IsProcessInterface
     public function __construct(
         private MessagingProviderInterface $subscriptionProvider
     ) {
+        $isolatedContainer = new IsolatedContainer;
+        globalContainer()->setIsolatedContainer($isolatedContainer);
+
         $topics = [];
-        $messageClient = container()->get(MessagingClientInterface::class);
+        $messageClient = globalContainer()->get(MessagingClientInterface::class);
 
         // Safe check: No consumer subscriptions, create empty process that will be attached to Server
         // if (count($this->subscriptionProvider->getSubscriptions()) === 0) {
@@ -69,7 +73,7 @@ final class MessagingScheduler implements IsProcessInterface
                                         headers: $messageReceived->headers,
                                     );
 
-                                    $class = container()->get($item['target']);
+                                    $class = globalContainer()->get($item['target']);
                                     call_user_func($class, $message);
                                 }
                             }

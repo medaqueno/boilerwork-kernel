@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\System\Jobs;
 
 use Boilerwork\Infra\Persistence\Adapters\Redis\RedisClient;
+use Boilerwork\System\Container\IsolatedContainer;
 use Boilerwork\System\IsProcessInterface;
 use DateTime;
 use GO\Job;
@@ -28,6 +29,9 @@ final class JobScheduler implements IsProcessInterface
     public function __construct(
         private $jobsProvider
     ) {
+        $isolatedContainer = new IsolatedContainer;
+        globalContainer()->setIsolatedContainer($isolatedContainer);
+
         $this->scheduler = new Scheduler();
         $this->client = new RedisClient();
 

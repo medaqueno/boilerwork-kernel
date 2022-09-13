@@ -19,7 +19,7 @@ final class RedisPool
     /**
      * PostgresqlPool constructor.
      */
-    private function __construct()
+    public function __construct()
     {
         $host = env('REDIS_HOST') ?? 'quadrant-redis';
         $port = env('REDIS_PORT') ?? 6379;

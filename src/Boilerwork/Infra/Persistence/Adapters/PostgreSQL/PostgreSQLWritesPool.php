@@ -24,7 +24,6 @@ final class PostgreSQLWritesPool extends AbstractPostgreSQLPool
         $username = env('POSTGRESQL_WRITES_USERNAME') ?? 'postgres';
         $password = env('POSTGRESQL_WRITES_PASSWORD') ?? 'postgres';
 
-        // $size = ;
         $size = (int)((env('POSTGRESQL_SIZE_CONN') ?? 64) / swoole_cpu_num()); // Will open a pool per swoole worker
 
         $this->fillPool($host, $port, $dbname, $username, $password, $size);

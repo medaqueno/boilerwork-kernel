@@ -11,8 +11,10 @@ use Boilerwork\System\AuthInfo\AuthInfoNotFound;
 use Boilerwork\System\AuthInfo\HasAuthInfo;
 use DateTimeInterface;
 
-final class Message implements HasAuthInfo
+final class Message
 {
+    use HasAuthInfo;
+
     public function __construct(
         public readonly string $payload,
         public readonly string $topic,
@@ -21,20 +23,12 @@ final class Message implements HasAuthInfo
         public readonly ?string $key,
         public readonly array $headers,
     ) {
-        // $this->setAuthInfo();
+        $this->setAuthInfo();
     }
 
     public function parsedPayload()
     {
         return json_decode($this->payload);
-    }
-
-    /**
-     * Adds AuthInfo in the Container
-     **/
-    public function setAuthInfo(): void
-    {
-        container()->instance('AuthInfo', $this->authInfo());
     }
 
     /**

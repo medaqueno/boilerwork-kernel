@@ -30,7 +30,7 @@ final class EventPublisher
      **/
     public function releaseEvents(): void
     {
-        $messagingClient = container()->get(\Boilerwork\Infra\Messaging\MessagingClientInterface::class);
+        $messagingClient = globalContainer()->get(\Boilerwork\Infra\Messaging\MessagingClientInterface::class);
 
         // Ds\Queue -> destructive iteration
         foreach ($this->events as $event) {

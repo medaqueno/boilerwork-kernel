@@ -12,23 +12,17 @@ use Boilerwork\System\AuthInfo\AuthInfoJobs;
 use Boilerwork\System\AuthInfo\AuthInfoNotFound;
 use Boilerwork\System\AuthInfo\HasAuthInfo;
 
-abstract class AbstractJob implements HasAuthInfo
+abstract class AbstractJob
 {
+    use HasAuthInfo;
+
     protected string $jobName = __CLASS__;
 
     abstract public function handle(): void;
 
     final public function __construct()
     {
-        // $this->setAuthInfo();
-    }
-
-    /**
-     * Adds AuthInfo in the Container
-     **/
-    public function setAuthInfo(): void
-    {
-        container()->instance('AuthInfo', $this->authInfo());
+        $this->setAuthInfo();
     }
 
     /**
