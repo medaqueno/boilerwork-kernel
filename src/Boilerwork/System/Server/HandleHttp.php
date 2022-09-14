@@ -188,8 +188,8 @@ final class HandleHttp
                     $result = $class->$method($request, $vars);
                 } else {
                     // invokable class  __invoke
-                    // $result = (globalContainer()->get($handler))($request, $vars);
-                    $result = (new $handler)($request, $vars);
+                    $result = (globalContainer()->get($handler))($request, $vars);
+                    // $result = (new $handler)($request, $vars);
                 }
 
                 break;
