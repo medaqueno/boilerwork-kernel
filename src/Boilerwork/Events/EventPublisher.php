@@ -35,7 +35,6 @@ final class EventPublisher
         // Ds\Queue -> destructive iteration
         foreach ($this->events as $event) {
             // Publish public events as Messages to Brokers
-            var_dump($event->serialize());
             // go(function () use ($event, $messagingClient) {
             try {
                 $messagingClient->publish(
