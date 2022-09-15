@@ -35,18 +35,19 @@ final class EventPublisher
         // Ds\Queue -> destructive iteration
         foreach ($this->events as $event) {
             // Publish public events as Messages to Brokers
-            go(function () use ($event, $messagingClient) {
-                try {
-                    $messagingClient->publish(
-                        message: json_encode($event->serialize()),
-                        topic: sprintf('%s__%s', env('APP_ENV'), $event->topic()),
-                    );
-                } catch (RuntimeException $e) {
-                    error($e->getMessage(), RuntimeException::class);
-                } catch (Throwable $e) {
-                    error($e->getMessage());
-                }
-            });
+            var_dump($event->serialize());
+            // go(function () use ($event, $messagingClient) {
+            try {
+                $messagingClient->publish(
+                    message: json_encode($event->serialize()),
+                    topic: sprintf('%s__%s', env('APP_ENV'), $event->topic()),
+                );
+            } catch (RuntimeException $e) {
+                error($e->getMessage(), RuntimeException::class);
+            } catch (Throwable $e) {
+                error($e->getMessage());
+            }
+            // });
         }
 
         // Clear events to assure events queue is emptied though non existing subscribers

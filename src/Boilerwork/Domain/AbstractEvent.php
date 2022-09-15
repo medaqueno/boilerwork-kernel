@@ -11,6 +11,8 @@ abstract class AbstractEvent
 {
     protected string $topic;
 
+    protected ?array $serializedData = null;
+
     abstract public function aggregateId(): string;
 
     abstract public function serialize(): array;
@@ -19,7 +21,11 @@ abstract class AbstractEvent
 
     public function wrapSerialize(array $data): array
     {
-        return [
+        if ($this->serializedData !== null) {
+            return $this->serializedData;
+        }
+
+        return $this->serializedData = [
             'aggregateId' => $this->aggregateId(),
             // 'aggregateVersion' => $this->getAggregateVersion(),
             'type' => static::class,
