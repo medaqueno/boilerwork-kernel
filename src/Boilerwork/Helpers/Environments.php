@@ -6,6 +6,7 @@ namespace Boilerwork\Helpers;
 
 enum Environments: string
 {
+    case LOCAL = 'LOCAL';
     case DEVELOPMENT = 'DEV';
     case TEST = 'TEST';
     case QA = 'QA';
