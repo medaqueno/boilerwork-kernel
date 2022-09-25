@@ -33,6 +33,9 @@ interface QueryBuilderInterface
 
     public function distinct(): self; // SELECT DISTINCT
 
+    public function union(): self; // SELECT DISTINCT
+    public function unionAll(): self; // SELECT DISTINCT
+
     public function bindValues(array $values): self;
 
     public function execute(): void;

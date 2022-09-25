@@ -16,6 +16,7 @@ use Boilerwork\Infra\Persistence\Exceptions\PersistenceException;
 use Swoole\Coroutine\PostgreSQL;
 
 /**
+ * Wrap Aura SQLQUERY
  * @see: https://github.com/auraphp/Aura.SqlQuery
  */
 final class SqlQueryBuilder implements QueryBuilderInterface
@@ -272,6 +273,18 @@ final class SqlQueryBuilder implements QueryBuilderInterface
     public function distinct(): self
     {
         $this->query->distinct();
+        return $this;
+    }
+
+    public function union(): self
+    {
+        $this->query->union();
+        return $this;
+    }
+
+    public function unionAll(): self
+    {
+        $this->query->unionAll();
         return $this;
     }
 
