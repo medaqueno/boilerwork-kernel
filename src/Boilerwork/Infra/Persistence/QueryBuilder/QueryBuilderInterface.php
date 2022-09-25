@@ -43,4 +43,7 @@ interface QueryBuilderInterface
     public function fetchOneFromRaw(string $rawQuery, array $bindValues = []): mixed;
     public function fetchAll(): array;
     public function fetchAllFromRaw(string $rawQuery, array $bindValues = []): mixed;
+
+    public function initTransaction(): void;
+    public function endTransaction(): void;
 }

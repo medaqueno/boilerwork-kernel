@@ -126,12 +126,12 @@ final class SqlQueryBuilder implements QueryBuilderInterface
         };
     }
 
-    public function initTransaction()
+    public function initTransaction(): void
     {
         $this->conn->query('BEGIN');
     }
 
-    public function endTransaction()
+    public function endTransaction(): void
     {
         $this->conn->query('COMMIT');
     }
