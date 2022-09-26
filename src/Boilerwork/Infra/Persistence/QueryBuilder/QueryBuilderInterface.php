@@ -46,4 +46,44 @@ interface QueryBuilderInterface
 
     public function initTransaction(): void;
     public function endTransaction(): void;
+
+    public function getStatement(): string;
+
+    /**
+     *
+     * Sets the limit and count by page number.
+     *
+     * @param int $page Limit results to this page number.
+     *
+     * @return $this
+     *
+     */
+    public function page($page);
+
+    /**
+     *
+     * Returns the page number being selected.
+     *
+     * @return int
+     *
+     */
+    public function getPage();
+    /**
+     *
+     * Sets the number of rows per page.
+     *
+     * @param int $paging The number of rows to page at.
+     *
+     * @return $this
+     *
+     */
+    public function setPaging($paging);
+    /**
+     *
+     * Gets the number of rows per page.
+     *
+     * @return int The number of rows per page.
+     *
+     */
+    public function getPaging();
 }

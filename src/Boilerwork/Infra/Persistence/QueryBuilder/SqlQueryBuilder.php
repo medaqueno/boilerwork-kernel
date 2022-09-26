@@ -42,11 +42,23 @@ final class SqlQueryBuilder implements QueryBuilderInterface
         return $this->conn->fetchAssoc($statement) ?: null;
     }
 
+    private const DEFAULT_ROWS_PER_PAGE = 5;
+
+    private ?int $paging = null;
+
     /**
      * @return array{optional?: mixed}[]
      */
     public function fetchAll(): array
     {
+        if (!$this->paging) {
+            $this->query->setPaging(self::DEFAULT_ROWS_PER_PAGE);
+        }
+
+        if ($this->getPage() === 0) {
+            $this->query->page(1);
+        }
+
         $statement = $this->prepareQuery($this->getStatement(), $this->getBindValues());
         return $this->conn->fetchAll($statement);
     }
@@ -71,6 +83,14 @@ final class SqlQueryBuilder implements QueryBuilderInterface
      */
     public function fetchAllFromRaw(string $rawQuery, array $bindValues = []): mixed
     {
+        if (!$this->paging) {
+            $this->query->setPaging(self::DEFAULT_ROWS_PER_PAGE);
+        }
+
+        if ($this->getPage() === 0) {
+            $this->query->page(1);
+        }
+
         $statement = $this->prepareQuery($rawQuery, $bindValues);
         return $this->conn->fetchAll($statement);
     }
@@ -112,8 +132,6 @@ final class SqlQueryBuilder implements QueryBuilderInterface
     private function checkError()
     {
         $resultDiag = $this->conn->resultDiag;
-
-        var_dump($resultDiag);
 
         // May be a handled error
         error(
@@ -325,7 +343,7 @@ final class SqlQueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
-    public function getBindValues(): array
+    private function getBindValues(): array
     {
         return $this->query->getBindValues();
     }
@@ -350,5 +368,28 @@ final class SqlQueryBuilder implements QueryBuilderInterface
         }
 
         return str_replace(array_keys($bindValues), $replacingValues, $originalStatement);
+    }
+
+    public function page($page): self
+    {
+        $this->query->page($page);
+        return $this;
+    }
+
+    public function getPage(): int
+    {
+        return $this->query->getPage();
+    }
+
+    public function setPaging($paging): self
+    {
+        $this->paging = $paging;
+        $this->query->setPaging($paging);
+        return $this;
+    }
+
+    public function getPaging(): int
+    {
+        return $this->query->getPaging();
     }
 }
