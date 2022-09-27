@@ -10,6 +10,7 @@ use Aura\SqlQuery\Common\Insert;
 use Aura\SqlQuery\Common\Select;
 use Aura\SqlQuery\QueryFactory;
 use Aura\SqlQuery\Common\Update;
+use Aura\SqlQuery\Exception;
 use Boilerwork\Infra\Persistence\Adapters\PostgreSQL\AbstractPostgreSQLPool;
 use Boilerwork\Infra\Persistence\Adapters\PostgreSQL\PostgreSQLReadsPool;
 use Boilerwork\Infra\Persistence\Exceptions\PersistenceException;
@@ -126,8 +127,31 @@ final class SqlQueryBuilder implements QueryBuilderInterface
         $perPage = $pagingContainer->perPage() ?? self::DEFAULT_ROWS_PER_PAGE;
         $page = $pagingContainer->page() ?? 1;
 
+        // Always before set paging and page to current query
+        $pagingContainer->setTotalCount($this->retrieveTotalCount());
+
         $this->query->setPaging($perPage);
         $this->query->page($page);
+    }
+
+    /**
+     * Clone current query,
+     * and manipulate it to only retrieve total number of records
+     * to be added to pagination metadata response
+     */
+    private function retrieveTotalCount(): int
+    {
+        $countQuery = new self;
+        $cloneCurrent = clone $this->query;
+
+        $response = $countQuery->fetchOneFromRaw(
+            $cloneCurrent->resetCols()->resetOrderBy()->cols(['count(*)'])->getStatement(),
+            $cloneCurrent->getBindValues()
+        );
+
+        unset($countQuery, $cloneCurrent);
+
+        return $response['count'] ?? 0;
     }
 
     private function checkError()

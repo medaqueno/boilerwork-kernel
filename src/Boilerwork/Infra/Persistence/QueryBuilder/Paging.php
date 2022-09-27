@@ -7,11 +7,12 @@ namespace Boilerwork\Infra\Persistence\QueryBuilder;
 
 final class Paging
 {
+    private int $totalCount = 0;
+
     public function __construct(
         private readonly int $perPage,
         private readonly int $page,
     ) {
-        // Local container
         container()->instance('Paging', $this);
     }
 
@@ -23,6 +24,16 @@ final class Paging
     public function page(): int
     {
         return $this->page;
+    }
+
+    public function setTotalCount(int $totalCount): void
+    {
+        $this->totalCount = $totalCount;
+    }
+
+    public function totalCount(): int
+    {
+        return $this->totalCount;
     }
 
     public function serialize(): array

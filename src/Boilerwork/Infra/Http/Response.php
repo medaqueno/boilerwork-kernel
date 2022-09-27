@@ -48,7 +48,23 @@ class Response
     private static function wrapResponse(mixed $data): array
     {
         return [
+            'metadata' => self::addMetaData(),
             'data' => $data,
+        ];
+    }
+
+    private static function addMetaData()
+    {
+        if (!container()->has('Paging')) {
+            return;
+        }
+
+        $pagingContainer = container()->get('Paging');
+
+        return [
+            'perPage' => $pagingContainer->perPage(),
+            'page' => $pagingContainer->page(),
+            'totalCount' => $pagingContainer->totalCount(),
         ];
     }
 }
