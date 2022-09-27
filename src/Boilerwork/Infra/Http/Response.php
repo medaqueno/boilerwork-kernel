@@ -51,7 +51,7 @@ class Response
         $metaData = new \ArrayObject(self::addPagination());
 
         return [
-            'metadata' => $metaData,
+            '_metadata' => $metaData,
             'data' => $data,
         ];
     }
