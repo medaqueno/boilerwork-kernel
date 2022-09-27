@@ -36,11 +36,18 @@ final class Paging
         return $this->totalCount;
     }
 
+    public function totalPages(): int
+    {
+        return max(1, (int) ceil($this->totalCount() / $this->perPage()));
+    }
+
     public function serialize(): array
     {
         return [
-            'perPage' => $this->perPage,
-            'page' => $this->page,
+            'perPage' => $this->perPage(),
+            'page' => $this->page(),
+            'totalCount' => $this->totalCount(),
+            'totalPages' => $this->totalPages(),
         ];
     }
 }

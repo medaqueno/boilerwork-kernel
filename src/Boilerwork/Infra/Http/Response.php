@@ -10,6 +10,7 @@ use Laminas\Diactoros\Response\TextResponse;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use stdClass;
 
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17
@@ -47,24 +48,22 @@ class Response
 
     private static function wrapResponse(mixed $data): array
     {
+        $metaData = new \ArrayObject(self::addPagination());
+
         return [
-            'metadata' => self::addMetaData(),
+            'metadata' => $metaData,
             'data' => $data,
         ];
     }
 
-    private static function addMetaData()
+    private static function addPagination(): array
     {
         if (!container()->has('Paging')) {
-            return;
+            return [];
         }
 
         $pagingContainer = container()->get('Paging');
 
-        return [
-            'perPage' => $pagingContainer->perPage(),
-            'page' => $pagingContainer->page(),
-            'totalCount' => $pagingContainer->totalCount(),
-        ];
+        return $pagingContainer->serialize();;
     }
 }
