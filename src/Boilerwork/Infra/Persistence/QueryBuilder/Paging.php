@@ -11,6 +11,7 @@ final class Paging
         private readonly int $perPage,
         private readonly int $page,
     ) {
+        // Local container
         container()->instance('Paging', $this);
     }
 
