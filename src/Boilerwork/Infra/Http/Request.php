@@ -9,6 +9,7 @@ use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Boilerwork\Domain\ValueObjects\Identity;
+use Boilerwork\Infra\Persistence\QueryBuilder\Paging;
 use Boilerwork\System\AuthInfo\AuthInfo;
 use Boilerwork\System\AuthInfo\AuthInfoNotFound;
 use Boilerwork\System\AuthInfo\HasAuthInfo;
@@ -41,6 +42,19 @@ class Request extends ServerRequest implements ServerRequestInterface
         );
 
         $this->setAuthInfo();
+        $this->paging();
+    }
+
+    private function paging(): void
+    {
+        if (!isset($this->getQueryParams()['perPage']) || !isset($this->getQueryParams()['page'])) {
+            return;
+        }
+
+        new Paging(
+            perPage: (int)$this->getQueryParams()['perPage'],
+            page: (int)$this->getQueryParams()['page']
+        );
     }
 
     private function parseBody(SwooleRequest $request): array

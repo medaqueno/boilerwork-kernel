@@ -44,20 +44,12 @@ final class SqlQueryBuilder implements QueryBuilderInterface
 
     private const DEFAULT_ROWS_PER_PAGE = 5;
 
-    private ?int $paging = null;
-
     /**
      * @return array{optional?: mixed}[]
      */
     public function fetchAll(): array
     {
-        if (!$this->paging) {
-            $this->query->setPaging(self::DEFAULT_ROWS_PER_PAGE);
-        }
-
-        if ($this->getPage() === 0) {
-            $this->query->page(1);
-        }
+        $this->addPaging();
 
         $statement = $this->prepareQuery($this->getStatement(), $this->getBindValues());
         return $this->conn->fetchAll($statement);
@@ -83,13 +75,7 @@ final class SqlQueryBuilder implements QueryBuilderInterface
      */
     public function fetchAllFromRaw(string $rawQuery, array $bindValues = []): mixed
     {
-        if (!$this->paging) {
-            $this->query->setPaging(self::DEFAULT_ROWS_PER_PAGE);
-        }
-
-        if ($this->getPage() === 0) {
-            $this->query->page(1);
-        }
+        $this->addPaging();
 
         $statement = $this->prepareQuery($rawQuery, $bindValues);
         return $this->conn->fetchAll($statement);
@@ -127,6 +113,21 @@ final class SqlQueryBuilder implements QueryBuilderInterface
         }
 
         return $result;
+    }
+
+    private function addPaging(): void
+    {
+        if (!container()->has('Paging')) {
+            return;
+        }
+
+        $pagingContainer = container()->get('Paging');
+
+        $perPage = $pagingContainer->perPage() ?? self::DEFAULT_ROWS_PER_PAGE;
+        $page = $pagingContainer->page() ?? 1;
+
+        $this->query->setPaging($perPage);
+        $this->query->page($page);
     }
 
     private function checkError()
