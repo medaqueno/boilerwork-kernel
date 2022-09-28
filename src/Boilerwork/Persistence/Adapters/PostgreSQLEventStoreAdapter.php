@@ -55,7 +55,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
 
         $this->writesRepository->initTransaction();
 
-        $query = $this->writesRepository->queryBuilder
+        $query = $this->writesRepository
             ->select(['version'])
             ->from("aggregates")
             ->where("aggregate_id = :where_aggregate_id")
@@ -68,7 +68,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         if (!$currentPersistedAggregate) {
             $version = 0;
 
-            $query = $this->writesRepository->queryBuilder->insert([
+            $query = $this->writesRepository->insert([
                 "aggregate_id",
                 "type",
                 "version",
@@ -90,7 +90,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         }
 
         foreach ($events as $event) {
-            $query = $this->writesRepository->queryBuilder->insert([
+            $query = $this->writesRepository->insert([
                 "aggregate_id",
                 "aggregate_type",
                 "data",
@@ -107,7 +107,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
             $this->writesRepository->execute($query->getStatement(), $query->getBindValues());
         }
 
-        $query = $this->writesRepository->queryBuilder->update([
+        $query = $this->writesRepository->update([
             "version",
         ])
             ->table("aggregates")
@@ -127,7 +127,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
      **/
     public function reconstituteHistoryFor(Identity $aggregateId): IsEventSourced
     {
-        $query = $this->writesRepository->queryBuilder
+        $query = $this->writesRepository
             ->select(['data', 'aggregate_type'])
             ->from("events")
             ->where("aggregate_id = :where_aggregate_id")

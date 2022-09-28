@@ -55,6 +55,6 @@ trait BuildQuery
      */
     final public function update(array $cols = []): SqlQueryBuilder
     {
-        return $this->queryBuilder->insert($cols);
+        return $this->queryBuilder->update($cols);
     }
 }
