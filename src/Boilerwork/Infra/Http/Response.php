@@ -10,7 +10,6 @@ use Laminas\Diactoros\Response\TextResponse;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use stdClass;
 
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17
@@ -51,7 +50,7 @@ class Response
         $metaData = new \ArrayObject(self::addPagination());
 
         return [
-            '_metadata' => $metaData,
+            'metadata' => $metaData,
             'data' => $data,
         ];
     }

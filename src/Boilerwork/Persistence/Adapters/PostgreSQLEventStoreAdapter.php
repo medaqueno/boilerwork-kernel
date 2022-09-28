@@ -3,18 +3,18 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Infra\Persistence\Adapters\PostgreSQL;
+namespace Boilerwork\Persistence\Adapters;
 
 use Boilerwork\Domain\AggregateHistory;
 use Boilerwork\Domain\EventStore;
 use Boilerwork\Domain\IsEventSourced;
 use Boilerwork\Domain\ValueObjects\Identity;
-use Boilerwork\Infra\Persistence\Adapters\PostgreSQL\PostgreSQLWritesClient;
+use Boilerwork\Persistence\Repositories\SqlWritesRepository;
 
 abstract class PostgreSQLEventStoreAdapter implements EventStore
 {
     public function __construct(
-        private readonly PostgreSQLWritesClient $client
+        private readonly SqlWritesRepository $writesRepository
     ) {
     }
 
@@ -53,22 +53,34 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
             throw new \Boilerwork\Infra\Persistence\Exceptions\PersistenceException(sprintf("No events found in aggregate %s. Nothing will be persisted.", $aggregateId), 409);
         }
 
-        $this->client->getConnection();
-        $this->client->initTransaction();
+        $this->writesRepository->initTransaction();
 
-        $currentPersistedAggregate =  $this->client->fetchOne('SELECT "version" FROM "aggregates" WHERE "aggregate_id" = $1', [$aggregateId]);
+        $query = $this->writesRepository->queryBuilder
+            ->select(['version'])
+            ->from("aggregates")
+            ->where("aggregate_id = :where_aggregate_id")
+            ->bindValues([
+                ':where_aggregate_id' => $aggregateId
+            ]);
+
+        $currentPersistedAggregate = $this->writesRepository->fetchOne($query->getStatement(), $query->getBindValues());
 
         if (!$currentPersistedAggregate) {
             $version = 0;
 
-            $this->client->run(
-                'INSERT INTO "aggregates" ("aggregate_id", "type", "version") VALUES($1, $2, $3)',
-                [
-                    $aggregateId,
-                    get_class($aggregate),
-                    $version // Will be updated after persisting events
-                ]
-            );
+            $query = $this->writesRepository->queryBuilder->insert([
+                "aggregate_id",
+                "type",
+                "version",
+            ])
+                ->into("aggregates")
+                ->bindValues([
+                    ':aggregate_id' => $aggregateId,
+                    ':type' => get_class($aggregate),
+                    ':version' => $version // Will be updated after persisting events
+                ]);
+
+            $this->writesRepository->execute($query->getStatement(), $query->getBindValues());
         } else {
             $version = $currentPersistedAggregate['version'];
         }
@@ -78,27 +90,36 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
         }
 
         foreach ($events as $event) {
-            $this->client->run(
-                'INSERT INTO "events" ("aggregate_id", "aggregate_type", "data", "version") VALUES($1, $2, $3, $4)',
-                [
-                    $event->aggregateId(),
-                    get_class($aggregate),
-                    json_encode($event->serialize()),
-                    ++$version
-                ]
-            );
+            $query = $this->writesRepository->queryBuilder->insert([
+                "aggregate_id",
+                "aggregate_type",
+                "data",
+                "version",
+            ])
+                ->into("events")
+                ->bindValues([
+                    ':aggregate_id' => $event->aggregateId(),
+                    ':aggregate_type' => get_class($aggregate),
+                    ':data' => json_encode($event->serialize()),
+                    ':version' => ++$version
+                ]);
+
+            $this->writesRepository->execute($query->getStatement(), $query->getBindValues());
         }
 
-        $this->client->run(
-            'UPDATE "aggregates" SET "version" = $1 WHERE "aggregate_id" = $2',
-            [
-                $aggregate->currentVersion(),
-                $aggregateId
-            ],
-        );
+        $query = $this->writesRepository->queryBuilder->update([
+            "version",
+        ])
+            ->table("aggregates")
+            ->where("aggregate_id = :where_aggregate_id")
+            ->bindValues([
+                ':where_aggregate_id' => $aggregateId,
+                ':version' => $aggregate->currentVersion()
+            ]);
 
-        $this->client->endTransaction();
-        $this->client->putConnection();
+        $this->writesRepository->execute($query->getStatement(), $query->getBindValues());
+
+        $this->writesRepository->endTransaction();
     }
 
     /**
@@ -106,10 +127,16 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
      **/
     public function reconstituteHistoryFor(Identity $aggregateId): IsEventSourced
     {
-        $this->client->getConnection();
+        $query = $this->writesRepository->queryBuilder
+            ->select(['data', 'aggregate_type'])
+            ->from("events")
+            ->where("aggregate_id = :where_aggregate_id")
+            ->orderBy(['version ASC'])
+            ->bindValues([
+                ':where_aggregate_id' => $aggregateId->toPrimitive()
+            ]);
 
-        $eventStream  = $this->client->fetchAll('SELECT "data", "aggregate_type" FROM "events" WHERE "aggregate_id" = $1 ORDER BY "version"', [$aggregateId->toPrimitive()]);
-        $this->client->putConnection();
+        $eventStream = $this->writesRepository->fetchAll($query->getStatement(), $query->getBindValues());
 
         if (count($eventStream) === 0) {
             throw new \Exception(sprintf('No aggregate has been found with aggregateId: %s', $aggregateId->toPrimitive()), 404);

@@ -3,15 +3,15 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Infra\Persistence\QueryBuilder;
+namespace Boilerwork\Persistence\QueryBuilder;
 
 final class Paging
 {
     private int $totalCount = 0;
 
     public function __construct(
-        private readonly int $perPage,
-        private readonly int $page,
+        private readonly int $perPage = 100,
+        private readonly int $page = 1,
     ) {
         container()->instance('Paging', $this);
     }

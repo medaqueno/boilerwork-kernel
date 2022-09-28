@@ -9,7 +9,7 @@ use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Boilerwork\Domain\ValueObjects\Identity;
-use Boilerwork\Infra\Persistence\QueryBuilder\Paging;
+use Boilerwork\Persistence\QueryBuilder\Paging;
 use Boilerwork\System\AuthInfo\AuthInfo;
 use Boilerwork\System\AuthInfo\AuthInfoNotFound;
 use Boilerwork\System\AuthInfo\HasAuthInfo;

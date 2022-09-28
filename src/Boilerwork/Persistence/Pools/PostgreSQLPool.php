@@ -3,37 +3,48 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Infra\Persistence\Adapters\PostgreSQL;
+namespace Boilerwork\Persistence\Pools;
 
 use Swoole\Coroutine\Channel;
 use Swoole\Coroutine\PostgreSQL;
 
-class AbstractPostgreSQLPool
+final class PostgreSQLPool
 {
     protected readonly \Swoole\Coroutine\Channel $pool;
+
+    public function __construct(
+        string $host,
+        int $port,
+        string $dbname,
+        string $username,
+        string $password,
+        int $connectionSize,
+    ) {
+        $this->fillPool($host, $port, $dbname, $username, $password, $connectionSize);
+    }
 
     /**
      * PostgresqlPool constructor.
      */
 
-    protected function fillPool($host, $port, $dbname, $username, $password, $size): void
+    protected function fillPool($host, $port, $dbname, $username, $password, $connectionSize): void
     {
-        $this->pool = new Channel((int)$size);
+        $this->pool = new Channel((int)$connectionSize);
 
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 0; $i < $connectionSize; $i++) {
             $postgresql = new PostgreSQL();
 
             $res = $postgresql->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s", $host, $port, $dbname, $username, $password));
 
             if ($res === false) {
                 error('Failed to connect PostgreSQL server.');
-                throw new \RuntimeException("failed to connect PostgreSQL server.");
+                throw new \RuntimeException("Failed to connect PostgreSQL server.");
             } else {
                 $this->putConn($postgresql);
             }
         }
 
-        echo "POSTGRESQL POOL CREATED. " . $this->pool->capacity . " connections opened\n";
+        echo sprintf("\nPostgres Pool created: %s.%s - %s connections opened\n", $host, $dbname,  $this->pool->capacity);
     }
 
     public function getConn(): PostgreSQL
