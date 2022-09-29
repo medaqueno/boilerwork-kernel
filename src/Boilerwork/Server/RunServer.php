@@ -5,8 +5,6 @@ declare(strict_types=1);
 
 namespace Boilerwork\Server;
 
-use function Boilerwork\System\Server\getMemoryStatus;
-
 final class RunServer
 {
     public function __construct(
