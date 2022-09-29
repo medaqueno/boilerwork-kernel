@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Boilerwork\System\Container;
 
 use Exception;
-use Illuminate\Container\Container;
 use Illuminate\Container\EntryNotFoundException;
 use Psr\Container\ContainerInterface;
 
@@ -17,6 +16,12 @@ use Psr\Container\ContainerInterface;
 final class IsolatedContainer implements ContainerInterface
 {
     private static $instances = [];
+
+    public function __construct()
+    {
+        // Reset
+        static::$instances = [];
+    }
 
     /**
      * Retrieve instance from local container
@@ -44,5 +49,10 @@ final class IsolatedContainer implements ContainerInterface
     public function instance($abstract, $instance): void
     {
         static::$instances[$abstract] = $instance;
+    }
+
+    public static function reset()
+    {
+        static::$instances = [];
     }
 }
