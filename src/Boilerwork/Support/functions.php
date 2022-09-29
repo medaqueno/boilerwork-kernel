@@ -44,13 +44,6 @@ if (!function_exists('getMemoryStatus')) {
     }
 }
 
-if (!function_exists('app')) {
-    function app(): \Bootstrap\Application
-    {
-        return \Bootstrap\Application::getInstance();
-    }
-}
-
 if (!function_exists('container')) {
     /**
      * Return Container instance to be used in local/isolated requests/jobs/messages
@@ -91,10 +84,10 @@ if (!function_exists('base_path')) {
     /**
      * @return string Path from /src
      **/
-    function base_path(string $path): string
+    function base_path(string $path = ''): string
     {
         // Defined in Application Start
-        return BASE_PATH . '' . $path;
+        return BASE_PATH . $path;
     }
 }
 
@@ -106,7 +99,7 @@ if (!function_exists('error')) {
             return;
         }
 
-        Logger::error(message: $message, path: BASE_PATH . '/logs/', exception: $exception, channel: $channel);
+        Logger::error(message: $message, path: base_path('/logs/'), exception: $exception, channel: $channel);
     }
 }
 
@@ -118,29 +111,6 @@ if (!function_exists('logger')) {
             return;
         }
 
-        Logger::logger(message: $message, path: BASE_PATH . '/logs/', mode: $mode, channel: $channel);
-    }
-}
-
-if (!function_exists('getMemoryStatus')) {
-    // Monitor memory
-    function getMemoryStatus(): void
-    {
-        $fh = fopen('/proc/meminfo', 'r');
-
-        if ($fh) {
-            $memTotal = 0;
-            while ($line = fgets($fh)) {
-                $pieces = array();
-
-                if (preg_match('/^MemTotal:\s+(\d+)\skB$/', $line, $pieces)) {
-                    $memTotal = $pieces[1];
-                    break;
-                }
-            }
-            fclose($fh);
-
-            printf("\n Memory Total: %s kB\n Memory Usage: %s kB\n Memory Peak: %s kB\n\n", $memTotal, memory_get_usage() / 1024, memory_get_peak_usage(true) / 1024);
-        }
+        Logger::logger(message: $message, path: base_path('/logs/'), mode: $mode, channel: $channel);
     }
 }

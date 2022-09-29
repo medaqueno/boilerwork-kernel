@@ -9,7 +9,7 @@ use Stringable;
 
 class Logger
 {
-    public static function error(string|Stringable|array $message, $path = BASE_PATH . '/../../logs/', string $exception = \Exception::class, ?string $channel = 'error'): void
+    public static function error(string|Stringable|array $message, $path = base_path('/../../logs/'), string $exception = \Exception::class, ?string $channel = 'error'): void
     {
         $d = new DateTimeImmutable();
 
@@ -31,7 +31,7 @@ class Logger
         fclose($fp);
     }
 
-    public static function logger(string|Stringable|array $message, $path = BASE_PATH . '/../../logs/', string $mode = 'DEBUG', string $channel = 'default'): void
+    public static function logger(string|Stringable|array $message, $path = base_path('/../../logs/'), string $mode = 'DEBUG', string $channel = 'default'): void
     {
         $d = new DateTimeImmutable();
 

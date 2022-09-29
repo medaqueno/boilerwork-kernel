@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Boilerwork\Server;
 
 use function Boilerwork\System\Server\getMemoryStatus;
-use const Boilerwork\System\Server\BASE_PATH;
 
 final class RunServer
 {
@@ -77,7 +76,7 @@ final class RunServer
         } */
 
         if ($this->server instanceof \Swoole\Http\Server) {
-            $handleHttp = new HandleHttp(BASE_PATH . '/routes/httpApi.php');
+            $handleHttp = new HandleHttp(base_path('/routes/httpApi.php'));
             $this->server->on(
                 "request",
                 function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) use ($handleHttp, $handleWebSocket) {
@@ -98,7 +97,7 @@ final class RunServer
             }
         }
 
-        getMemoryStatus();
+        \getMemoryStatus();
         // var_dump($this->server);
         $this->server->start();
     }
