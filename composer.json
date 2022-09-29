@@ -38,7 +38,7 @@
       "Boilerwork\\": "src/Boilerwork/"
     },
     "files": [
-      "src/Boilerwork/Helpers/functions.php"
+      "src/Boilerwork/Support/functions.php"
     ]
   },
   "authors": [
