@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Middleware;
 
-use Boilerwork\Helpers\Singleton;
+use Boilerwork\Support\Singleton;
 use Swoole\Table;
 use Swoole\Timer;
 

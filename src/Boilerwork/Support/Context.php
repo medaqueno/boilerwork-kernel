@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Helpers;
+namespace Boilerwork\Support;
 
 use Swoole\Coroutine;
 

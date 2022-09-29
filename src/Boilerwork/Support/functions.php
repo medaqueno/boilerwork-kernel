@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Container\IsolatedContainer;
-use Boilerwork\Helpers\Logger;
+use Boilerwork\Support\Logs\Logger;
 use Boilerwork\Messaging\EventPublisher;
 
 if (!function_exists('env')) {

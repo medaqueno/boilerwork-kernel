@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Helpers;
+namespace Boilerwork\Support;
 
 enum Environments: string
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Pools;
 
-use Boilerwork\Helpers\Singleton;
+use Boilerwork\Support\Singleton;
 use Redis;
 use Swoole\Database\RedisConfig;
 use Swoole\Database\RedisPool as SwooleRedisPool;

@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Messaging;
 
 use Boilerwork\Events\AbstractEvent;
-use Boilerwork\Helpers\Singleton;
+use Boilerwork\Support\Singleton;
 use Ds\Queue;
 use RuntimeException;
 use Throwable;
