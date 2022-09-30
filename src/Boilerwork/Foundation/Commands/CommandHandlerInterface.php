@@ -7,5 +7,4 @@ namespace Boilerwork\Foundation\Commands;
 
 interface CommandHandlerInterface
 {
-    public function handle(CommandInterface $command): void;
 }
