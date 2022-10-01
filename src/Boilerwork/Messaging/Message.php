@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Events;
+namespace Boilerwork\Messaging;
 
 use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;

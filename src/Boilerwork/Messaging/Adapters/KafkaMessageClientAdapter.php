@@ -3,9 +3,13 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Events\Adapters;
+namespace Boilerwork\Messaging\Adapters;
 
-use Boilerwork\Events\MessagingClientInterface;
+use Boilerwork\Messaging\MessagingClientInterface;
+use const Boilerwork\Events\Adapters\RD_KAFKA_PARTITION_UA;
+use const Boilerwork\Events\Adapters\RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS;
+use const Boilerwork\Events\Adapters\RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS;
+use const Boilerwork\Events\Adapters\RD_KAFKA_RESP_ERR_NO_ERROR;
 
 /**
  * Uses rdkafka extension and librdkafka library in order to work.

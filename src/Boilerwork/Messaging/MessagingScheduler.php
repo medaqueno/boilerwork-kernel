@@ -3,12 +3,15 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Events;
+namespace Boilerwork\Messaging;
 
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Server\IsProcessInterface;
 use DateTime;
 use Swoole\Process;
+use const Boilerwork\Events\RD_KAFKA_RESP_ERR__PARTITION_EOF;
+use const Boilerwork\Events\RD_KAFKA_RESP_ERR__TIMED_OUT;
+use const Boilerwork\Events\RD_KAFKA_RESP_ERR_NO_ERROR;
 
 final class MessagingScheduler implements IsProcessInterface
 {

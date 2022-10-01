@@ -11,7 +11,7 @@ use Ds\Queue;
 use RuntimeException;
 use Throwable;
 
-final class EventPublisher
+final class MessagePublisher
 {
     use Singleton;
 
@@ -30,7 +30,7 @@ final class EventPublisher
      **/
     public function releaseEvents(): void
     {
-        $messagingClient = globalContainer()->get(\Boilerwork\Events\MessagingClientInterface::class);
+        $messagingClient = globalContainer()->get(\Boilerwork\Messaging\MessagingClientInterface::class);
 
         // Ds\Queue -> destructive iteration
         foreach ($this->events as $event) {

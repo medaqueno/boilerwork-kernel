@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Events;
+namespace Boilerwork\Messaging;
 
 interface MessagingProviderInterface
 {
