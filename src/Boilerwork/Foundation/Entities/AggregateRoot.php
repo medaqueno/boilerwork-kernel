@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Boilerwork\Foundation\Entities;
 
 use Boilerwork\Events\AbstractEvent;
-use Boilerwork\Messaging\EventPublisher;
 
 abstract class AggregateRoot
 {
@@ -61,7 +60,7 @@ abstract class AggregateRoot
     }
 
     /**
-     * Apply event to aggregate and raise it to EventPublisher
+     * Apply event to aggregate and raise it to MessagePublisher
      */
     final public function raise(AbstractEvent $event): void
     {
@@ -70,6 +69,6 @@ abstract class AggregateRoot
         $this->latestRecordedEvents[] = $event;
         $this->apply($event);
 
-        EventPublisher::getInstance()->raise(event: $event);
+        eventsPublisher()->raise(event: $event);
     }
 }

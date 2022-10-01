@@ -6,7 +6,7 @@ declare(strict_types=1);
 use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Support\Logs\Logger;
-use Boilerwork\Messaging\EventPublisher;
+use Boilerwork\Messaging\MessagePublisher;
 
 if (!function_exists('env')) {
     function env(string $name, mixed $defaultValue = null): mixed
@@ -74,9 +74,9 @@ if (!function_exists('authInfo')) {
 }
 
 if (!function_exists('eventsPublisher')) {
-    function eventsPublisher(): EventPublisher
+    function eventsPublisher(): MessagePublisher
     {
-        return EventPublisher::getInstance();
+        return MessagePublisher::getInstance();
     }
 }
 

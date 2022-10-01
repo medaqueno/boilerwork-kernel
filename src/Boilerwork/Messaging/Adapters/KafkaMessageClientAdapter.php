@@ -6,10 +6,6 @@ declare(strict_types=1);
 namespace Boilerwork\Messaging\Adapters;
 
 use Boilerwork\Messaging\MessagingClientInterface;
-use const Boilerwork\Events\Adapters\RD_KAFKA_PARTITION_UA;
-use const Boilerwork\Events\Adapters\RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS;
-use const Boilerwork\Events\Adapters\RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS;
-use const Boilerwork\Events\Adapters\RD_KAFKA_RESP_ERR_NO_ERROR;
 
 /**
  * Uses rdkafka extension and librdkafka library in order to work.
@@ -41,17 +37,17 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
 
         $topic = $producer->newTopic($topic);
 
-        $topic->produce(RD_KAFKA_PARTITION_UA, 0, $message);
+        $topic->produce(\RD_KAFKA_PARTITION_UA, 0, $message);
         $producer->poll(0);
 
         for ($flushRetries = 0; $flushRetries < 10; $flushRetries++) {
             $result = $producer->flush(10000);
-            if (RD_KAFKA_RESP_ERR_NO_ERROR === $result) {
+            if (\RD_KAFKA_RESP_ERR_NO_ERROR === $result) {
                 break;
             }
         }
 
-        if (RD_KAFKA_RESP_ERR_NO_ERROR !== $result) {
+        if (\RD_KAFKA_RESP_ERR_NO_ERROR !== $result) {
             throw new \RuntimeException('Was unable to flush, messages might be lost!');
         }
     }
@@ -70,13 +66,13 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         // Set a rebalance callback to log partition assignments (optional)
         $conf->setRebalanceCb(function (\RdKafka\KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
-                case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
+                case \RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
                     echo "-- Partitions Assigned --\n";
                     // var_dump($partitions);
                     $kafka->assign($partitions);
                     break;
 
-                case RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS:
+                case \RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS:
                     echo "Revoke Partitions: ";
                     var_dump($partitions);
                     $kafka->assign(NULL);
@@ -145,11 +141,11 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
         $producer = new \RdKafka\Producer($conf);
         foreach ($filtered as $item) {
             $topic = $producer->newTopic($item);
-            $topic->produce(RD_KAFKA_PARTITION_UA, 0, '');
+            $topic->produce(\RD_KAFKA_PARTITION_UA, 0, '');
         }
         for ($flushRetries = 0; $flushRetries < 10; $flushRetries++) {
             $result = $producer->flush(10000);
-            if (RD_KAFKA_RESP_ERR_NO_ERROR === $result) {
+            if (\RD_KAFKA_RESP_ERR_NO_ERROR === $result) {
                 break;
             }
         }

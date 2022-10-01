@@ -9,9 +9,6 @@ use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Server\IsProcessInterface;
 use DateTime;
 use Swoole\Process;
-use const Boilerwork\Events\RD_KAFKA_RESP_ERR__PARTITION_EOF;
-use const Boilerwork\Events\RD_KAFKA_RESP_ERR__TIMED_OUT;
-use const Boilerwork\Events\RD_KAFKA_RESP_ERR_NO_ERROR;
 
 final class MessagingScheduler implements IsProcessInterface
 {
@@ -55,9 +52,8 @@ final class MessagingScheduler implements IsProcessInterface
                 while (true) {
                     $messageReceived = $consumer->consume($messageClient::TIMEOUT * 1000);
                     switch ($messageReceived->err) {
-                        case RD_KAFKA_RESP_ERR_NO_ERROR:
+                        case \RD_KAFKA_RESP_ERR_NO_ERROR:
                             foreach ($this->subscriptionProvider->getSubscriptions() as $item) {
-
                                 $topicReceived = explode('__', $messageReceived->topic_name)[1];
 
                                 // Empty Payload checks if message is a test or only used to pre-create topic
@@ -77,10 +73,10 @@ final class MessagingScheduler implements IsProcessInterface
                                 }
                             }
                             break;
-                        case RD_KAFKA_RESP_ERR__PARTITION_EOF:
+                        case \RD_KAFKA_RESP_ERR__PARTITION_EOF:
                             echo "Kafka: No more messages; will wait for more\n";
                             break;
-                        case RD_KAFKA_RESP_ERR__TIMED_OUT:
+                        case \RD_KAFKA_RESP_ERR__TIMED_OUT:
                             // echo "Kafka: Timed out\n";
                             break;
                         default:
