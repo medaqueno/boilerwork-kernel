@@ -10,7 +10,7 @@ use Swoole\Coroutine\PostgreSQL;
 
 final class PostgreSQLPool
 {
-    protected readonly \Swoole\Coroutine\Channel $pool;
+    private readonly \Swoole\Coroutine\Channel $pool;
 
     public function __construct(
         string $host,
@@ -26,8 +26,7 @@ final class PostgreSQLPool
     /**
      * PostgresqlPool constructor.
      */
-
-    protected function fillPool($host, $port, $dbname, $username, $password, $connectionSize): void
+    private function fillPool($host, $port, $dbname, $username, $password, $connectionSize): void
     {
         $this->pool = new Channel((int)$connectionSize);
 

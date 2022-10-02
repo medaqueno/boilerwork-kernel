@@ -9,11 +9,11 @@ trait Transactions
 {
     final public function initTransaction(): void
     {
-        $this->sqlConnector->conn->query('BEGIN');
+        $this->conn->query('BEGIN');
     }
 
     final public function endTransaction(): void
     {
-        $this->sqlConnector->conn->query('COMMIT');
+        $this->conn->query('COMMIT');
     }
 }

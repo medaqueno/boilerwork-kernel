@@ -9,10 +9,13 @@ use Boilerwork\Persistence\Repositories\Sql\Traits\BuildPaging;
 use Boilerwork\Persistence\Repositories\Sql\Traits\BuildQuery;
 use Boilerwork\Persistence\Repositories\Sql\Traits\PrepareQuery;
 use Boilerwork\Persistence\Repositories\Sql\Traits\Transactions;
+use Swoole\Coroutine\PostgreSQL;
 
 abstract class AbstractSqlRepository
 {
     use BuildQuery, BuildPaging, PrepareQuery, Transactions;
+
+    private PostgreSQL $conn;
 
     /*******
      * RETRIEVE / EXECUTE QUERY
@@ -25,13 +28,14 @@ abstract class AbstractSqlRepository
         }
 
         $statement = $this->prepareQuery($statement, $bindValues);
-        return $this->sqlConnector->conn->fetchAll($statement);
+
+        return $this->conn->fetchAll($statement);
     }
 
     public function fetchOne(string $statement, $bindValues): ?array
     {
         $statement = $this->prepareQuery($statement, $bindValues);
-        return $this->sqlConnector->conn->fetchAssoc($statement) ?: null;
+        return $this->conn->fetchAssoc($statement) ?: null;
     }
 
     public function execute(string $statement, $bindValues): void

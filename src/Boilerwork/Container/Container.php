@@ -21,9 +21,9 @@ final class Container implements ContainerInterface
      *
      * @var static
      */
-    protected static $instance;
+    private static $instance;
 
-    public IlluminateContainer $container;
+    private IlluminateContainer $container;
 
     public function get($id): mixed
     {

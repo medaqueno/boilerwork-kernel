@@ -11,8 +11,8 @@ use Boilerwork\Persistence\QueryBuilder\Sql\SqlQueryBuilder;
 final class SqlWritesRepository extends AbstractSqlRepository
 {
     public function __construct(
-        protected SqlQueryBuilder $queryBuilder,
-        protected SqlWritesConnector $sqlConnector,
+        protected readonly SqlQueryBuilder $queryBuilder,
+        protected readonly SqlWritesConnector $sqlConnector,
     ) {
     }
 }

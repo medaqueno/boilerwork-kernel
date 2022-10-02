@@ -10,9 +10,7 @@ use Swoole\Coroutine\PostgreSQL;
 
 abstract class AbstractSqlConnector
 {
-    public ?PostgreSQL $conn;
-
-    protected PostgreSQLPool $pool;
+    private readonly PostgreSQLPool $pool;
 
     protected function initConnectionPool(
         string $host,
@@ -30,23 +28,15 @@ abstract class AbstractSqlConnector
             password: $password,
             connectionSize: $connectionSize,
         );
-
-        $this->getConn();
-
-        // Execute at the end of coroutine process
-        \Swoole\Coroutine\defer(function () {
-            $this->putConn();
-        });
     }
 
-    public function getConn(): void
+    public function getConn(): PostgreSQL
     {
-        $this->conn = $this->pool->getConn();
+        return $this->pool->getConn();
     }
 
-    public function putConn(): void
+    public function putConn(PostgreSQL $conn): void
     {
-        $this->pool->putConn($this->conn);
-        $this->conn = null;
+        $this->pool->putConn($conn);
     }
 }
