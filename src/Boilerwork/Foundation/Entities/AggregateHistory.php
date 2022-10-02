@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Foundation\Entities;
 
+use Boilerwork\Events\AbstractEvent;
 use Boilerwork\Support\ValueObjects\Identity;
 
 /**
@@ -12,6 +13,9 @@ use Boilerwork\Support\ValueObjects\Identity;
  */
 final class AggregateHistory
 {
+    /**
+     * @var AbstractEvent[]
+     */
     private array $history = [];
 
     public function __construct(
@@ -34,6 +38,9 @@ final class AggregateHistory
         return $this->aggregateId;
     }
 
+    /**
+     * @return AbstractEvent[]
+     */
     public function aggregateHistory(): array
     {
         return $this->history;
