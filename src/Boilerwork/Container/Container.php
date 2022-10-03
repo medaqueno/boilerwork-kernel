@@ -65,6 +65,11 @@ final class Container implements ContainerInterface
         return $this->isolatedContainer;
     }
 
+    private function __construct()
+    {
+        $this->setInstance(new IlluminateContainer);
+    }
+
 
     /**
      * Get the globally available instance of the container.
