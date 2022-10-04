@@ -14,5 +14,6 @@ final class SqlReadsRepository extends AbstractSqlRepository
         protected readonly SqlQueryBuilder $queryBuilder,
         protected readonly SqlReadsConnector $sqlConnector,
     ) {
+        $this->conn = $this->sqlConnector->getConn();
     }
 }

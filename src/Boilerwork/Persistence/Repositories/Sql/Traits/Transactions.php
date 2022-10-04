@@ -9,6 +9,14 @@ trait Transactions
 {
     final public function initTransaction(): void
     {
+        if ($this->conn === null) $this->conn = $this->sqlConnector->getConn();
+
+        // Execute at the end of coroutine process
+        \Swoole\Coroutine\defer(function () {
+            echo "\nDEFER\n\n";
+            $this->sqlConnector->putConn($this->conn);
+        });
+
         $this->conn->query('BEGIN');
     }
 

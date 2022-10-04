@@ -16,7 +16,7 @@ trait PrepareQuery
     // https://stackoverflow.com/questions/27908977/how-to-use-parametric-order-by-with-pg-prepare-pg-execute
     private function prepareQuery(string $statement, array $bindValues = []): mixed
     {
-        $this->conn = $this->sqlConnector->getConn();
+        if ($this->conn === null) $this->conn = $this->sqlConnector->getConn();
 
         // Execute at the end of coroutine process
         \Swoole\Coroutine\defer(function () {
@@ -45,12 +45,8 @@ trait PrepareQuery
      * @param string $originalStatement
      * @return string
      */
-    private function parseStatementForSwooleClient(string $originalStatement, array $bindValues = []): string
+    private function parseStatementForSwooleClient(string $originalStatement, $bindValues): string
     {
-        if (count($bindValues) === 0) {
-            return $originalStatement;
-        }
-
         $i = 1;
         $replacingValues = [];
         foreach ($bindValues as $key => $value) {
@@ -62,7 +58,7 @@ trait PrepareQuery
 
     private function checkError()
     {
-        $resultDiag = $this->sqlConnector->getConn()->resultDiag;
+        $resultDiag = $this->conn->resultDiag;
 
         // May be a handled error
         error(

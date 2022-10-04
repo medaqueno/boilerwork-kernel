@@ -14,5 +14,6 @@ final class SqlWritesRepository extends AbstractSqlRepository
         protected readonly SqlQueryBuilder $queryBuilder,
         protected readonly SqlWritesConnector $sqlConnector,
     ) {
+        $this->conn = $this->sqlConnector->getConn();
     }
 }

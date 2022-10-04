@@ -15,7 +15,7 @@ abstract class AbstractSqlRepository
 {
     use BuildQuery, BuildPaging, PrepareQuery, Transactions;
 
-    private PostgreSQL $conn;
+    protected ?PostgreSQL $conn = null;
 
     /*******
      * RETRIEVE / EXECUTE QUERY
@@ -23,6 +23,7 @@ abstract class AbstractSqlRepository
 
     public function fetchAll(string $statement, array $bindValues = []): array
     {
+
         if ($this->queryBuilder->isPagingEnabled() === true) {
             $statement = $this->addPaging();
         }
@@ -34,12 +35,15 @@ abstract class AbstractSqlRepository
 
     public function fetchOne(string $statement, $bindValues): ?array
     {
+
+
         $statement = $this->prepareQuery($statement, $bindValues);
         return $this->conn->fetchAssoc($statement) ?: null;
     }
 
     public function execute(string $statement, $bindValues): void
     {
+
         $this->prepareQuery($statement, $bindValues);
     }
 }

@@ -37,6 +37,7 @@ abstract class AbstractSqlConnector
 
     public function putConn(PostgreSQL $conn): void
     {
+        echo "\n\nPUT CONN\n";
         $this->pool->putConn($conn);
     }
 }
