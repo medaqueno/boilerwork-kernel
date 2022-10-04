@@ -12,7 +12,7 @@ trait CanRecordEvents
     private array $latestRecordedEvents = [];
 
     /**
-     * @internal
+     * 
      * Retrieve currently recorded events in aggregate.
      */
     final public function recordedEvents(): array
@@ -21,7 +21,7 @@ trait CanRecordEvents
     }
 
     /**
-     * @internal
+     * 
      * Clear all recorded events in the aggregate
      */
     final public function clearRecordedEvents(): void
@@ -68,7 +68,7 @@ trait CanRecordEvents
     private int $version = 0;
 
     /**
-     * @internal
+     * 
      * Retrieve Aggregate current version
      */
     final public function currentVersion(): int
@@ -77,7 +77,7 @@ trait CanRecordEvents
     }
 
     /**
-     * @internal
+     * 
      */
     private function increaseVersion(): void
     {

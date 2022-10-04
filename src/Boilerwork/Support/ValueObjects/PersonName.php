@@ -9,7 +9,7 @@ use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
 
 /**
- * @internal
+ * 
  **/
 abstract class PersonName extends ValueObject
 {

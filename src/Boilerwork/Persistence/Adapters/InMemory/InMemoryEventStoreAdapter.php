@@ -23,7 +23,7 @@ abstract class InMemoryEventStoreAdapter implements EventStore
     /**
      * {@inheritDoc}
      *
-     * @internal
+     * 
      * 1. First checks to see if an aggregate exists with the unique identifier it is to use, if there is not one it will create it and consider the current version to be zero.
      * 2. It will then attempt to do an optimistic concurrency test on the data coming in if the expected version does not match the actual version it will raise a concurrency exception.
      * 3. Providing the versions are the same, it will then loop through the events being saved and insert them into the events table, incrementing the version number by one for each event.

@@ -45,8 +45,12 @@ trait PrepareQuery
      * @param string $originalStatement
      * @return string
      */
-    private function parseStatementForSwooleClient(string $originalStatement, $bindValues): string
+    private function parseStatementForSwooleClient(string $originalStatement, array $bindValues = []): string
     {
+        if (count($bindValues) === 0) {
+            return $originalStatement;
+        }
+
         $i = 1;
         $replacingValues = [];
         foreach ($bindValues as $key => $value) {

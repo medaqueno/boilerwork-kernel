@@ -10,7 +10,7 @@ use Boilerwork\Validation\Assert;
 use Symfony\Polyfill\Uuid\Uuid as UuidImplementation;
 
 /**
- * @internal Creates UUID using Symfony\Polyfill implementation, which turns out to be faster than pecl extension.
+ *  Creates UUID using Symfony\Polyfill implementation, which turns out to be faster than pecl extension.
  **/
 abstract class Uuid extends ValueObject
 {

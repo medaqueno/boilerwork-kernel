@@ -8,7 +8,7 @@ namespace Boilerwork\Support\ValueObjects\Country;
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 
 /**
- * @internal Creates UUID using Symfony\Polyfill implementation, which turns out to be faster than pecl extension.
+ *  Creates UUID using Symfony\Polyfill implementation, which turns out to be faster than pecl extension.
  **/
 final class Country extends ValueObject
 {

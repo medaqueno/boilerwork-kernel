@@ -10,7 +10,7 @@ use Boilerwork\Validation\Assert;
 use function Boilerwork\Domain\ValueObjects\mb_substr;
 
 /**
- * @internal
+ * 
  **/
 class Email extends ValueObject
 {
