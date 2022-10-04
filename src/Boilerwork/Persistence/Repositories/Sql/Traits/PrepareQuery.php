@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Repositories\Sql\Traits;
 
-use Boilerwork\Cosas\Persistence\Exceptions\PersistenceException;
+use Boilerwork\Persistence\Exceptions\PersistenceException;
 
 trait PrepareQuery
 {
