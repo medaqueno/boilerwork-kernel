@@ -9,10 +9,13 @@ use Stringable;
 
 class Logger
 {
-    public static function error(string|Stringable|array $message, $path = '/../../logs/', string $exception = \Exception::class, ?string $channel = 'error'): void
+    public static function error(string|Stringable|array $message, ?string $path = null, string $exception = \Exception::class, ?string $channel = 'error'): void
     {
-        $d = new DateTimeImmutable();
+        if ($path === null) {
+            $path = '/logs/';
+        }
 
+        $d = new DateTimeImmutable();
         $message = is_array($message) ? json_encode($message) : ((method_exists($message, '__toString')) ? $message->__toString() : $message);
         $message = '[' . $d->format(DateTimeImmutable::ATOM) . '] ' . strtoupper($exception) . ' ' . $message . PHP_EOL;
 
@@ -31,8 +34,12 @@ class Logger
         fclose($fp);
     }
 
-    public static function logger(string|Stringable|array $message, $path = '/../../logs/', string $mode = 'DEBUG', string $channel = 'default'): void
+    public static function logger(string|Stringable|array $message, ?string $path = null, string $mode = 'DEBUG', string $channel = 'default'): void
     {
+        if ($path === null) {
+            $path = '/logs/';
+        }
+
         $d = new DateTimeImmutable();
 
         $message = is_array($message) ? json_encode($message) : ((method_exists($message, '__toString')) ? $message->__toString() : $message);

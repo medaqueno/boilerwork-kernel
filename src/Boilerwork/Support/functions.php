@@ -84,7 +84,7 @@ if (!function_exists('base_path')) {
     /**
      * @return string Path from /src
      **/
-    function base_path(string $path = ''): string
+    function base_path(?string $path = ''): string
     {
         // Defined in Application Start
         return BASE_PATH . $path;
@@ -99,7 +99,7 @@ if (!function_exists('error')) {
             return;
         }
 
-        Logger::error(message: $message, path: base_path('/logs/'), exception: $exception, channel: $channel);
+        Logger::error(message: $message, exception: $exception, channel: $channel);
     }
 }
 
@@ -111,6 +111,6 @@ if (!function_exists('logger')) {
             return;
         }
 
-        Logger::logger(message: $message, path: base_path('/logs/'), mode: $mode, channel: $channel);
+        Logger::logger(message: $message, mode: $mode, channel: $channel);
     }
 }
