@@ -16,13 +16,6 @@ trait PrepareQuery
     // https://stackoverflow.com/questions/27908977/how-to-use-parametric-order-by-with-pg-prepare-pg-execute
     private function prepareQuery(string $statement, array $bindValues = []): mixed
     {
-        if ($this->conn === null) $this->conn = $this->sqlConnector->getConn();
-
-        // Execute at the end of coroutine process
-        \Swoole\Coroutine\defer(function () {
-            $this->sqlConnector->putConn($this->conn);
-        });
-
         $newStatement = $this->parseStatementForSwooleClient(
             originalStatement: $statement,
             bindValues: $bindValues,
