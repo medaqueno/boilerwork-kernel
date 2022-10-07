@@ -5,12 +5,11 @@ declare(strict_types=1);
 
 namespace Boilerwork\Health;
 
-use Boilerwork\Foundation\Ports\AbstractHttpPort;
 use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 
-final class CheckHealthPort extends AbstractHttpPort
+final class CheckHealthPort
 {
     public function __invoke(Request $request, array $vars): ResponseInterface
     {
