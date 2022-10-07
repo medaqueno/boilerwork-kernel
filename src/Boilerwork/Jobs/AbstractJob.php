@@ -20,7 +20,7 @@ abstract class AbstractJob
 
     abstract public function handle(): void;
 
-    final public function __construct()
+    public function __construct()
     {
         $this->setAuthInfo();
     }
