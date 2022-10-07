@@ -43,4 +43,13 @@ abstract class AbstractSqlRepository
     {
         $this->prepareQuery($statement, $bindValues);
     }
+
+    /**
+     * Convert boolean value into Postgres booleans"
+     * Postgres needs 'y' or 'f' value in boolean types
+     */
+    public function convertBoolean(bool $boolean): string
+    {
+        return $boolean === true ? 'y' : 'n';
+    }
 }
