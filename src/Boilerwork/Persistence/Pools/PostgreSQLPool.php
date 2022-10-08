@@ -12,7 +12,7 @@ final class PostgreSQLPool
 {
     // private static ?\Swoole\Coroutine\Channel $pool = null;
 
-    private static ?PostgreSQL $conn = null;
+    private ?PostgreSQL $conn = null;
 
     public function __construct(
         string $host,
@@ -30,13 +30,13 @@ final class PostgreSQLPool
      */
     private function fillPool($host, $port, $dbname, $username, $password, $connectionSize): void
     {
-        if (self::$conn !== null) {
+        if ($this->conn !== null) {
             return;
         }
 
-        self::$conn = new PostgreSQL();
+        $this->conn = new PostgreSQL();
 
-        $res = self::$conn->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s", $host, $port, $dbname, $username, $password));
+        $res = $this->conn->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s", $host, $port, $dbname, $username, $password));
 
         if ($res === false) {
             error('Failed to connect PostgreSQL server.');
@@ -48,12 +48,12 @@ final class PostgreSQLPool
 
     public function getConn(): PostgreSQL
     {
-        return self::$conn;
+        return $this->conn;
     }
 
     public function putConn(PostgreSQL $postgreSQL): void
     {
-        self::$conn = null;
+        $this->conn = null;
     }
 
     public function close(): void
