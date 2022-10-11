@@ -12,7 +12,7 @@ use function Boilerwork\Domain\ValueObjects\mb_substr;
 /**
  * 
  **/
-class Email extends ValueObject
+class EmailAddress extends ValueObject
 {
     public function __construct(
         public readonly string $value
