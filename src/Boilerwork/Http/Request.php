@@ -35,7 +35,7 @@ class Request extends ServerRequest implements ServerRequestInterface
             method: $swooleRequest->server['request_method'],
             body: 'php://input',
             headers: $swooleRequest->header ?? [],
-            cookies: $swooleRequest->cookie ?? [],
+            cookieParams: $swooleRequest->cookie ?? [],
             queryParams: $swooleRequest->get ?? [],
             parsedBody: $this->parseBody($swooleRequest),
             protocol: '1.1'
