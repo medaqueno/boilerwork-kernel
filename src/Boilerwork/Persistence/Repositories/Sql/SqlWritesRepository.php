@@ -14,13 +14,6 @@ final class SqlWritesRepository extends AbstractSqlRepository
         protected readonly SqlQueryBuilder $queryBuilder,
         protected readonly SqlWritesConnector $sqlConnector,
     ) {
-        if ($this->conn === null) {
-            $this->conn = $this->sqlConnector->getConn();
-
-            // Execute at the end of coroutine process
-            \Swoole\Coroutine\defer(function () {
-                $this->sqlConnector->putConn($this->conn);
-            });
-        }
+        $this->conn = $this->sqlConnector->getConn();
     }
 }
