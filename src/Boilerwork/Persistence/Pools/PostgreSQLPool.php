@@ -30,10 +30,6 @@ final class PostgreSQLPool
      */
     private function fillPool($host, $port, $dbname, $username, $password, $connectionSize): void
     {
-        if ($this->conn !== null) {
-            return;
-        }
-
         $this->conn = new PostgreSQL();
 
         $res = $this->conn->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s", $host, $port, $dbname, $username, $password));
@@ -43,7 +39,7 @@ final class PostgreSQLPool
             throw new \RuntimeException("Failed to connect PostgreSQL server.");
         }
 
-        echo sprintf("\nPostgres Pool created: %s.%s - %s connections opened\n", $host, $dbname, '');
+        echo sprintf("\nPostgres Pool created: %s.%s - %s connections opened\n", $host, $dbname, $connectionSize);
     }
 
     public function getConn(): PostgreSQL
