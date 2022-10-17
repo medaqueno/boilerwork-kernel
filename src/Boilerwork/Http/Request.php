@@ -61,13 +61,16 @@ class Request extends ServerRequest implements ServerRequestInterface
 
     private function criteria(): void
     {
-        if (!isset($this->getQueryParams()['where']) && !isset($this->getQueryParams()['orderBy'])) {
+        $where = $this->getQueryParams()['where'] ?? null;
+        $orderBy = $this->getQueryParams()['orderBy'] ?? null;
+
+        if (!$where && !$orderBy) {
             return;
         }
 
         new Criteria(
-            where: ($this->getQueryParams()['where']) ? $this->getQueryParams()['where'] : "",
-            orderBy: ($this->getQueryParams()['orderBy']) ? $this->getQueryParams()['orderBy'] : ""
+            where: $where,
+            orderBy: $orderBy
         );
     }
 
