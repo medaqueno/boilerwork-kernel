@@ -8,7 +8,6 @@ namespace Boilerwork\Http;
 use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;
 use Boilerwork\Authentication\AuthInfo\HasAuthInfo;
-use Boilerwork\Persistence\QueryBuilder\Criteria\Criteria as CriteriaCriteria;
 use Boilerwork\Persistence\QueryBuilder\Sql\Paging;
 use Boilerwork\Persistence\QueryBuilder\Sql\Criteria;
 use Boilerwork\Support\ValueObjects\Identity;
@@ -37,7 +36,7 @@ class Request extends ServerRequest implements ServerRequestInterface
             method: $swooleRequest->server['request_method'],
             body: 'php://input',
             headers: $swooleRequest->header ?? [],
-            cookies: $swooleRequest->cookie ?? [],
+            cookieParams: $swooleRequest->cookie ?? [],
             queryParams: $swooleRequest->get ?? [],
             parsedBody: $this->parseBody($swooleRequest),
             protocol: '1.1'
