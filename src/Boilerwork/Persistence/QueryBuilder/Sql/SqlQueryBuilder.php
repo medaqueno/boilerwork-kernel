@@ -10,6 +10,7 @@ use Aura\SqlQuery\Common\Insert;
 use Aura\SqlQuery\Common\Select;
 use Aura\SqlQuery\Common\Update;
 use Aura\SqlQuery\QueryFactory;
+use Boilerwork\Persistence\QueryBuilder\Sql\Criteria;
 
 /**
  * Wrap Aura SQLQUERY
@@ -99,6 +100,19 @@ final class SqlQueryBuilder
     {
         $this->query->where($cond);
         return $this;
+    }
+
+    public function generateCriteria(): self
+    {
+
+        if (!container()->has('Criteria')) {
+            // If no criteria provided, we do not manipulate the query. Return instance without further filtering. 
+            return $this;
+        } else {
+            $criteriaContainer = container()->get('Criteria');
+            $criteriaContainer->generateConditions($this->query);
+            return $this;
+        }
     }
 
     /**
