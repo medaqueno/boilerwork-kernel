@@ -8,7 +8,9 @@ namespace Boilerwork\Http;
 use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;
 use Boilerwork\Authentication\AuthInfo\HasAuthInfo;
+use Boilerwork\Persistence\QueryBuilder\Criteria\Criteria as CriteriaCriteria;
 use Boilerwork\Persistence\QueryBuilder\Sql\Paging;
+use Boilerwork\Persistence\QueryBuilder\Sql\Criteria;
 use Boilerwork\Support\ValueObjects\Identity;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
@@ -35,7 +37,7 @@ class Request extends ServerRequest implements ServerRequestInterface
             method: $swooleRequest->server['request_method'],
             body: 'php://input',
             headers: $swooleRequest->header ?? [],
-            cookieParams: $swooleRequest->cookie ?? [],
+            cookies: $swooleRequest->cookie ?? [],
             queryParams: $swooleRequest->get ?? [],
             parsedBody: $this->parseBody($swooleRequest),
             protocol: '1.1'
@@ -43,6 +45,7 @@ class Request extends ServerRequest implements ServerRequestInterface
 
         $this->setAuthInfo();
         $this->paging();
+        $this->criteria();
     }
 
     private function paging(): void
@@ -54,6 +57,18 @@ class Request extends ServerRequest implements ServerRequestInterface
         new Paging(
             perPage: (int)$this->getQueryParams()['perPage'],
             page: (int)$this->getQueryParams()['page']
+        );
+    }
+
+    private function criteria(): void
+    {
+        if (!isset($this->getQueryParams()['where']) && !isset($this->getQueryParams()['orderBy'])) {
+            return;
+        }
+
+        new Criteria(
+            where: ($this->getQueryParams()['where']) ? $this->getQueryParams()['where'] : "",
+            orderBy: ($this->getQueryParams()['orderBy']) ? $this->getQueryParams()['orderBy'] : ""
         );
     }
 
