@@ -106,7 +106,7 @@ final class SqlQueryBuilder
     {
 
         if (!container()->has('Criteria')) {
-            // todo que hacemos si no existe previamente un criteria
+            // If no criteria provided, we do not manipulate the query. Return instance without further filtering. 
             return $this;
         } else {
             $criteriaContainer = container()->get('Criteria');
