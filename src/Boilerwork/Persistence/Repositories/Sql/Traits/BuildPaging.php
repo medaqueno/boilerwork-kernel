@@ -30,18 +30,21 @@ trait BuildPaging
      * Clone current query,
      * and manipulate it to only retrieve total number of records
      * to be added to pagination metadata response
+     *
+     * Re-uses the connection already opened by "parent" query.
      */
     private function retrieveTotalCount(): int
     {
         $cloneCurrent = clone $this->queryBuilder->query;
         $statement =  $cloneCurrent->resetCols()->resetOrderBy()->cols(['count(*)'])->getStatement();
 
-        $response = $this->fetchOne(
-            $statement,
-            $cloneCurrent->getBindValues()
-        );
+        $conn = $this->sqlConnector->getConn();
+        $statement = $this->prepareQuery($conn, $statement, $cloneCurrent->getBindValues());
 
-        unset($cloneCurrent);
+        $response =  $conn->fetchAssoc($statement) ?: null;
+        $this->sqlConnector->putConn($conn);
+
+        unset($cloneCurrent, $conn);
 
         return $response['count'] ?? 0;
     }

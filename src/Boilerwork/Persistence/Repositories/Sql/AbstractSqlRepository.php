@@ -15,33 +15,49 @@ abstract class AbstractSqlRepository
 {
     use BuildQuery, BuildPaging, PrepareQuery, Transactions;
 
-    protected ?PostgreSQL $conn = null;
-
     /*******
      * RETRIEVE / EXECUTE QUERY
      *******/
 
     public function fetchAll(string $statement, array $bindValues = []): array
     {
+        $conn = $this->sqlConnector->getConn();
+
         if ($this->queryBuilder->isPagingEnabled() === true) {
             $statement = $this->addPaging();
         }
 
-        $statement = $this->prepareQuery($statement, $bindValues);
+        $statement = $this->prepareQuery($conn, $statement, $bindValues);
 
-        return $this->conn->fetchAll($statement);
+        $res = $conn->fetchAll($statement);
+
+        $this->sqlConnector->putConn($conn);
+        unset($conn);
+
+        return $res;
     }
 
     public function fetchOne(string $statement, $bindValues): ?array
     {
+        $conn = $this->sqlConnector->getConn();
 
-        $statement = $this->prepareQuery($statement, $bindValues);
-        return $this->conn->fetchAssoc($statement) ?: null;
+        $statement = $this->prepareQuery($conn, $statement, $bindValues);
+        $res =  $conn->fetchAssoc($statement) ?: null;
+
+        $this->sqlConnector->putConn($conn);
+        unset($conn);
+
+        return $res;
     }
 
     public function execute(string $statement, $bindValues): void
     {
-        $this->prepareQuery($statement, $bindValues);
+        $conn = $this->sqlConnector->getConn();
+
+        $this->prepareQuery($conn, $statement, $bindValues);
+
+        $this->sqlConnector->putConn($conn);
+        unset($conn);
     }
 
     /**

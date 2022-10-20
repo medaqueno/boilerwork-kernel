@@ -14,7 +14,7 @@ trait PrepareQuery
      *******/
 
     // https://stackoverflow.com/questions/27908977/how-to-use-parametric-order-by-with-pg-prepare-pg-execute
-    private function prepareQuery(string $statement, array $bindValues = []): mixed
+    private function prepareQuery($conn, string $statement, array $bindValues = []): mixed
     {
         $newStatement = $this->parseStatementForSwooleClient(
             originalStatement: $statement,
@@ -22,11 +22,11 @@ trait PrepareQuery
         );
 
         $queryName = (string)(md5($newStatement));
-        $this->conn->prepare($queryName, $newStatement);
-        $result = $this->conn->execute($queryName, $bindValues);
+        $conn->prepare($queryName, $newStatement);
+        $result = $conn->execute($queryName, $bindValues);
 
-        if ($this->conn->resultDiag !== null) {
-            $this->checkError($result);
+        if ($conn->resultDiag !== null) {
+            $this->checkError($conn);
         }
 
         return $result;
@@ -49,9 +49,9 @@ trait PrepareQuery
         return str_replace(array_keys($bindValues), $replacingValues, $originalStatement);
     }
 
-    private function checkError()
+    private function checkError($conn)
     {
-        $resultDiag = $this->conn->resultDiag;
+        $resultDiag = $conn->resultDiag;
 
         // May be a handled error
         error(

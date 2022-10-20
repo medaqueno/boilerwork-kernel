@@ -5,54 +5,46 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Pools;
 
-use Swoole\Coroutine\Channel;
 use Swoole\Coroutine\PostgreSQL;
 
-final class PostgreSQLPool
+abstract class PostgreSQLPool
 {
-    // private static ?\Swoole\Coroutine\Channel $pool = null;
-
-    private ?PostgreSQL $conn = null;
-
-    public function __construct(
+    abstract public function initPool(
         string $host,
         int $port,
         string $dbname,
         string $username,
         string $password,
-        int $connectionSize,
-    ) {
-        $this->fillPool($host, $port, $dbname, $username, $password, $connectionSize);
-    }
+        int $connectionSize = 1,
+        string $applicationName = 'AppService',
+    ): void;
 
-    /**
-     * PostgresqlPool constructor.
-     */
-    private function fillPool($host, $port, $dbname, $username, $password, $connectionSize): void
+    protected function createConnection($host, $port, $dbname, $username, $password, $applicationName): PostgreSQL
     {
-        $this->conn = new PostgreSQL();
+        $postgresql = new PostgreSQL();
 
-        $res = $this->conn->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s", $host, $port, $dbname, $username, $password));
-
+        $res = $postgresql->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s;options=--application_name=%s", $host, $port, $dbname, $username, $password, $applicationName));
         if ($res === false) {
             error('Failed to connect PostgreSQL server.');
             throw new \RuntimeException("Failed to connect PostgreSQL server.");
         }
 
-        echo sprintf("\nPostgres Pool created: %s.%s - %s connections opened\n", $host, $dbname, $connectionSize);
+        return $postgresql;
     }
 
     public function getConn(): PostgreSQL
     {
-        return $this->conn;
+        return $this->pool->pop();
     }
 
     public function putConn(PostgreSQL $postgreSQL): void
     {
-        $this->conn = null;
+        $this->pool->push($postgreSQL);
     }
 
     public function close(): void
     {
+        $this->pool->close();
+        $this->pool = null;
     }
 }
