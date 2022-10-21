@@ -26,6 +26,9 @@ final class JobScheduler implements IsProcessInterface
 
     private const LOOP_INTERVAL = 60; // Execute each 60 seconds as is the default cron job interval
 
+    private Scheduler $scheduler;
+    private RedisClient $client;
+
     public function __construct(
         private $jobsProvider
     ) {
@@ -62,6 +65,7 @@ final class JobScheduler implements IsProcessInterface
     {
         foreach ($this->scheduler->getQueuedJobs() as $job) {
             if ($job->isDue(new DateTime()) === true) {
+
                 $this->executeIfNotOverlapped($job);
             }
         }
@@ -84,11 +88,11 @@ final class JobScheduler implements IsProcessInterface
 
                 $this->client->putConnection();
 
-                echo "\nExecuting " . $jobId . "\n";
+                logger(sprintf("JOBS - Executing %s", $jobId));
 
                 $job->run();
 
-                var_dump($job->getOutput());
+                logger(sprintf("JOBS -Job %s Output: %s", $jobId, $job->getOutput()));
 
                 $this->client->getConnection();
 
@@ -102,9 +106,12 @@ final class JobScheduler implements IsProcessInterface
     private function addJobs(): void
     {
         foreach ($this->jobsProvider->jobs as $job) {
+
+            $class = globalContainer()->get($job[0]);
+
             $task =  $this->scheduler->call(
-                fn: [new $job[0], 'handle'],
-                id: $job[0],
+                fn: [$class, 'handle'],
+                id: $class::class,
             );
 
             $interval = $job[1][0];
