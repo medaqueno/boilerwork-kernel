@@ -18,7 +18,6 @@ final class PostgreSQLWritesPool extends PostgreSQLPool
         }
 
         $this->pool = new Channel((int)$connectionSize);
-        echo "\n\nPOSTGRES WRITES POOL CONSTRUCTOR: " . $this->pool->capacity . "\n\n";
 
         for ($i = 0; $i < $connectionSize; $i++) {
             $this->putConn(
