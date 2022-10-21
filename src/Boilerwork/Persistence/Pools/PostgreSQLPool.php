@@ -23,7 +23,8 @@ abstract class PostgreSQLPool
     {
         $postgresql = new PostgreSQL();
 
-        $res = $postgresql->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s;options=--application_name=%s", $host, $port, $dbname, $username, $password, $applicationName));
+        $res = $postgresql->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s;", $host, $port, $dbname, $username, $password, $applicationName));
+        // $res = $postgresql->connect(sprintf("host=%s;port=%s;dbname=%s;user=%s;password=%s;options=--application_name=%s", $host, $port, $dbname, $username, $password, $applicationName));
         if ($res === false) {
             error('Failed to connect PostgreSQL server.');
             throw new \RuntimeException("Failed to connect PostgreSQL server.");
