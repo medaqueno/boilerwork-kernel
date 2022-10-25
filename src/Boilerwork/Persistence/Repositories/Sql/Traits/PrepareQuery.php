@@ -17,7 +17,7 @@ trait PrepareQuery
     private function prepareQuery($conn, string $statement, array $bindValues = []): mixed
     {
         $newStatement = $this->parseStatementForSwooleClient(
-            originalStatement: $statement,
+            statement: $statement,
             bindValues: $bindValues,
         );
 
@@ -35,18 +35,25 @@ trait PrepareQuery
     /**
      * Replace named binded values with incremental integers
      * Eg: :field_name -> $1
-     * @param string $originalStatement
+     * Eg: :field_name, -> $1,
+     * @param string $statement
      * @return string
      */
-    private function parseStatementForSwooleClient(string $originalStatement, $bindValues): string
+    private function parseStatementForSwooleClient(string $statement, $bindValues): string
     {
-        $i = 1;
-        $replacingValues = [];
-        foreach ($bindValues as $key => $value) {
-            $replacingValues[] =  '$' . $i++;
+        for ($i = 0; $i < count($bindValues); $i++) {
+
+            // If binded variable is followed by a comma, include it in replace
+            $comma = mb_strpos($statement, array_keys($bindValues)[$i] . ',') ? ',' : '';
+
+            $statement = str_replace(
+                sprintf('%s%s', array_keys($bindValues)[$i], $comma),
+                sprintf('$%s%s', ($i + 1), $comma),
+                $statement
+            );
         }
 
-        return str_replace(array_keys($bindValues), $replacingValues, $originalStatement);
+        return $statement;
     }
 
     private function checkError($conn)
