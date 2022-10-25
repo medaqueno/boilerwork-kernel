@@ -31,7 +31,7 @@ final class CommandBus
     private function executeHandler(CommandInterface $command): void
     {
         // With DI
-        $commandHandler = globalContainer()->get(get_class($command) . 'Handler');
+        $commandHandler = container()->get(get_class($command) . 'Handler');
         // Without DI, should add ..$args
         // $class = get_class($command) . 'Handler';
         // $commandHandler = new $class;
