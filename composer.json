@@ -5,21 +5,22 @@
   "license": "MIT",
   "require": {
     "php": "^8.1.0",
+    "aura/sqlquery": "^2.8",
     "beberlei/assert": "^3.3",
     "guzzlehttp/guzzle": "^7.0",
     "illuminate/container": "^9.4",
     "laminas/laminas-diactoros": "^2.8",
     "nikic/fast-route": "^1.3",
+    "peppeocchi/php-cron-scheduler": "^4.0",
     "php-amqplib/php-amqplib": "^3.2",
-    "symfony/polyfill-uuid": "^1.25",
-    "vlucas/phpdotenv": "^5.4",
+    "php-ds/php-ds": "^1.4",
     "psr/container": "^1.0",
+    "psr/http-message": "^1.0.1",
     "psr/log": "^1.0 || ^2.0",
     "psr/simple-cache": "^1.0",
-    "psr/http-message": "^1.0.1",
-    "php-ds/php-ds": "^1.4",
-    "peppeocchi/php-cron-scheduler": "^4.0",
-    "aura/sqlquery": "^2.8"
+    "sentry/sdk": "^3.3",
+    "symfony/polyfill-uuid": "^1.25",
+    "vlucas/phpdotenv": "^5.4"
   },
   "require-dev": {
     "deminy/counit": "^0.2.0",
@@ -39,6 +40,11 @@
     },
     "files": [
       "src/Boilerwork/Support/functions.php"
+    ]
+  },
+  "scripts": {
+    "test": [
+      "./vendor/bin/phpunit --color --testdox tests"
     ]
   },
   "authors": [

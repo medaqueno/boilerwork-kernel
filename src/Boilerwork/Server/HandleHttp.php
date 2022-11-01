@@ -13,6 +13,7 @@ use Boilerwork\Validation\CustomAssertionFailedException;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Swoole\Runtime;
 
 /**
  *
@@ -72,6 +73,8 @@ final class HandleHttp
         }
         */
 
+
+
         try {
             $result = $this->handleRequest($request);
 
@@ -82,6 +85,7 @@ final class HandleHttp
             $response->setStatusCode($result->getStatusCode(), $result->getReasonPhrase());
             $result = $result->getBody()->__toString();
         } catch (\Throwable $e) {
+
             // error($e);
 
             if ($e instanceof CustomAssertionFailedException || $e instanceof \Assert\InvalidArgumentException) {
@@ -107,8 +111,34 @@ final class HandleHttp
                     ]
                 ];
             } else {
+
+                go(function () use ($e, $request) {
+
+                    if (class_exists(\Sentry\SentrySdk::class)) {
+                        Runtime::setHookFlags(0);
+                        \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($request): void {
+                            $scope->setTag('environment', env('APP_ENV'));
+                            $scope->setTag('qt.method', $request->getMethod());
+                            $scope->setTag('qt.endpoint', $request->server['request_uri']);
+                            $scope->setContext(
+                                'Request',
+                                [
+                                    'queryString' => $request->server['query_string'] ?? 'none',
+                                    'content' => $request->getContent(),
+                                    'headers' => $request->header,
+                                ]
+                            );
+                        });
+
+                        \Sentry\captureException($e);
+                        Runtime::setHookFlags(\SWOOLE_HOOK_ALL);
+                    }
+                });
+
+
                 // // https://jsonapi.org/examples/#error-objects
-                $response->setStatusCode($e->getCode());
+                $code = $e->getCode() >= 500 ? $e->getCode() : 500;
+                $response->setStatusCode($code);
                 $result = [
                     "error" =>
                     [
