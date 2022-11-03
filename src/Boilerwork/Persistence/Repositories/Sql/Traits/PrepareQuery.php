@@ -21,7 +21,8 @@ trait PrepareQuery
             bindValues: $bindValues,
         );
 
-        $queryName = (string)(md5($newStatement));
+        $queryName = (string)(uniqid((string)random_int(1, 9999)));
+        // $queryName = (string)(md5($newStatement));
         $conn->prepare($queryName, $newStatement);
         $result = $conn->execute($queryName, $bindValues);
 
