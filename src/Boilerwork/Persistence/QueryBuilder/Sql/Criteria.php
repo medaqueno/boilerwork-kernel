@@ -22,11 +22,11 @@ final class Criteria
     public function convertWhereOperators($valor): string
     {
         $conver = array(
-            "E" => "=",
+            "EQ" => "=",
             "GT" => ">",
             "LT" => "<",
-            "GTE" => ">=",
-            "LTE" => "<=",
+            "GE" => ">=",
+            "LE" => "<=",
             "LIKE" => "LIKE",
             "NE" => "!="
         );
