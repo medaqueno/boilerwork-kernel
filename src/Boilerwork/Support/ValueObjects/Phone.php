@@ -7,7 +7,7 @@ namespace Boilerwork\Support\ValueObjects;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
-use libphonenumber\PhoneNumber;
+use libphonenumber\PhoneNumber as LibPhoneNumber;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 
@@ -17,28 +17,23 @@ use libphonenumber\PhoneNumberUtil;
 final class Phone extends ValueObject
 {
     /**
-     * @example: new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+34'), number: "910837976"), new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode(null), number: "910837976"),
+     * @example: new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+34'), number: new PhoneNumber("910837976")), new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode(null), number: new PhoneNumber("910837976")),
      * @see https://www.itu.int/rec/T-REC-E.164/es
      **/
     public function __construct(
         private readonly PhonePrefix $countryCallingCode,
-        private readonly string $number,
+        private readonly PhoneNumber $number,
     ) {
         Assert::lazy()->tryAll()
-            ->that($number)
-            ->notEmpty(
-                'Must be a valid E164 format number',
-                'phoneNumber.emptyValue'
-            )
-            ->that(sprintf('%s%s', $countryCallingCode->toPrimitive(), $number))
+            ->that(sprintf('%s%s', $countryCallingCode->toPrimitive(), $number->toPrimitive()))
             ->e164(
                 'Must be a valid E164 format number',
-                'phoneNumber.invalidValue'
+                'phone.invalidValue'
             )
             ->verifyNow();
     }
 
-    public function number(): string
+    public function number(): PhoneNumber
     {
         return $this->number;
     }
@@ -92,8 +87,10 @@ final class Phone extends ValueObject
         return $this->formatE164();
     }
 
-    private function getProtoNumber(): PhoneNumber
+    private function getProtoNumber(): LibPhoneNumber
     {
-        return (new PhoneNumber())->setNationalNumber($this->number)->setCountryCode($this->countryCallingCode->toPrimitive());
+        return (new LibPhoneNumber())
+            ->setNationalNumber($this->number->toPrimitive())
+            ->setCountryCode($this->countryCallingCode->toPrimitive());
     }
 }

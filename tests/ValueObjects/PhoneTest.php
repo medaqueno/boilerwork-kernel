@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 use Boilerwork\Support\ValueObjects\Phone;
+use Boilerwork\Support\ValueObjects\PhoneNumber;
 use Boilerwork\Support\ValueObjects\PhonePrefix;
 use Boilerwork\Validation\CustomAssertionFailedException;
 use PHPUnit\Framework\TestCase;
@@ -14,11 +15,10 @@ final class PhoneTest extends TestCase
     public function providerPhone(): iterable
     {
         yield [
-            new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+34'), number: "910837976"),
-            new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode(null), number: "2115684962"),
-            new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+49'), number: "2115684962"),
+            new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+34'), number: new PhoneNumber("910837976"))
         ];
     }
+
     /**
      * @test
      * @dataProvider providerPhone
@@ -30,29 +30,11 @@ final class PhoneTest extends TestCase
             Phone::class,
             $phone
         );
-    }
 
-    /**
-     * @test
-     * @covers \Boilerwork\Support\ValueObjects\Phone
-     **/
-    public function testInvalidNumberValue(): void
-    {
-        $this->expectException(CustomAssertionFailedException::class);
-        $this->expectExceptionMessage('phoneNumber.invalidValue');
-
-        new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+34'), number: "9108 379 76");
-    }
-
-    /**
-     * @test
-     * @covers \Boilerwork\Support\ValueObjects\Phone
-     **/
-    public function testEmptyNumberValue(): void
-    {
-        $this->expectException(CustomAssertionFailedException::class);
-        $this->expectExceptionMessage('phoneNumber.emptyValue');
-
-        new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+34'), number: "");
+        $this->assertEquals('910 83 79 76', $phone->formatNational(), 'Invalid Phone National Format');
+        $this->assertEquals('+34910837976', $phone->toPrimitive(), 'Invalid Phone Primitive Format');
+        $this->assertEquals('+34 910 83 79 76', $phone->formatInternational(), 'Invalid Phone International Format');
+        $this->assertEquals('+34', $phone->countryCallingCode()->toPrimitive(), 'Invalid countryCallingCode value');
+        $this->assertEquals('910837976', $phone->number()->toPrimitive(), 'Invalid countryCallingCode value');
     }
 }
