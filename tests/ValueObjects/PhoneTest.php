@@ -15,7 +15,10 @@ final class PhoneTest extends TestCase
     public function providerPhone(): iterable
     {
         yield [
-            new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+34'), number: new PhoneNumber("910837976"))
+            $this->getMockForAbstractClass(
+                Phone::class,
+                [PhonePrefix::fromCountryCallingCode('+34'), new PhoneNumber("910837976")]
+            )
         ];
     }
 

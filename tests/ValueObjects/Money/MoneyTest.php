@@ -14,8 +14,14 @@ final class MoneyTest extends TestCase
     public function providerMoney(): iterable
     {
         yield [
-            new Money(amount: 120, currency: new Currency('EUR')),
-            new Money(amount: 120.567, currency: new Currency('USD')),
+            $this->getMockForAbstractClass(
+                Money::class,
+                [120, new Currency('EUR')]
+            ),
+            $this->getMockForAbstractClass(
+                Money::class,
+                [120.567, new Currency('USD')]
+            ),
         ];
     }
 
@@ -38,7 +44,10 @@ final class MoneyTest extends TestCase
      **/
     public function testRoundMoney(): void
     {
-        $money = new Money(amount: 120.567, currency: new Currency('USD'));
+        $money =  $this->getMockForAbstractClass(
+            Money::class,
+            [120.567, new Currency('USD')]
+        );
 
         $this->assertSame(120.57, $money->rounded());
     }
