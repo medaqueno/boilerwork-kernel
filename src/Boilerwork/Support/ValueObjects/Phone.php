@@ -14,7 +14,7 @@ use libphonenumber\PhoneNumberUtil;
 /**
  * Depends on: https://github.com/giggsey/libphonenumber-for-php
  **/
-final class Phone extends ValueObject
+abstract class Phone extends ValueObject
 {
     /**
      * @example: new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode('+34'), number: new PhoneNumber("910837976")), new Phone(countryCallingCode: PhonePrefix::fromCountryCallingCode(null), number: new PhoneNumber("910837976")),
