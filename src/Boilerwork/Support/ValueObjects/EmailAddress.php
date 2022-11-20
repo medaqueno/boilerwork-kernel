@@ -12,11 +12,13 @@ use function Boilerwork\Domain\ValueObjects\mb_substr;
 /**
  * 
  **/
-class EmailAddress extends ValueObject
+abstract class EmailAddress extends ValueObject
 {
     public function __construct(
-        public readonly string $value
+        private string $value
     ) {
+        $value = mb_strtolower($value);
+
         Assert::lazy()->tryAll()
             ->that($value)
             ->email('Value must be a valid email', 'email.invalidFormat')

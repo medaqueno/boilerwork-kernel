@@ -55,7 +55,7 @@ final class PhonePrefix extends ValueObject
             Assert::lazy()->tryAll()
                 ->that($value)
                 ->nullOr()
-                ->notEq(0, 'Value must be a valid Iso-3166-2 code', 'phonePrefix.invalidValue')
+                ->notEq(0, 'Value must be a valid Iso-3166-2 code', 'phonePrefix.invalidIsoValue')
                 ->verifyNow();
 
             return new static((string)$value);

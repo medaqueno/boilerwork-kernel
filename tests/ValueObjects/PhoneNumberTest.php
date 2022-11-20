@@ -13,7 +13,7 @@ final class PhoneNumberTest extends TestCase
     public function providerPhoneNumber(): iterable
     {
         yield [
-            new PhoneNumber("910837976"),
+            new PhoneNumber(number: "910837976"),
             new PhoneNumber(number: "2115684962"),
             new PhoneNumber(number: "2115684962"),
         ];

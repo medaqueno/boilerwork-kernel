@@ -8,7 +8,7 @@ namespace Boilerwork\Support\ValueObjects\Money;
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
 
-final class Money extends ValueObject
+abstract class Money extends ValueObject
 {
     public function __construct(
         private float $amount,

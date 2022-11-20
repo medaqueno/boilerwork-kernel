@@ -18,7 +18,7 @@ final class Currency extends ValueObject
         Assert::lazy()->tryAll()
             ->that($value)
             ->notEmpty('Value must not be empty', 'currency.notEmpty')
-            ->inArray(self::$mappings, 'Value must be a valid currency code', 'currency.invalidValue')
+            ->inArray(self::$mappings, 'Value must be a valid ISO-4217 currency code', 'currency.invalidValue')
             ->verifyNow();
     }
 

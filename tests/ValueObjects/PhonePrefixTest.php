@@ -68,7 +68,7 @@ final class PhonePrefixTest extends TestCase
     public function testInvalidIso31662(): void
     {
         $this->expectException(CustomAssertionFailedException::class);
-        $this->expectExceptionMessage('phonePrefix.invalidValue');
+        $this->expectExceptionMessage('phonePrefix.invalidIsoValue');
 
         PhonePrefix::fromIso31662('LP');
     }
