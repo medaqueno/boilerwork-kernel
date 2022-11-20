@@ -30,7 +30,7 @@ abstract class Url extends ValueObject
         return parse_url($this->value, PHP_URL_HOST);
     }
 
-    public function port(): string
+    public function port(): int
     {
         return parse_url($this->value, PHP_URL_PORT);
     }
