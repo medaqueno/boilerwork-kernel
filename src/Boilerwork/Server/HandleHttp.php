@@ -9,6 +9,7 @@ use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
+use Boilerwork\Support\Exceptions\CustomException;
 use Boilerwork\Validation\CustomAssertionFailedException;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Request as SwooleRequest;
@@ -97,6 +98,18 @@ final class HandleHttp
                         "code" => "validationError",
                         "message" => "Request is invalid or malformed",
                         "errors" => json_decode($e->getMessage())
+                    ]
+                ];
+            } else if ($e instanceof CustomException) {
+                $response->setStatusCode($e->getCode());
+                $message = json_decode($e->getMessage());
+
+                $result = [
+                    "error" =>
+                    [
+                        "code" => $message->error->code,
+                        "message" => $message->error->message,
+                        "errors" => []
                     ]
                 ];
             } else if ($e instanceof AuthInfoNotFound) {
