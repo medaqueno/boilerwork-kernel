@@ -57,6 +57,16 @@ final class RedisClient
         return $this->conn->hSet($key, $hashKey, $value);
     }
 
+    public function hExists($key, $hashKey): mixed
+    {
+        return $this->conn->hExists($key, $hashKey);
+    }
+
+    public function exists($key): int|bool
+    {
+        return $this->conn->exists($key);
+    }
+
     public function get($key): mixed
     {
         return $this->conn->get($key);
@@ -70,6 +80,16 @@ final class RedisClient
     public function del($key, ...$otherKeys): mixed
     {
         return $this->conn->del($key, ...$otherKeys);
+    }
+
+    public function expire($key, $ttl): bool
+    {
+        return $this->conn->expire($key, $ttl);
+    }
+
+    public function raw($method, ...$params): mixed
+    {
+        return $this->conn->$method(...$params);
     }
 
     public function initTransaction(): Redis
