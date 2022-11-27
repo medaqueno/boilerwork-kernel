@@ -44,7 +44,7 @@ final class ResponseTest extends TestCase
      * @test
      * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
      **/
-    public function testPayload(): void
+    public function testAddPayload(): void
     {
         $resp = Response::create(['foo' => 'bar']);
         $this->assertStringContainsString('{"metadata":[],"data":{"foo":"bar"}}', $resp->toJson()->getBody()->__toString());
@@ -54,7 +54,7 @@ final class ResponseTest extends TestCase
      * @test
      * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
      **/
-    public function testPayloadDirect(): void
+    public function testAddPayloadDirect(): void
     {
         $resp = Response::json(['foo' => 'bar']);
         $this->assertStringContainsString('{"metadata":[],"data":{"foo":"bar"}}', $resp->getBody()->__toString());
@@ -64,7 +64,7 @@ final class ResponseTest extends TestCase
      * @test
      * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
      **/
-    public function testMetadata(): void
+    public function testAddMetadata(): void
     {
         $resp = Response::create();
         $resp->addMetadata(['metaAttr' => 'metaValue']);
@@ -81,7 +81,7 @@ final class ResponseTest extends TestCase
      * @test
      * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
      **/
-    public function testStatus(): void
+    public function testSetStatus(): void
     {
         $resp = Response::create();
         $resp->setHttpStatus(418);
@@ -93,7 +93,7 @@ final class ResponseTest extends TestCase
      * @test
      * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
      **/
-    public function testStatusDirect(): void
+    public function testSetStatusDirect(): void
     {
         $resp = Response::empty(204);
         $this->assertEquals(204, $resp->getStatusCode());
@@ -103,7 +103,7 @@ final class ResponseTest extends TestCase
      * @test
      * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
      **/
-    public function testHeaders(): void
+    public function testAddHeaders(): void
     {
         $resp = Response::create();
         $resp->addHeader('x-header-1', 'value1');
@@ -118,7 +118,7 @@ final class ResponseTest extends TestCase
      * @test
      * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
      **/
-    public function testHeadersDirect(): void
+    public function testAddHeadersDirect(): void
     {
         $resp = Response::empty(
             status: 204,
