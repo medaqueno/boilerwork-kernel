@@ -8,10 +8,10 @@ namespace Boilerwork\Foundation\Entities;
 abstract class AggregateRoot
 {
     /**
-     * Retrieve Aggregate ID
+     * Retrieve Entity ID
      */
-    final public function aggregateId(): string
+    final public function id(): string
     {
-        return $this->aggregateId->toPrimitive();
+        return $this->id->toPrimitive();
     }
 }

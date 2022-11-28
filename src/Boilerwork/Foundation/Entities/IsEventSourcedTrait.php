@@ -16,7 +16,7 @@ trait IsEventSourcedTrait
     public static function reconstituteFrom(AggregateHistory $aggregateHistory): IsEventSourced
     {
         $aggregate = new static(
-            aggregateId: $aggregateHistory->aggregateId()
+            id: $aggregateHistory->id()
         );
 
         foreach ($aggregateHistory->aggregateHistory() as $event) {

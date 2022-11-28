@@ -13,7 +13,7 @@ abstract class AbstractEvent
 
     protected ?array $serializedData = null;
 
-    abstract public function aggregateId(): string;
+    abstract public function id(): string;
 
     abstract public function serialize(): array;
 
@@ -26,7 +26,7 @@ abstract class AbstractEvent
         }
 
         return $this->serializedData = [
-            'aggregateId' => $this->aggregateId(),
+            'id' => $this->id(),
             // 'aggregateVersion' => $this->getAggregateVersion(),
             'type' => static::class,
             'ocurredOn' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),

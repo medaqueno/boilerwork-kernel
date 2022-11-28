@@ -19,13 +19,13 @@ final class AggregateHistory
     private array $history = [];
 
     public function __construct(
-        private Identity $aggregateId,
+        private Identity $id,
         private readonly array $events
     ) {
         foreach ($events as $event) {
             $event = $event['type']::unserialize($event);
 
-            if ($event->aggregateId() !== $aggregateId->toPrimitive()) {
+            if ($event->id() !== $id->toPrimitive()) {
                 throw new \Exception('Aggregate history is corrupted');
             }
 
@@ -33,9 +33,9 @@ final class AggregateHistory
         }
     }
 
-    public function aggregateId(): Identity
+    public function id(): Identity
     {
-        return $this->aggregateId;
+        return $this->id;
     }
 
     /**

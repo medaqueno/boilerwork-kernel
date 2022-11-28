@@ -10,7 +10,7 @@ namespace Boilerwork\Foundation\Entities;
  */
 interface IsEventSourced
 {
-    public function aggregateId(): string;
+    public function id(): string;
 
     public function recordedEvents(): array;
 
