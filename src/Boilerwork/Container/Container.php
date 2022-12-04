@@ -55,6 +55,11 @@ final class Container implements ContainerInterface
         $this->container->instance($abstract, $instance);
     }
 
+    public function when(string $concrete)
+    {
+        return $this->container->when($concrete);
+    }
+
     public  function setIsolatedContainer(IsolatedContainer $isolatedContainer): void
     {
         $this->isolatedContainer = $isolatedContainer;
