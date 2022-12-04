@@ -59,6 +59,7 @@ final class MessagingScheduler implements IsProcessInterface
                                 // Empty Payload checks if message is a test or only used to pre-create topic
                                 if ($topicReceived === $item['topic'] && $messageReceived->payload !== '') {
 
+
                                     $message = new Message(
                                         payload: $messageReceived->payload,
                                         topic: $messageReceived->topic_name,
@@ -69,7 +70,17 @@ final class MessagingScheduler implements IsProcessInterface
                                     );
 
                                     $class = globalContainer()->get($item['target']);
-                                    call_user_func($class, $message);
+                                    try {
+                                        call_user_func($class, $message);
+                                    } catch (\Throwable $th) {
+                                        error(
+                                            sprintf(
+                                                'ERROR PROCESSING MESSAGE RECEIVED: %s || Error Message: %s',
+                                                json_encode($messageReceived),
+                                                $th->getMessage()
+                                            ),
+                                        );
+                                    }
                                 }
                             }
                             break;
