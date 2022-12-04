@@ -38,12 +38,19 @@ final class Message
     {
         $payload = $this->parsedPayload();
         try {
+            // $response =  new AuthInfo(
+            //     userId: new Identity($payload->metadata->userId),
+            //     permissions: $payload->metadata->permissions,
+            //     tenantId: new Identity($payload->metadata->tenantId),
+            //     transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
+            //     region: $payload->metadata->region,
+            // );
             $response =  new AuthInfo(
-                userId: new Identity($payload->metadata->userId),
-                permissions: $payload->metadata->permissions,
-                tenantId: new Identity($payload->metadata->tenantId),
+                userId: Identity::create(),
+                permissions: [],
+                tenantId: Identity::create(),
                 transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
-                region: $payload->metadata->region,
+                region: 'eu',
             );
         } catch (\Exception $e) {
             $response = new AuthInfoNotFound();

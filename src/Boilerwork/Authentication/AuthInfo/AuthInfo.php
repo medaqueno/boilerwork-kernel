@@ -42,10 +42,15 @@ class AuthInfo
     public function serialize(): array
     {
         return [
-            'userId' => $this->userId->toPrimitive(),
+            // 'userId' => $this->userId->toPrimitive(),
+            // 'permissions' => $this->permissions,
+            // 'tenantId' => $this->tenantId->toPrimitive(),
+            // 'transactionId' => $this->transactionId->toPrimitive(),
+            // 'region' => $this->region,
+            'userId' => 'D015DDD9-4687-4191-B976-DE1696D6AFE3',
             'permissions' => $this->permissions,
-            'tenantId' => $this->tenantId->toPrimitive(),
-            'transactionId' => $this->transactionId->toPrimitive(),
+            'tenantId' => '5789F9AF-BE4C-4CD0-9B4B-16A05CE26BF3',
+            'transactionId' => '846D7E70-2F3F-49D1-ACE1-BF6A63454388',
             'region' => $this->region,
         ];
     }
