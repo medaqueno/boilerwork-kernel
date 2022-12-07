@@ -16,7 +16,7 @@ use Boilerwork\Persistence\QueryBuilder\Sql\Criteria;
  * Wrap Aura SQLQUERY
  * @see: https://github.com/auraphp/Aura.SqlQuery
  */
-final class SqlQueryBuilder
+final class OLDSqlQueryBuilder
 {
     public Select|Insert|Update|Delete $query;
 
@@ -106,7 +106,7 @@ final class SqlQueryBuilder
     {
 
         if (!container()->has('Criteria')) {
-            // If no criteria provided, we do not manipulate the query. Return instance without further filtering. 
+            // If no criteria provided, we do not manipulate the query. Return instance without further filtering.
             return $this;
         } else {
             $criteriaContainer = container()->get('Criteria');
