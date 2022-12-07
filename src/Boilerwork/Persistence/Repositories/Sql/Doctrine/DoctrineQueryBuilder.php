@@ -422,6 +422,18 @@ final class DoctrineQueryBuilder
             return;
         }
 
+        /**
+         * Instead using limit + offset which has an awful performance in huge tables, we adapt the keyset pagination pattern.
+         * Variables:
+         *  id -> column autoincremental
+         *  perPage
+         *  page
+         *  table_name
+         * Example:
+            select * from table_name where id >
+	            (select max(maxId.id) as maxId from (select id from table_name WHERE id >= 1 ORDER BY id ASC limit perPage*page-1) as maxId limit 1)
+            ORDER BY id ASC limit perPage;
+         */
         if ($pagingDto->page() === 1) {
             $this->queryBuilder
                 ->andWhere($this->primaryColumn . ' >= 1')
@@ -429,7 +441,7 @@ final class DoctrineQueryBuilder
                 ->setMaxResults($pagingDto->perPage());
         } else {
             $fromIdPrimaryStatement = sprintf(
-                '' . $this->primaryColumn . ' > (
+                $this->primaryColumn . ' > (
                                 select max(maxId.' . $this->primaryColumn . ') as maxId from
                                     (select ' . $this->primaryColumn . ' from %s WHERE ' . $this->primaryColumn . ' >= 1 ORDER BY ' . $this->primaryColumn . ' ASC limit %u) as maxId
                                 limit 1
