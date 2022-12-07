@@ -7,10 +7,12 @@ namespace Boilerwork\Persistence\Repositories\Sql\Doctrine;
 
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
+use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Query;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 
 final class DoctrineQueryBuilder
 {
@@ -146,17 +148,42 @@ final class DoctrineQueryBuilder
         }
     }
 
+    /**
+     * Return all rows
+     */
     public function fetchAll(): array
     {
         return $this->fetchAllAssociative();
     }
 
+    /**
+     * Return all rows
+     */
     public function fetchAllAssociative(): array
     {
         return $this->queryBuilder->fetchAllAssociative();
     }
 
+    /**
+     * Return the first row
+     */
+    public function fetchAssociative(): mixed
+    {
+        return $this->queryBuilder->fetchAssociative();
+    }
+
+    /**
+     * @deprecated use fetchAssociative()
+     */
     public function fetchOne(): mixed
+    {
+        return $this->fetchAssociative();
+    }
+
+    /**
+     * Return the value of a single column of the first row
+     */
+    public function fetchValue(): mixed
     {
         return $this->queryBuilder->fetchOne();
     }
