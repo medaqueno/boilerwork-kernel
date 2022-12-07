@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Repositories\Sql\Doctrine;
 
+use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Query;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -14,7 +15,7 @@ use Doctrine\DBAL\DriverManager;
 
 final class DoctrineQueryBuilder
 {
-    use Query, Criteria;
+    use Criteria;
 
     private QueryBuilder $queryBuilder;
 
@@ -195,14 +196,254 @@ final class DoctrineQueryBuilder
         return $this->queryBuilder->getParameters();
     }
 
-    // public function addPaging(int $offset = 0, int $limit = 2): self
-    // {
-    //     $this->queryBuilder = $this->queryBuilder
-    //         ->setFirstResult($offset)
-    //         ->setMaxResults($limit);
 
-    //     return $this;
-    // }
+    // QUERY
 
 
+    public function addSelect(...$columns): self
+    {
+        $this->queryBuilder =  $this->connector->conn->createQueryBuilder()
+            ->addSelect(...$columns);
+
+        return $this;
+    }
+
+    /**
+     *
+     * @example: ->from('foo')           // table name
+     * @example: ->from('bar', 'b');     // alias the table as desired
+     */
+    public function from(string $table, string $alias = null): self
+    {
+        $this->queryBuilder = $this->queryBuilder->from($table, $alias);
+        return $this;
+    }
+
+    /**
+     * @example: ->where('bar > :bar')
+     * @example: ->where('foo = :foo')
+     * @example: ->where('bar IN (:bar)')
+     */
+    public function where(string $condition): self
+    {
+        $this->queryBuilder = $this->queryBuilder->where($condition);
+        return $this;
+    }
+
+    /**
+     * @example: ->andWhere('bar > :bar')
+     * @example: ->andWhere('foo = :foo')
+     * @example: ->andWhere('bar IN (:bar)')
+     */
+    public function andWhere(string $condition): self
+    {
+        $this->queryBuilder = $this->queryBuilder->andWhere($condition);
+        return $this;
+    }
+
+    /**
+     * @example: ->orWhere('bar > :bar')
+     */
+    public function orWhere(string $condition): self
+    {
+        $this->queryBuilder = $this->queryBuilder->orWhere($condition);
+        return $this;
+    }
+
+    /**
+     * @example:  ->having('users > 10')
+     */
+    public function having(string $cond): self
+    {
+        $this->queryBuilder->having($cond);
+        return $this;
+    }
+
+    /**
+     * @example:  ->orHaving('users > 10')
+     */
+    public function orHaving(string $cond): self
+    {
+        $this->queryBuilder->orHaving($cond);
+        return $this;
+    }
+
+    /**
+     * @example: ->andHaving('users > 10')
+     */
+    public function andHaving(string $cond): self
+    {
+        $this->queryBuilder->andHaving($cond);
+        return $this;
+    }
+
+    /**
+     * @example: ->groupBy('DATE(last_login)')
+     */
+    public function groupBy(string $groupBy): self
+    {
+        $this->queryBuilder->groupBy($groupBy);
+        return $this;
+    }
+
+    /**
+     * @example: ->groupBy('DATE(last_login)')
+     */
+    public function addGroupBy(string $groupBy): self
+    {
+        $this->queryBuilder->addGroupBy($groupBy);
+        return $this;
+    }
+
+    /**
+     * Shorthand for innerJoin
+     * @example: ->select('u.id', 'u.name', 'p.number')
+     *           ->from('users', 'u')
+     *           ->join('u', 'phonenumbers', 'p', 'u.id = p.user_id')
+     */
+    public function join(string $joinType, string $joinToTable, string $cond): self
+    {
+        $this->queryBuilder->innerJoin($joinType, $joinToTable, $cond);
+        return $this;
+    }
+
+    /**
+     *
+     * @example: ->select('u.id', 'u.name', 'p.number')
+     *           ->from('users', 'u')
+     *           ->innerJoin('u', 'phonenumbers', 'p', 'u.id = p.user_id')
+     */
+    public function innerJoin(string $joinType, string $joinToTable, string $cond): self
+    {
+        $this->queryBuilder->innerJoin($joinType, $joinToTable, $cond);
+        return $this;
+    }
+
+    /**
+     *
+     * @example: ->select('u.id', 'u.name', 'p.number')
+     *           ->from('users', 'u')
+     *           ->leftJoin('u', 'phonenumbers', 'p', 'u.id = p.user_id')
+     */
+    public function leftJoin(string $joinType, string $joinToTable, string $cond): self
+    {
+        $this->queryBuilder->leftJoin($joinType, $joinToTable, $cond);
+        return $this;
+    }
+
+    /**
+     *
+     * @example: ->select('u.id', 'u.name', 'p.number')
+     *           ->from('users', 'u')
+     *           ->rightJoin('u', 'phonenumbers', 'p', 'u.id = p.user_id')
+     */
+    public function rightJoin(string $joinType, string $joinToTable, string $cond): self
+    {
+        $this->queryBuilder->rightJoin($joinType, $joinToTable, $cond);
+        return $this;
+    }
+
+    /**
+     * @example: ->orderBy('baz', 'ASC')
+     */
+    public function orderBy(string $sort, string $order = null): self
+    {
+        $this->queryBuilder->orderBy($sort, $order);
+        return $this;
+    }
+
+    /**
+     * @example: ->addOrderBy('baz', 'ASC')
+     */
+    public function addOrderBy(string $sort, string $order = null): self
+    {
+        $this->queryBuilder->addOrderBy($sort, $order);
+        return $this;
+    }
+
+    /**
+     * @example: ->limit(2)
+     */
+    public function limit(?int $limit): self
+    {
+        $this->queryBuilder->setMaxResults($limit);
+        return $this;
+    }
+
+    /**
+     * @example: ->offset(2)
+     */
+    public function offset(int $offset): self
+    {
+        $this->queryBuilder->setFirstResult($offset);
+        return $this;
+    }
+
+    public function distinct(): self
+    {
+        $this->queryBuilder->distinct();
+        return $this;
+    }
+    // END QUERY
+
+    private string $primaryColumn = 'id_primary';
+
+    public function addPaging(): self
+    {
+        if (!container()->has('Paging')) {
+            return $this;
+        }
+
+        /** @var \Boilerwork\Persistence\QueryBuilder\PagingDto */
+        $pagingDto = container()->get('Paging');
+
+        $from = $this->queryBuilder->getQueryPart('from');
+
+        if (count($from) > 1) {
+            var_dump("MUCHAS TABLAS");
+            return $this;
+        } else {
+            $this->addPagingForOneTable(table: $from[0]['table'], pagingDto: $pagingDto);
+        }
+
+        return $this;
+    }
+
+    private function addPagingForOneTable(string $table, PagingDto $pagingDto)
+    {
+        $pagingDto->setTotalCount(
+            $this->connection()->createQueryBuilder()
+                ->select('COUNT(*)')
+                ->from($table)
+                ->fetchOne()
+        );
+
+        if ($pagingDto->totalCount() === 0) {
+            return;
+        }
+
+        if ($pagingDto->page() === 1) {
+            $this->queryBuilder
+                ->andWhere($this->primaryColumn . ' >= 1')
+                ->addOrderBy('' . $this->primaryColumn . '', 'ASC')
+                ->setMaxResults($pagingDto->perPage());
+        } else {
+            $fromIdPrimaryStatement = sprintf(
+                '' . $this->primaryColumn . ' > (
+                                select max(maxId.' . $this->primaryColumn . ') as maxId from
+                                    (select ' . $this->primaryColumn . ' from %s WHERE ' . $this->primaryColumn . ' >= 1 ORDER BY ' . $this->primaryColumn . ' ASC limit %u) as maxId
+                                limit 1
+                                )',
+                $table,
+                $pagingDto->perPage() * ($pagingDto->page() - 1)
+            );
+
+            $this->queryBuilder
+                ->andWhere($fromIdPrimaryStatement);
+        }
+
+        $this->queryBuilder
+            ->addOrderBy($this->primaryColumn, 'ASC')
+            ->setMaxResults($pagingDto->perPage());
+    }
 }

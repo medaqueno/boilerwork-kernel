@@ -8,7 +8,7 @@ namespace Boilerwork\Http;
 use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;
 use Boilerwork\Authentication\AuthInfo\HasAuthInfo;
-use Boilerwork\Persistence\QueryBuilder\Sql\Paging;
+use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Support\ValueObjects\Identity;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
@@ -42,17 +42,17 @@ class Request extends ServerRequest implements ServerRequestInterface
         );
 
         $this->setAuthInfo();
-        // $this->paging();
+        $this->paging();
     }
 
     private function paging(): void
     {
-        if (!isset($this->getQueryParams()['perPage']) || !isset($this->getQueryParams()['page'])) {
+        if (!isset($this->getQueryParams()['per_page']) || !isset($this->getQueryParams()['page'])) {
             return;
         }
 
-        new Paging(
-            perPage: (int)$this->getQueryParams()['perPage'],
+        new PagingDto(
+            perPage: (int)$this->getQueryParams()['per_page'],
             page: (int)$this->getQueryParams()['page']
         );
     }

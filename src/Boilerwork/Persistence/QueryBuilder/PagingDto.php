@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Persistence\QueryBuilder\Sql;
+namespace Boilerwork\Persistence\QueryBuilder;
 
-final class Paging
+final class PagingDto
 {
     private int $totalCount = 0;
 
