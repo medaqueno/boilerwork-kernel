@@ -35,4 +35,9 @@ final class CriteriaDto
             orderBy: $orderBy
         );
     }
+
+    public function hash(): string
+    {
+        return md5(implode('', $this->params) . $this->orderBy ?? '');
+    }
 }
