@@ -7,12 +7,10 @@ namespace Boilerwork\Persistence\Repositories\Sql\Doctrine;
 
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
-use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Query;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Exception;
 
 final class DoctrineQueryBuilder
 {

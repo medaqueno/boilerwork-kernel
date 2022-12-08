@@ -44,10 +44,10 @@ final class PagingDto
     public function serialize(): array
     {
         return [
-            'perPage' => $this->perPage(),
+            'per_page' => $this->perPage(),
             'page' => $this->page(),
-            'totalCount' => $this->totalCount(),
-            'totalPages' => $this->totalPages(),
+            'total_count' => $this->totalCount(),
+            'total_pages' => $this->totalPages(),
         ];
     }
 }

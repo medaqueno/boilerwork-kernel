@@ -10,8 +10,8 @@ use Boilerwork\Validation\Assert;
 final class CriteriaDto
 {
     private function __construct(
-        public readonly array $params,
-        public readonly ?string $orderBy,
+        private readonly array $params,
+        private readonly ?string $orderBy,
     ) {
         Assert::lazy()
             ->that($orderBy)
@@ -26,6 +26,28 @@ final class CriteriaDto
                 ->keyExists(explode(',', $orderBy)[0], sprintf('Sort field must be a valid value: %s', implode(',', array_keys($params))), 'criteriaSortValue.notAllowed')
                 ->verifyNow();
         }
+    }
+
+    public function params(): array
+    {
+        return $this->params;
+    }
+
+    /**
+     * @return ?array{sort: string, operator: string}
+     */
+    public function orderBy(): ?array
+    {
+        if ($this->orderBy === null) {
+            return null;
+        }
+
+        $orderBy = explode(',', $this->orderBy);
+
+        return [
+            'sort' => $orderBy[0],
+            'operator' => $orderBy[1],
+        ];
     }
 
     public static function create(array $params = [], string $orderBy = null): static

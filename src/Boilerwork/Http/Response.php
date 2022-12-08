@@ -38,9 +38,10 @@ final class Response
     /**
      * Add metadata to current metadata array
      */
-    public function addMetadata(array $customMetadata): void
+    public function addMetadata(array $customMetadata): self
     {
         $this->customMetadata = array_merge($this->customMetadata, $customMetadata);
+        return $this;
     }
 
     /**
@@ -54,17 +55,19 @@ final class Response
     /**
      * Empty current metadata.
      */
-    public function resetMetadata(): void
+    public function resetMetadata(): self
     {
         $this->customMetadata = [];
+        return $this;
     }
 
     /**
      * Add header to current headers array
      */
-    public function addHeader(string $key, string $value): void
+    public function addHeader(string $key, string $value): self
     {
         $this->headers = array_merge($this->headers, [$key => $value]);
+        return $this;
     }
 
     /**
@@ -78,17 +81,19 @@ final class Response
     /**
      * Empty current headere.
      */
-    public function resetHeaders(): void
+    public function resetHeaders(): self
     {
         $this->headers = [];
+        return $this;
     }
 
     /**
      * Set Http Status Code
      */
-    public function setHttpStatus(int $status): void
+    public function setHttpStatus(int $status): self
     {
         $this->status = $status;
+        return $this;
     }
 
     /**
@@ -132,9 +137,9 @@ final class Response
     /**
      * Create a ResponseInterface with text Format directly
      */
-    public static function text(string|StreamInterface $text = '', int $status = 200, array $headers = []): ResponseInterface
+    public static function text(string|StreamInterface $data = '', int $status = 200, array $headers = []): ResponseInterface
     {
-        return (new self(data: $text, status: $status, headers: $headers))->toText();
+        return (new self(data: $data, status: $status, headers: $headers))->toText();
     }
 
     /**
