@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Server;
 
 use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;
+use Boilerwork\Authentication\AuthInfo\Exceptions\AuthorizationException;
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
@@ -112,17 +113,6 @@ final class HandleHttp
                         "errors" => []
                     ]
                 ];
-            } else if ($e instanceof AuthInfoNotFound) {
-                // var_dump($e->getErrorExceptions());
-                $response->setStatusCode($e->getCode());
-                $result = [
-                    "error" =>
-                    [
-                        "code" => "authInfoError",
-                        "message" => $e->getMessage(),
-                        "errors" => []
-                    ]
-                ];
             } else {
 
                 go(function () use ($e, $request) {
@@ -212,7 +202,7 @@ final class HandleHttp
                 break;
             case \FastRoute\Dispatcher::FOUND:
 
-                // $this->checkAuthorization(uri: $request_uri, method: $request_method);
+                $this->checkAuthorization(uri: $request_uri, method: $request_method);
                 // $this->checkMiddlewares(request: $request, uri: $request_uri, method: $request_method);
 
 
@@ -250,7 +240,8 @@ final class HandleHttp
         foreach ($this->getRoutes() as $item) {
             if (isset($item[3]) && $item[0] === $method && $item[1] === $uri) {
 
-                authInfo()->hasPermission($item[3]) === true ?: throw new \Exception("User has not permission", 403);
+                authInfo()->hasAuthorization($item[3]) === true ?: throw new AuthorizationException();
+
                 break;
             }
         }

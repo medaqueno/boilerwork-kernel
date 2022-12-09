@@ -70,10 +70,7 @@ final class PhonePrefix extends ValueObject
         return $phoneUtil->getRegionCodeForCountryCode($this->value);
     }
 
-    public function equals(ValueObject $object): bool
-    {
-        return $this->value === $object->value && $object instanceof self;
-    }
+
 
     public function toPrimitive(): string|null
     {

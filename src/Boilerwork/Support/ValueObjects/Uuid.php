@@ -32,10 +32,7 @@ abstract class Uuid extends ValueObject
         return new static(UuidImplementation::uuid_create(\UUID_TYPE_RANDOM));
     }
 
-    public function equals(ValueObject $object): bool
-    {
-        return $this->value === $object->value && $object instanceof self;
-    }
+
 
     public function toPrimitive(): string
     {

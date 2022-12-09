@@ -5,34 +5,48 @@ declare(strict_types=1);
 
 namespace Boilerwork\Authentication\AuthInfo;
 
+use Boilerwork\Authorization\AuthorizationsProvider;
 use Boilerwork\Support\ValueObjects\Identity;
 
 class AuthInfo
 {
-    public function __construct(
+    private function __construct(
         public readonly Identity $userId,
         public readonly Identity $tenantId,
-        public readonly Identity $transactionId,
-        public readonly ?string $region,
-        public readonly array $permissions = [],
+        public readonly array $authorizations,
     ) {
     }
 
+    public static function fromRequest(
+        Identity $userId,
+        Identity $tenantId,
+        array $authorizations = [],
+    ): self {
+        return new self(
+            userId: $userId,
+            tenantId: $tenantId,
+            authorizations: $authorizations,
+            // transactionId: $transactionId,
+            // region: $region,
+        );
+    }
+
     /**
-     * Check if User has permissions needed in the permissions provided.
+     * Check if User has authorizations needed in the authorizations provided.
      *
-     * CanManageAll permission is checked automatically.
+     * AuthorizationsProvider::MAX_AUTHORIZATION authorization is added to allowed authorization automatically.
+     * If the endpoint has Public authorization, it will pass.
      *
      */
-    public function hasPermission(array $allowedPermissions): bool
+    public function hasAuthorization(array $allowedAuthorizations): bool
     {
-        // Add Permission by default
-        array_push($allowedPermissions, 'CanManageAll');
+        // Add Max permission by default to allowed Authorizations
+        array_push($allowedAuthorizations, AuthorizationsProvider::MAX_AUTHORIZATION->value);
 
         $result = array_filter(
-            $allowedPermissions,
+            $allowedAuthorizations,
             function ($item) {
-                return in_array($item, $this->permissions) || $item === 'Public';
+                return in_array($item, $this->authorizations) || $item === AuthorizationsProvider::PUBLIC->value;
             }
         );
 
@@ -42,16 +56,16 @@ class AuthInfo
     public function serialize(): array
     {
         return [
-            // 'userId' => $this->userId->toPrimitive(),
-            // 'permissions' => $this->permissions,
-            // 'tenantId' => $this->tenantId->toPrimitive(),
+            'userId' => $this->userId->toPrimitive(),
+            'tenantId' => $this->tenantId->toPrimitive(),
+            'authorizations' => $this->authorizations,
             // 'transactionId' => $this->transactionId->toPrimitive(),
             // 'region' => $this->region,
-            'userId' => 'D015DDD9-4687-4191-B976-DE1696D6AFE3',
-            'permissions' => $this->permissions,
-            'tenantId' => '5789F9AF-BE4C-4CD0-9B4B-16A05CE26BF3',
-            'transactionId' => '846D7E70-2F3F-49D1-ACE1-BF6A63454388',
-            'region' => $this->region,
+            // 'userId' => 'D015DDD9-4687-4191-B976-DE1696D6AFE3',
+            // 'authorizations' => $this->authorizations,
+            // 'tenantId' => '5789F9AF-BE4C-4CD0-9B4B-16A05CE26BF3',
+            // 'transactionId' => '846D7E70-2F3F-49D1-ACE1-BF6A63454388',
+            // 'region' => $this->region,
         ];
     }
 }

@@ -280,9 +280,4 @@ class Iso31661Alpha3Code extends ValueObject
     {
         return $this->value;
     }
-
-    public function equals(ValueObject $object): bool
-    {
-        return $this->value === $object->value && $object instanceof self;
-    }
 }

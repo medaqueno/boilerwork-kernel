@@ -7,6 +7,7 @@ namespace Boilerwork\Http;
 
 use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;
+use Boilerwork\Authentication\AuthInfo\Exceptions\AuthenticationException;
 use Boilerwork\Authentication\AuthInfo\HasAuthInfo;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Support\ValueObjects\Identity;
@@ -41,7 +42,10 @@ class Request extends ServerRequest implements ServerRequestInterface
             protocol: '1.1'
         );
 
+
         $this->setAuthInfo();
+
+
         $this->paging();
     }
 
@@ -98,12 +102,12 @@ class Request extends ServerRequest implements ServerRequestInterface
     public function authInfo(): AuthInfo
     {
         try {
-            $response =  new AuthInfo(
-                userId: new Identity($this->getHeaderLine('userId')),
-                permissions: explode(',', $this->getHeaderLine('permissions')),
-                tenantId: new Identity($this->getHeaderLine('tenantId')),
-                transactionId: $this->getHeaderLine('transactionId') ?: Identity::create(),
-                region: $this->getHeaderLine('region') ?: null,
+            $response = AuthInfo::fromRequest(
+                userId: new Identity($this->getHeaderLine('X-Redis-Claim-userId')),
+                tenantId: new Identity($this->getHeaderLine('X-Redis-Claim-tenantId')),
+                authorizations: explode(',', $this->getHeaderLine('X-Redis-Claim-authorizations')),
+                //     // transactionId: $this->getHeaderLine('transactionId') ?: Identity::create(),
+                //     // region: $this->getHeaderLine('region') ?: null,
             );
         } catch (\Exception $e) {
             $response = new AuthInfoNotFound();

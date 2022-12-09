@@ -5,26 +5,24 @@ declare(strict_types=1);
 
 namespace Boilerwork\Authentication\AuthInfo;
 
+use Boilerwork\Authorization\AuthorizationsProvider;
+
 final class AuthInfoNotFound extends AuthInfo
 {
     public function __construct()
     {
     }
 
-    public function hasPermission(array $allowedPermissions): bool
+    public function hasAuthorization(array $allowedAuthorizations): bool
     {
         $result = array_filter(
-            $allowedPermissions,
+            $allowedAuthorizations,
             function ($item) {
-                return $item === 'Public';
+                return $item === AuthorizationsProvider::PUBLIC->value;
             }
         );
 
-        if (count($result) === 0) {
-            throw new \Exception("User is not authenticated", 401);
-        }
-
-        return true;
+        return count($result) > 0;
     }
 
     public function serialize(): array
