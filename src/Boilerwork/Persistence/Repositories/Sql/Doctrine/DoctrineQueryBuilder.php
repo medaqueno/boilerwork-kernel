@@ -424,7 +424,8 @@ final class DoctrineQueryBuilder
         $from = $this->queryBuilder->getQueryPart('from');
 
         if (count($from) > 1) {
-            var_dump("MUCHAS TABLAS");
+            error("Not Allowed More than one table at once. Ask IT.");
+            var_dump("Not Allowed More than one table at once. Ask IT.");
             return $this;
         } else {
             $this->addPagingForOneTable(table: $from[0]['table'], pagingDto: $pagingDto);
@@ -433,16 +434,19 @@ final class DoctrineQueryBuilder
         return $this;
     }
 
-    private function addPagingForOneTable(string $table, PagingDto $pagingDto)
+    private function addPagingForOneTable(string $table, PagingDto $pagingDto): void
     {
         $countQuery = clone $this->queryBuilder;
         $countQuery->resetQueryParts(['select', 'orderBy']);
         $pagingDto->setTotalCount(
             $countQuery->addSelect('COUNT(*)')->setMaxResults(1)->fetchOne()
         );
-        unset($countQuery);
 
-        if ($pagingDto->totalCount() === 0) {
+        // We have no results, so we return empty data set as fast as possible
+        if ($pagingDto->totalCount() === 0 || $pagingDto->page() - 1 >= $pagingDto->totalPages()) {
+            $this->queryBuilder->resetQueryParts(['select', 'distinct', 'where', 'join', 'groupBy', 'having', 'orderBy', 'from'])
+                ->select('1')
+                ->setMaxResults(0);
             return;
         }
 
