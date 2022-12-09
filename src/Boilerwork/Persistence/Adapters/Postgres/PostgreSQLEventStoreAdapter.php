@@ -61,7 +61,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
             ->where('aggregate_id = :where_aggregate_id')
             ->setParameters([
                 'where_aggregate_id' => $id
-            ])->fetchOne();
+            ])->fetchAssociative();
 
         if (!$currentPersistedAggregate) {
             $version = 0;
