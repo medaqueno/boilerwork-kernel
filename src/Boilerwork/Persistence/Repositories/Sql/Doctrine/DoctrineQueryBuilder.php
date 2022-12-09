@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Repositories\Sql\Doctrine;
 
+use Boilerwork\Persistence\Exceptions\PagingException;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -424,8 +425,7 @@ final class DoctrineQueryBuilder
         $from = $this->queryBuilder->getQueryPart('from');
 
         if (count($from) > 1) {
-            error("Not Allowed More than one table at once. Ask IT.");
-            var_dump("Not Allowed More than one table at once. Ask IT.");
+            var_dump("MUCHAS TABLAS");
             return $this;
         } else {
             $this->addPagingForOneTable(table: $from[0]['table'], pagingDto: $pagingDto);
@@ -443,11 +443,19 @@ final class DoctrineQueryBuilder
         );
 
         // We have no results, so we return empty data set as fast as possible
-        if ($pagingDto->totalCount() === 0 || $pagingDto->page() - 1 >= $pagingDto->totalPages()) {
+        if ($pagingDto->totalCount() === 0) {
             $this->queryBuilder->resetQueryParts(['select', 'distinct', 'where', 'join', 'groupBy', 'having', 'orderBy', 'from'])
                 ->select('1')
                 ->setMaxResults(0);
             return;
+        }
+
+        if ($pagingDto->page() - 1 >= $pagingDto->totalPages()) {
+            throw new PagingException(
+                'pagination.invalidPageRequest',
+                sprintf('Page requested: %u is not valid. Total pages: %u', $pagingDto->page(), $pagingDto->totalPages()),
+                400
+            );
         }
 
         /**
