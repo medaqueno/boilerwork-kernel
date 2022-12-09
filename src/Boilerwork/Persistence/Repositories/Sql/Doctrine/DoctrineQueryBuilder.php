@@ -435,12 +435,12 @@ final class DoctrineQueryBuilder
 
     private function addPagingForOneTable(string $table, PagingDto $pagingDto)
     {
+        $countQuery = clone $this->queryBuilder;
+        $countQuery->resetQueryParts(['select', 'orderBy']);
         $pagingDto->setTotalCount(
-            $this->connection()->createQueryBuilder()
-                ->select('COUNT(*)')
-                ->from($table)
-                ->fetchOne()
+            $countQuery->addSelect('COUNT(*)')->setMaxResults(1)->fetchOne()
         );
+        unset($countQuery);
 
         if ($pagingDto->totalCount() === 0) {
             return;
