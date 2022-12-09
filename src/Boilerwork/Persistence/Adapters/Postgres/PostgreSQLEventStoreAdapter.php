@@ -110,7 +110,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
             ->setParameters([
                 'where_aggregate_id' => $id,
                 'version' => $aggregate->currentVersion()
-            ]);
+            ])->execute();
 
         $this->writesRepository->queryBuilder->endTransaction();
     }
