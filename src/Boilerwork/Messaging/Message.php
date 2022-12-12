@@ -38,18 +38,10 @@ final class Message
     {
         $payload = $this->parsedPayload();
         try {
-            // $response =  new AuthInfo(
-            //     userId: new Identity($payload->metadata->userId),
-            //     permissions: $payload->metadata->permissions,
-            //     tenantId: new Identity($payload->metadata->tenantId),
-            //     transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
-            //     region: $payload->metadata->region,
-            // );
             $response =  AuthInfo::fromRequest(
-                userId: Identity::create(),
-                tenantId: Identity::create(),
-                // authorizations: explode(',', $this->getHeaderLine('X-Redis-Claim-authorizations')),
-                authorizations: [],
+                userId: $payload->metadata->userId ?? new Identity('b6699fce-244d-41d3-a6f5-708417455548'), // Only if payload or metadata attributes are absent. TODO: This MUST BE CHANGED
+                tenantId: $payload->metadata->tenantId ?? new Identity('ec643eed-b299-4ff1-8dbf-6fe08ed92b25'), // Only if payload or metadata attributes are absent. TODO: This MUST BE CHANGED
+                authorizations: $payload->metadata->authorizations ?? [], // Only if payload or metadata attributes are absent. TODO: This MUST BE CHANGED
                 // transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
                 // region: 'eu',
             );

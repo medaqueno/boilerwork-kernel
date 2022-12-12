@@ -32,7 +32,13 @@ abstract class Uuid extends ValueObject
         return new static(UuidImplementation::uuid_create(\UUID_TYPE_RANDOM));
     }
 
-
+    /**
+     * Create new Identity from String
+     **/
+    public static function fromString(string $uuid): static
+    {
+        return new static($uuid);
+    }
 
     public function toPrimitive(): string
     {
