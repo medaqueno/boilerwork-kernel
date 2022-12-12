@@ -45,12 +45,13 @@ final class Message
             //     transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
             //     region: $payload->metadata->region,
             // );
-            $response =  new AuthInfo(
+            $response =  AuthInfo::fromRequest(
                 userId: Identity::create(),
-                permissions: [],
                 tenantId: Identity::create(),
-                transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
-                region: 'eu',
+                // authorizations: explode(',', $this->getHeaderLine('X-Redis-Claim-authorizations')),
+                authorizations: [],
+                // transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
+                // region: 'eu',
             );
         } catch (\Exception $e) {
             $response = new AuthInfoNotFound();
