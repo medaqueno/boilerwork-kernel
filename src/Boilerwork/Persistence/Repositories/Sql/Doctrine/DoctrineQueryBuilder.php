@@ -81,14 +81,18 @@ final class DoctrineQueryBuilder
     /**
      * @alias setParameters
      */
-    public function bindValues(array $params = []): self
+    public function bindValues(array $params = [], array $types = []): self
     {
         return $this->setParameters($params);
     }
 
-    public function setParameters(array $params = []): self
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $params Parameters to set
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     */
+    public function setParameters(array $params = [], array $types = []): self
     {
-        $this->queryBuilder = $this->queryBuilder->setParameters($params);
+        $this->queryBuilder = $this->queryBuilder->setParameters($params, $types);
         return $this;
     }
 
