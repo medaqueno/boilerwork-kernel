@@ -38,9 +38,12 @@ final class Message
     {
         $payload = $this->parsedPayload();
         try {
+            $userId = $payload->metadata->userId ?? 'b6699fce-244d-41d3-a6f5-708417455548'; // Only if payload or metadata attributes are absent. TODO: This MUST BE CHANGED
+            $tenantId = $payload->metadata->tenantId ?? 'ec643eed-b299-4ff1-8dbf-6fe08ed92b25'; // Only if payload or metadata attributes are absent. TODO: This MUST BE CHANGED
+
             $response =  AuthInfo::fromRequest(
-                userId: $payload->metadata->userId ?? new Identity('b6699fce-244d-41d3-a6f5-708417455548'), // Only if payload or metadata attributes are absent. TODO: This MUST BE CHANGED
-                tenantId: $payload->metadata->tenantId ?? new Identity('ec643eed-b299-4ff1-8dbf-6fe08ed92b25'), // Only if payload or metadata attributes are absent. TODO: This MUST BE CHANGED
+                userId: new Identity($userId),
+                tenantId: new Identity($tenantId),
                 authorizations: $payload->metadata->authorizations ?? [], // Only if payload or metadata attributes are absent. TODO: This MUST BE CHANGED
                 // transactionId: isset($payload->metadata->transactionId) ? new Identity($payload->metadata->transactionId) : Identity::create(),
                 // region: 'eu',
