@@ -83,7 +83,7 @@ final class DoctrineQueryBuilder
      */
     public function bindValues(array $params = [], array $types = []): self
     {
-        return $this->setParameters($params);
+        return $this->setParameters($params, $types);
     }
 
     /**
