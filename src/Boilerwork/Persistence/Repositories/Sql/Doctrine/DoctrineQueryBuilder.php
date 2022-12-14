@@ -96,6 +96,12 @@ final class DoctrineQueryBuilder
         return $this;
     }
 
+    public function setParameter(string $param, string $value, string $type = null): self
+    {
+        $this->queryBuilder = $this->queryBuilder->setParameter($param, $value, $type);
+        return $this;
+    }
+
     public function values(array $values = []): self
     {
         $this->queryBuilder = $this->queryBuilder->values($values);
