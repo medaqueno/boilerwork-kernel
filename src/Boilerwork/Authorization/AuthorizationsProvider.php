@@ -11,5 +11,7 @@ namespace Boilerwork\Authorization;
 enum AuthorizationsProvider: string
 {
     case MAX_AUTHORIZATION = 'CanManageAll';
+    case TENANT_ADMIN = 'TenantAdmin';
+    case TENANT_USER = 'TenantUser';
     case PUBLIC = 'Public';
 }
