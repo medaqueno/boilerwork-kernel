@@ -15,13 +15,15 @@ use Symfony\Polyfill\Uuid\Uuid as UuidImplementation;
 abstract class Uuid extends ValueObject
 {
     public function __construct(
-        public readonly string $value
+        private string $value
     ) {
         Assert::lazy()->tryAll()
             ->that($value)
             ->notEmpty('Value must not be empty', 'uuid.notEmpty')
             ->uuid('Value must be a valid UUID', 'uuid.invalidFormat')
             ->verifyNow();
+
+        $this->value = strtolower($value);
     }
 
     /**
