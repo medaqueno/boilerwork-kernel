@@ -88,7 +88,7 @@ final class DoctrineQueryBuilder
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $params Parameters to set
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types ParamsType
      */
     public function setParameters(array $params = [], array $types = []): self
     {
@@ -96,7 +96,7 @@ final class DoctrineQueryBuilder
         return $this;
     }
 
-    public function setParameter(string $param, string $value, string $type = null): self
+    public function setParameter(int|string $param, mixed $value, mixed $type = null): self
     {
         $this->queryBuilder = $this->queryBuilder->setParameter($param, $value, $type);
         return $this;
