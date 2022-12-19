@@ -7,10 +7,11 @@ namespace Boilerwork\Http;
 
 use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;
-use Boilerwork\Authentication\AuthInfo\Exceptions\AuthenticationException;
 use Boilerwork\Authentication\AuthInfo\HasAuthInfo;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Support\ValueObjects\Identity;
+use Boilerwork\Support\ValueObjects\Language\Iso6391Code;
+use Boilerwork\Support\ValueObjects\Language\Language;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Request as SwooleRequest;
@@ -47,6 +48,17 @@ class Request extends ServerRequest implements ServerRequestInterface
 
 
         $this->paging();
+    }
+
+    private const LANG_FALLBACK = 'ES';
+
+    public function contentLanguage(): string
+    {
+        $lang = count($this->getHeader('Content-Language')) > 0 ?
+            Language::fromIso6391Code(new Iso6391Code($this->getHeader('Content-Language')[0]))->toPrimitive()
+            : self::LANG_FALLBACK;
+
+        return $lang;
     }
 
     private function paging(): void

@@ -17,7 +17,7 @@ final class CriteriaDto
             ->that($orderBy)
             ->nullOr()
             // Only allow <string>,<ASC DESC asc desc> format
-            ->regex('/\A([A-Za-z])+[,]+((ASC|DESC|asc|desc))\z/', 'OrderBy clause is not valid', 'criteriaOrderBy.invalidValue')
+            ->regex('/\A([A-Za-z0-9_-])+[,]+((ASC|DESC|asc|desc))\z/', 'OrderBy clause accepts alphabetical, numeric and - _ characters', 'criteriaOrderBy.invalidValue')
             ->verifyNow();
 
         if ($orderBy) {
