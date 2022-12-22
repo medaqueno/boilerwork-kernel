@@ -7,7 +7,7 @@ namespace Boilerwork\Support\ValueObjects;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
-use Symfony\Polyfill\Uuid\Uuid as UuidImplementation;
+use Symfony\Component\Uid\Uuid as UuidImplementation;
 
 /**
  *  Creates UUID using Symfony\Polyfill implementation, which turns out to be faster than pecl extension.
@@ -27,11 +27,11 @@ abstract class Uuid extends ValueObject
     }
 
     /**
-     * Generate new UUID v4 value object
+     * Generate new UUID v7 value object
      **/
     public static function create(): static
     {
-        return new static(UuidImplementation::uuid_create(\UUID_TYPE_RANDOM));
+        return new static(UuidImplementation::v7()->toRfc4122());
     }
 
     /**
