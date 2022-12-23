@@ -8,6 +8,7 @@ namespace Boilerwork\Persistence\Repositories\Sql\Doctrine;
 use Boilerwork\Persistence\Exceptions\PagingException;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
+use Boilerwork\Support\ValueObjects\Language\Language;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Connection;
@@ -43,6 +44,7 @@ final class DoctrineQueryBuilder
             ->select(...$columns);
         return $this;
     }
+
 
     public function update(string $table, string $alias = null): self
     {
@@ -503,5 +505,26 @@ final class DoctrineQueryBuilder
         $this->queryBuilder
             ->addOrderBy($this->primaryColumn, 'ASC')
             ->setMaxResults($pagingDto->perPage());
+    }
+
+
+    /**
+     * @example: ->selectMultiLang('id', 'es', 'identity')
+     */
+    public function selectMultiLang(string $field, string $lang, string $alias): self
+    {
+        $select = sprintf('%s->>\'%s\'', $field, strtoupper($lang));
+
+        if ($alias) {
+            $select = sprintf('%s as %s', $select, $alias);
+        }
+        // Add fallfack lang
+        $fallbackSelect = sprintf('%s->>\'%s\' as %s_fallback', $field, Language::FALLBACK, $alias);
+
+        $this->queryBuilder
+            ->addSelect($select)
+            ->addSelect($fallbackSelect);
+
+        return $this;
     }
 }

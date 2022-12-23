@@ -10,6 +10,8 @@ use Boilerwork\Foundation\ValueObjects\ValueObject;
 
 final class Language extends ValueObject
 {
+    public const FALLBACK = 'ES';
+
     private function __construct(
         protected readonly Iso6391Code $iso6391
     ) {

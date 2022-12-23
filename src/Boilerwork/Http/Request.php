@@ -45,18 +45,14 @@ class Request extends ServerRequest implements ServerRequestInterface
 
 
         $this->setAuthInfo();
-
-
         $this->paging();
     }
 
-    private const LANG_FALLBACK = 'ES';
-
-    public function contentLanguage(): string
+    public function acceptLanguage(): string
     {
-        $lang = count($this->getHeader('Content-Language')) > 0 ?
-            Language::fromIso6391Code(new Iso6391Code($this->getHeader('Content-Language')[0]))->toPrimitive()
-            : self::LANG_FALLBACK;
+        $lang = count($this->getHeader('Accept-Language')) > 0 ?
+            Language::fromIso6391Code(new Iso6391Code($this->getHeader('Accept-Language')[0]))->toPrimitive()
+            : Language::FALLBACK;
 
         return $lang;
     }
