@@ -7,5 +7,4 @@ namespace Boilerwork\Foundation\ValueObjects;
 
 abstract class ValueObject
 {
-    abstract public function toPrimitive(): mixed;
 }
