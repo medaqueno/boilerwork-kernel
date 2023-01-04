@@ -32,7 +32,5 @@ class CustomAssertionFailedException extends \Assert\LazyAssertionException
     public function __construct($message, array $errors)
     {
         parent::__construct($message, $errors);
-
-        $this->errors = $errors;
     }
 }

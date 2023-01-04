@@ -12,7 +12,9 @@ use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
 use Boilerwork\Support\Exceptions\CustomException;
 use Boilerwork\Validation\CustomAssertionFailedException;
+use LogicException;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Swoole\Runtime;
@@ -63,20 +65,6 @@ final class HandleHttp
     {
         $response->setHeader('Content-Type', 'application/json');
 
-        // Rate Limit -> It should be a middleware
-        /*
-        $Ratelimiter = RateLimiter::getInstance();
-        $count = $Ratelimiter->access($request->server['remote_addr']);
-        if ($count > $Ratelimiter::MAX_REQUESTS) {
-            $response->setStatusCode(429);
-            $response->header("Content-Type", "text/plain");
-            $response->end("Blocked");
-            return;
-        }
-        */
-
-
-
         try {
             $result = $this->handleRequest($request);
 
@@ -88,80 +76,36 @@ final class HandleHttp
             $result = $result->getBody()->__toString();
         } catch (\Throwable $e) {
 
-            // error($e);
+            error($e);
 
             if ($e instanceof CustomAssertionFailedException || $e instanceof \Assert\InvalidArgumentException) {
-                var_dump($e->getMessage());
-                $response->setStatusCode(422);
-                $result = [
-                    "error" =>
-                    [
-                        "code" => "validationError",
-                        "message" => "Request is invalid or malformed",
-                        "errors" => json_decode($e->getMessage())
-                    ]
-                ];
+                $status = 422;
+                $code =  "validationError";
+                $message = "Request is invalid or malformed";
+                $errors = json_decode($e->getMessage());
             } else if ($e instanceof CustomException) {
-                $response->setStatusCode($e->getCode());
-                $message = json_decode($e->getMessage());
+                $parse = json_decode($e->getMessage());
 
-                $result = [
-                    "error" =>
-                    [
-                        "code" => $message->error->code,
-                        "message" => $message->error->message,
-                        "errors" => []
-                    ]
-                ];
+                $status = $e->getCode();
+                $code =  $parse->error->code;
+                $message =  $parse->error->message;
+                $errors = [];
             } else {
-
-                go(function () use ($e, $request) {
-
-                    if (class_exists(\Sentry\SentrySdk::class)) {
-                        Runtime::setHookFlags(0);
-                        \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($request): void {
-                            $scope->setTag('environment', env('APP_ENV'));
-                            $scope->setTag('qt.method', $request->getMethod());
-                            $scope->setTag('qt.endpoint', $request->server['request_uri']);
-                            $scope->setContext(
-                                'Request',
-                                [
-                                    'queryString' => $request->server['query_string'] ?? 'none',
-                                    'content' => $request->getContent(),
-                                    'headers' => $request->header,
-                                ]
-                            );
-                        });
-
-                        \Sentry\captureException($e);
-                        Runtime::setHookFlags(\SWOOLE_HOOK_ALL);
-                    }
-                });
-
-
-                // // https://jsonapi.org/examples/#error-objects
-                $code = $e->getCode() >= 500 ? $e->getCode() : 500;
-                $response->setStatusCode($code);
-                $result = [
-                    "error" =>
-                    [
-                        "code" => "serverError",
-                        "message" => $e->getMessage(),
-                        "errors" => []
-                    ]
-                ];
-
-                if (env('APP_DEBUG') === 'true') {
-                    array_push($result['error']['errors'], [
-                        "message" =>  $e->getMessage(),
-                        "file" => $e->getFile(),
-                        "line" => $e->getLine(),
-                        "trace" => env('TRACE_ERRORS') === "true" ? $e->getTrace() : null,
-                    ]);
-                }
+                $status = $e->getCode();
+                $code =  "serverError";
+                $message = $e->getMessage();
+                $errors = [];
             }
 
-            $result = json_encode($result, \JSON_PRETTY_PRINT);
+            $response->setStatusCode($status);
+            $result = json_encode([
+                "error" =>
+                [
+                    "code" => $code,
+                    "message" => $message,
+                    "errors" => $errors
+                ]
+            ], \JSON_PRETTY_PRINT);
         }
 
         $response->end($result);
