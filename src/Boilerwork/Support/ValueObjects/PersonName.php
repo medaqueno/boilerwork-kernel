@@ -39,9 +39,16 @@ abstract class PersonName extends ValueObject
             ->verifyNow();
     }
 
-    public function equals(ValueObject $object): bool
+    /**
+     * Name string is returned in the following format and order:
+     * (Given names + Inherited names)
+     * firstName middleName lastName lastName2
+     *
+     * @return string
+     */
+    public function toString(): string
     {
-        return $this->toPrimitive() === $object->toPrimitive() && $object instanceof self;
+        return sprintf('%s %s %s %s', $this->firstName, $this->middleName, $this->lastName, $this->lastName2);
     }
 
     /**
@@ -53,7 +60,7 @@ abstract class PersonName extends ValueObject
      */
     public function toPrimitive(): string
     {
-        return sprintf('%s %s %s %s', $this->firstName, $this->middleName, $this->lastName, $this->lastName2);
+        return $this->toString();
     }
 
     /**
