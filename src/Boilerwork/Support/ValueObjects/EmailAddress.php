@@ -7,7 +7,7 @@ namespace Boilerwork\Support\ValueObjects;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
-use function Boilerwork\Domain\ValueObjects\mb_substr;
+use mb_substr;
 
 /**
  * 
