@@ -26,6 +26,9 @@ final class EmailAddressTest extends TestCase
         yield 'another@pangea.es' => [
             $this->testedClass('another@pangea.es'),
         ];
+        yield 'gmail+like@gmail.com' => [
+            $this->testedClass('another@pangea.es'),
+        ];
     }
 
 
