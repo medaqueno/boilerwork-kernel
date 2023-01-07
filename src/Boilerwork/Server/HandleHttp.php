@@ -108,12 +108,12 @@ final class HandleHttp
             ];
 
             if (env('APP_DEBUG') === 'true') {
-                array_push($result['error']['dev'], [
+                $result['error']['dev'] = [
                     "message" =>  $e->getMessage(),
                     "file" => $e->getFile(),
                     "line" => $e->getLine(),
                     "trace" => env('TRACE_ERRORS') === "true" ? $e->getTrace() : null,
-                ]);
+                ];
             }
 
             $result = json_encode($result, \JSON_PRETTY_PRINT);
