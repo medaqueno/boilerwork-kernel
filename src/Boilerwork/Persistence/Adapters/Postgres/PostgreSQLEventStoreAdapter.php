@@ -131,7 +131,7 @@ abstract class PostgreSQLEventStoreAdapter implements EventStore
             ->fetchAllAssociative();
 
         if (count($eventStream) === 0) {
-            throw new \Exception(sprintf('No aggregate has been found with id: %s', $id->toPrimitive()), 404);
+            throw new AggregateNotFoundException(sprintf('No aggregate has been found with id: %s', $id->toPrimitive()), 404);
         }
 
         $aggregateType = $eventStream[0]['aggregate_type'];
