@@ -50,7 +50,7 @@ final class CriteriaDto
         ];
     }
 
-    public static function create(array $params = [], string $orderBy = null): static
+    public static function create(array $params = [], ?string $orderBy = null): static
     {
         return new static(
             params: $params,
