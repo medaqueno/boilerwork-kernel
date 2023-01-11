@@ -12,6 +12,6 @@ final class Bind
 {
     public function __construct(string $abstract, string $concrete)
     {
-        globalContainer()->singleton($abstract, $concrete);
+        globalContainer()->singletonIf($abstract, $concrete);
     }
 }

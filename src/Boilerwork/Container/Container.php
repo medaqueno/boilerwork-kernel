@@ -50,6 +50,11 @@ final class Container implements ContainerInterface
         $this->container->singleton($abstract, $concrete);
     }
 
+    public function singletonIf(string $abstract, $concrete = null): void
+    {
+        $this->container->singletonIf($abstract, $concrete);
+    }
+
     public function instance(string $abstract, $instance): void
     {
         $this->container->instance($abstract, $instance);
