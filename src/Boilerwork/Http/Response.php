@@ -5,11 +5,15 @@ declare(strict_types=1);
 
 namespace Boilerwork\Http;
 
+use Boilerwork\Support\Exceptions\CustomException;
+use Boilerwork\Validation\CustomAssertionFailedException;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\Response\TextResponse;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use Throwable;
 
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17
@@ -180,5 +184,51 @@ final class Response
         $pagingContainer = container()->get('Paging');
 
         return $pagingContainer->serialize();
+    }
+
+    public static function error(Throwable $th, ServerRequestInterface $request): ResponseInterface
+    {
+        if ($th instanceof CustomAssertionFailedException || $th instanceof \Assert\InvalidArgumentException) {
+            $status = 422;
+            $code =  "validationError";
+            $message = "Request is invalid or malformed";
+            $errors = json_decode($th->getMessage());
+        } else if ($th instanceof CustomException) {
+            $parse = json_decode($th->getMessage());
+
+            $status = $th->getCode();
+            $code =  $parse->error->code;
+            $message =  $parse->error->message;
+            $errors = [];
+        } else {
+            $status = $th->getCode();
+            $code =  "serverError";
+            $message = $th->getMessage();
+            $errors = [];
+        }
+
+        $result = [
+            "error" =>
+            [
+                "code" => $code,
+                "message" => $message,
+                "errors" => $errors
+            ]
+        ];
+
+        if (env('APP_DEBUG') === 'true') {
+            $result['error']['dev'] = [
+                "message" =>  $th->getMessage(),
+                "file" => $th->getFile(),
+                "line" => $th->getLine(),
+                "request" => $request,
+                "trace" => env('TRACE_ERRORS') === "true" ? $th->getTrace() : null,
+            ];
+        }
+
+        return new JsonResponse(
+            data: $result,
+            status: $status,
+        );
     }
 }

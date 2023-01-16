@@ -6,29 +6,29 @@ declare(strict_types=1);
 namespace Boilerwork\Http;
 
 use Boilerwork\Container\IsolatedContainer;
-use FastRoute\Dispatcher;
+use Boilerwork\Http\Response;
+use Boilerwork\Support\Exceptions\CustomException;
 use FastRoute\RouteCollector;
-use OpenSwoole\Core\Psr\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
+use Throwable;
 
 final class RouterMiddleware implements MiddlewareInterface
 {
     private $dispatcher;
 
-    private array $routes;
     private RouteCollector $r;
 
     public function __construct()
     {
         $routesPath = base_path('/routes/httpApi.php');
+
         $this->dispatcher = \FastRoute\simpleDispatcher(
             function (\FastRoute\RouteCollector $r) use ($routesPath) {
                 $routes = include($routesPath);
-                $this->routes = $routes;
-                // var_dump($routes);
                 foreach ($routes as $route) {
                     $r->addRoute($route[0], $route[1], $route[2]);
                 }
@@ -43,34 +43,71 @@ final class RouterMiddleware implements MiddlewareInterface
         $isolatedContainer = new IsolatedContainer;
         globalContainer()->setIsolatedContainer($isolatedContainer);
 
+        $request = new Request($request);
+        try {
+            $result = $this->handleRequest($request);
+        } catch (\Throwable $th) {
+            $result = $this->handleErrors($th, $request);
+        }
+
+        return $result;
+    }
+
+    private function handleRequest(ServerRequestInterface $request): ResponseInterface
+    {
         $routeInfo = $this->dispatcher->dispatch($request->getMethod(), $request->getUri()->getPath());
 
         if (count($routeInfo) === 1) {
-            return new Response('Not found', 404, '', ['Content-Type' => 'text/plain']);
+            return Response::empty(404);
         }
 
         $code = $routeInfo[0];
         $handler = $routeInfo[1];
         $vars = empty($routeInfo[2]) ? [] : $routeInfo[2];
 
-        switch ($routeInfo[0]) {
+        switch ($code) {
             case \FastRoute\Dispatcher::NOT_FOUND:
-                return new Response('Not found', 404, '', ['Content-Type' => 'text/plain']);
+                return Response::empty(404);
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                return new Response('Method not allowed', 405, '', ['Content-Type' => 'text/plain']);
+                return Response::empty(405);
             case \FastRoute\Dispatcher::FOUND:
+
+                // $this->checkAuthorization(uri: $request_uri, method: $request_method);
+
                 foreach ($routeInfo[2] as $key => $value) {
                     $request = $request->withAttribute($key, $value);
                 }
-                echo "\n REQUEST \n";
-                var_dump($request);
 
+                $handler = globalContainer()->get($handler);
 
-                $result = (globalContainer()->get($handler))($request, $vars);
-                echo "\nRESULT\n";
-                var_dump($result);
-                return $routeInfo[1]($request);
+                if (is_callable($handler) === false) {
+                    throw new RuntimeException('Port must be callable');
+                }
+
+                return $handler($request, $vars);
+            default:
+
+                $exception = new CustomException(
+                    code: "serverError",
+                    message: "Server error. Contact system administrator",
+                    httpStatus: 500
+                );
+
+                return Response::error(
+                    th: $exception,
+                    request: $request
+                );
         }
+    }
+
+    private function handleErrors(Throwable $th, ServerRequestInterface $request): ResponseInterface
+    {
+        error($th);
+
+        return Response::error(
+            th: $th,
+            request: $request
+        );
     }
 
     public function getRouteCollector(): RouteCollector
@@ -78,8 +115,15 @@ final class RouterMiddleware implements MiddlewareInterface
         return $this->r;
     }
 
-    public function getRoutes(): array
+    private function checkAuthorization($uri, $method): void
     {
-        return $this->routes;
+        // foreach ($this->getRoutes() as $item) {
+        //     if (isset($item[3]) && $item[0] === $method && $item[1] === $uri) {
+
+        //         authInfo()->hasAuthorization($item[3]) === true ?: throw new AuthorizationException();
+
+        //         break;
+        //     }
+        // }
     }
 }

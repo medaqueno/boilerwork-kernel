@@ -12,15 +12,13 @@ use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Support\ValueObjects\Language\Iso6391Code;
 use Boilerwork\Support\ValueObjects\Language\Language;
-use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
-use OpenSwoole\Http\Request as SwooleRequest;
+use OpenSwoole\Core\Psr\ServerRequest as OpenSwooleRequest;
 
 /**
- * Implements Laminas Diactoros PSR-7 and PSR-17, Psr\Http\Message\ServerRequestInterface
- * https://docs.laminas.dev/laminas-diactoros/v2/overview/
+ * Implements PSR-7 and PSR-17, Psr\Http\Message\ServerRequestInterface
  **/
-class Request extends ServerRequest implements ServerRequestInterface
+class Request extends OpenSwooleRequest implements ServerRequestInterface
 {
     use HasAuthInfo;
 
@@ -28,21 +26,23 @@ class Request extends ServerRequest implements ServerRequestInterface
      * Builds Psr\Http\Message\ServerRequestInterface
      * with extra methods
      **/
-    public function __construct(SwooleRequest $swooleRequest)
+    public function __construct(ServerRequestInterface $request)
     {
-        parent::__construct(
-            serverParams: $swooleRequest->server ?? [],
-            uploadedFiles: $swooleRequest->files ?? [],
-            uri: $swooleRequest->server['request_uri'],
-            method: $swooleRequest->server['request_method'],
-            body: 'php://input',
-            headers: $swooleRequest->header ?? [],
-            cookieParams: $swooleRequest->cookie ?? [],
-            queryParams: $swooleRequest->get ?? [],
-            parsedBody: $this->parseBody($swooleRequest),
-            protocol: '1.1'
-        );
+        $server = $request->getServerParams();
+        $headers = $request->getHeaders();
 
+        parent::__construct(
+            serverParams: $request->getServerParams() ?? [],
+            uploadedFiles: $request->getUploadedFiles() ?? [],
+            uri: $server['request_uri'],
+            method: $server['request_method'],
+            body: 'php://input',
+            headers: $headers ?? [],
+            cookies: $request->getCookieParams() ?? [],
+            queryParams: $request->getQueryParams() ?? [],
+            parsedBody: $this->parseBody($request),
+            protocolVersion: '1.1'
+        );
 
         $this->setAuthInfo();
         $this->paging();
@@ -69,20 +69,22 @@ class Request extends ServerRequest implements ServerRequestInterface
         );
     }
 
-    private function parseBody(SwooleRequest $request): array
+    private function parseBody(ServerRequestInterface $request): array
     {
+        $server = $request->getServerParams();
+        $headers = $request->getHeaders();
         $body = [];
         if (
-            ($request->server['request_method'] === 'POST'
-                || $request->server['request_method'] === 'PATCH'
-                || $request->server['request_method'] === 'PUT'
+            ($server['request_method'] === 'POST'
+                || $server['request_method'] === 'PATCH'
+                || $server['request_method'] === 'PUT'
             )
-            && $request->header['content-type'] === 'application/json'
+            && $headers['content-type'] === 'application/json'
         ) {
-            $body = $request->rawContent();
+            $body = $request->getBody()->getContents();
             $body = empty($body) ? [] : json_decode($body);
         } else {
-            $body = $request->post ?? [];
+            $body = $request->getParsedBody() ?? [];
         }
 
         return (array)$body;
