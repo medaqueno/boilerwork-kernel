@@ -22,16 +22,24 @@ final class RedisClient
 {
     private Redis $conn;
 
-    private readonly RedisPool $pool;
+    // private readonly RedisPool $pool;
 
     public function __construct()
     {
-        $this->pool = globalContainer()->get(RedisPool::class);
+        // $this->pool = globalContainer()->get(RedisPool::class);
+        // $this->pool = new Redis();
+        // $this->pool->connect('127.0.0.1', 6379);
+        //     var_dump($redis->get('key'));
     }
 
     public function getConnection(): void
     {
-        $this->conn = $this->pool->getConn();
+        // $this->conn = $this->pool->getConn();
+        $this->conn = new Redis();
+
+        $host = env('REDIS_HOST') ?? 'quadrant-redis';
+        $port = env('REDIS_PORT') ?? 6379;
+        $this->conn->connect($host, (int)$port);
     }
 
     /**
@@ -39,7 +47,8 @@ final class RedisClient
      **/
     public function putConnection(): void
     {
-        $this->pool->putConn($this->conn);
+        $this->conn->close();
+        // $this->pool->putConn($this->conn);
     }
 
     public function hGet($key, $hashKey): string|bool

@@ -9,6 +9,7 @@ use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Http\Response;
 use Boilerwork\Support\Exceptions\CustomException;
 use FastRoute\RouteCollector;
+use OpenSwoole\Core\Psr\Response as PsrResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -45,12 +46,10 @@ final class RouterMiddleware implements MiddlewareInterface
 
         $request = new Request($request);
         try {
-            $result = $this->handleRequest($request);
+            return $this->handleRequest($request);
         } catch (\Throwable $th) {
-            $result = $this->handleErrors($th, $request);
+            return $this->handleErrors($th, $request);
         }
-
-        return $result;
     }
 
     private function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -103,6 +102,8 @@ final class RouterMiddleware implements MiddlewareInterface
     private function handleErrors(Throwable $th, ServerRequestInterface $request): ResponseInterface
     {
         error($th);
+
+        echo sprintf("\n ERROR HANDLED:: %s \n", $th->getMessage() ?: "No error message found");
 
         return Response::error(
             th: $th,
