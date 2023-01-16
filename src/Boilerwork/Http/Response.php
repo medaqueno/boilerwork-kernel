@@ -186,7 +186,7 @@ final class Response
         return $pagingContainer->serialize();
     }
 
-    public static function error(Throwable $th, ServerRequestInterface $request): ResponseInterface
+    public static function error(Throwable $th, ?ServerRequestInterface $request = null): ResponseInterface
     {
         if ($th instanceof CustomAssertionFailedException || $th instanceof \Assert\InvalidArgumentException) {
             $status = 422;
