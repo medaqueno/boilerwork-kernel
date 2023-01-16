@@ -5,11 +5,11 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Pools;
 
-use Swoole\Coroutine\Channel;
+use OpenSwoole\Coroutine\Channel;
 
 final class PostgreSQLWritesPool extends PostgreSQLPool
 {
-    protected ?\Swoole\Coroutine\Channel $pool = null;
+    protected ?\OpenSwoole\Coroutine\Channel $pool = null;
 
     public function initPool(string $host, int $port, string $dbname, string $username, string $password, int $connectionSize = 1,  string $applicationName = 'AppService'): void
     {

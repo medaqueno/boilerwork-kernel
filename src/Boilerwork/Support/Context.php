@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Support;
 
-use Swoole\Coroutine;
+use OpenSwoole\Coroutine;
 
 final class Context
 {

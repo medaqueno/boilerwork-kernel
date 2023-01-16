@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Server;
 
-use Swoole\Server;
+use OpenSwoole\Server;
 
 /**
  *

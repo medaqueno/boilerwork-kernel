@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Clients\Websocket;
 
 use Generator;
-use Swoole\Coroutine\Http\Client;
+use OpenSwoole\Coroutine\Http\Client;
 
 /**
  * @desc Connect to a websocket server, receive and send data if proceedes
@@ -20,7 +20,7 @@ use Swoole\Coroutine\Http\Client;
             'params' => ['param1'],
             'id' => 1,
         ]));
-    // Receive data continuously: (a Swoole\WebSocket\Frame is received)
+    // Receive data continuously: (a OpenSwoole\WebSocket\Frame is received)
     foreach ($wsClient->receive() as $message) {
         var_dump($message);
     }
@@ -42,9 +42,9 @@ class WebSocketClient
 
     /**
      * @param float    $timeout     In seconds, the timeout of the request, 1.5 means 1.5 seconds.
-     * if operation fails or Generator of Swoole\WebSocket\Frame items if succeeds
+     * if operation fails or Generator of OpenSwoole\WebSocket\Frame items if succeeds
      *
-     * @see https://openswoole.com/docs/modules/swoole-coroutine-http-client-recv
+     * @see https://openswoole.com/docs/modules/OpenSwoole-coroutine-http-client-recv
      */
     public function receive(float $timeout = 0): Generator
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Exceptions;
 
-use Swoole\Exception;
+use OpenSwoole\Exception;
 
 class PersistenceException extends Exception
 {

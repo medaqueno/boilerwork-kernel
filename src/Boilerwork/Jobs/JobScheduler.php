@@ -11,7 +11,7 @@ use Boilerwork\Server\IsProcessInterface;
 use DateTime;
 use GO\Job;
 use GO\Scheduler;
-use Swoole\Process;
+use OpenSwoole\Process;
 
 
 /**
@@ -45,7 +45,7 @@ final class JobScheduler implements IsProcessInterface
 
                 while (true) {
                     $this->check();
-                    // Use native sleep only with Swoole hooks enabled
+                    // Use native sleep only with OpenSwoole hooks enabled
                     sleep(self::LOOP_INTERVAL);
                 }
             },

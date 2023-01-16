@@ -21,7 +21,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
     public function publish(string $message, string $topic): void
     {
         if ($this->isWorking === false) {
-            throw new \Swoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
+            throw new \OpenSwoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
         }
 
         $conf = new \RdKafka\Conf();
@@ -57,7 +57,7 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
 
 
         if ($this->isWorking === false) {
-            throw new \Swoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
+            throw new \OpenSwoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
             return null;
         }
 

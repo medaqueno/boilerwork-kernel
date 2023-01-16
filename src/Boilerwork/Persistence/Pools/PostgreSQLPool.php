@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Pools;
 
-use Swoole\Coroutine\PostgreSQL;
+use OpenSwoole\Coroutine\PostgreSQL;
 
 abstract class PostgreSQLPool
 {

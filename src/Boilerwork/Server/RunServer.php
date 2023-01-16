@@ -8,14 +8,14 @@ namespace Boilerwork\Server;
 final class RunServer
 {
     public function __construct(
-        private $serverType = \Swoole\Server::class,
+        private $serverType = \OpenSwoole\Server::class,
         private array $config = [],
         private array $processes = [],
     ) {
 
         $this->server = new $serverType(env('SERVER_IP'), intval(env('SERVER_PORT')));
 
-        // https://openswoole.com/docs/modules/swoole-server/configuration
+        // https://openswoole.com/docs/modules/OpenSwoole-server/configuration
         $this->server->set($config);
 
         // Set server event handlers
@@ -55,7 +55,7 @@ final class RunServer
         // Websocket server may receive requests too, we leave option to
         // comment out and allow it (take care of control the right requests to each server)
         $handleWebSocket = null;
-        /*        if ($this->server instanceof \Swoole\WebSocket\Server) {
+        /*        if ($this->server instanceof \OpenSwoole\WebSocket\Server) {
             $handleWebSocket = new HandleWebSocket();
             $this->server->on(
                 "Open",
@@ -73,15 +73,15 @@ final class RunServer
             );
         } */
 
-        if ($this->server instanceof \Swoole\Http\Server) {
+        if ($this->server instanceof \OpenSwoole\Http\Server) {
             $handleHttp = new HandleHttp(base_path('/routes/httpApi.php'));
             $this->server->on(
                 "request",
-                function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) use ($handleHttp, $handleWebSocket) {
+                function (\OpenSwoole\Http\Request $request, \OpenSwoole\Http\Response $response) use ($handleHttp, $handleWebSocket) {
                     $handleHttp->onRequest(request: $request, response: $response);
 
                     /* // We may allow to send requests to Websocket server if it is needed
-                    if ($this->server instanceof \Swoole\WebSocket\Server) {
+                    if ($this->server instanceof \OpenSwoole\WebSocket\Server) {
                         $handleWebSocket->onRequest(request: $request, response: $response);
                     }*/
                 }
@@ -100,7 +100,7 @@ final class RunServer
         $this->server->start();
     }
 
-    public function onStart(\Swoole\Server $server): void
+    public function onStart(\OpenSwoole\Server $server): void
     {
         echo "\nSERVER STARTED: " . get_class($server) . "\n";
         swoole_set_process_name('swoole_server');

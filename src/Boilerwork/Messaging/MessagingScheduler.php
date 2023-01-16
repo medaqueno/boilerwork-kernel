@@ -8,7 +8,7 @@ namespace Boilerwork\Messaging;
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Server\IsProcessInterface;
 use DateTime;
-use Swoole\Process;
+use OpenSwoole\Process;
 
 final class MessagingScheduler implements IsProcessInterface
 {
@@ -45,7 +45,7 @@ final class MessagingScheduler implements IsProcessInterface
                 if ($consumer === null) {
                     echo "\n\n########\nERROR CONNECTING TO KAFKA BROKER\n########\n\n ";
                     unset($consumer);
-                    throw new \Swoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
+                    throw new \OpenSwoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
                     return;
                 }
 
@@ -93,7 +93,7 @@ final class MessagingScheduler implements IsProcessInterface
                         default:
                             error($messageReceived->errstr());
                             // var_dump($messageReceived);
-                            throw new \Swoole\Exception($messageReceived->errstr(), $messageReceived->err);
+                            throw new \OpenSwoole\Exception($messageReceived->errstr(), $messageReceived->err);
                             break;
                     }
                 }

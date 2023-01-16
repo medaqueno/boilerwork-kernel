@@ -6,8 +6,8 @@ declare(strict_types=1);
 namespace Boilerwork\Middleware;
 
 use Boilerwork\Support\Singleton;
-use Swoole\Table;
-use Swoole\Timer;
+use OpenSwoole\Table;
+use OpenSwoole\Timer;
 
 final class RateLimiter
 {

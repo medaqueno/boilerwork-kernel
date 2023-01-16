@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Server;
 
-use Swoole\Process;
+use OpenSwoole\Process;
 
 interface IsProcessInterface
 {

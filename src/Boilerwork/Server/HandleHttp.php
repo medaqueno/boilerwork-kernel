@@ -15,9 +15,9 @@ use Boilerwork\Validation\CustomAssertionFailedException;
 use LogicException;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
-use Swoole\Http\Request as SwooleRequest;
-use Swoole\Http\Response as SwooleResponse;
-use Swoole\Runtime;
+use OpenSwoole\Http\Request as SwooleRequest;
+use OpenSwoole\Http\Response as SwooleResponse;
+use OpenSwoole\Runtime;
 
 /**
  *
@@ -131,7 +131,7 @@ final class HandleHttp
         $isolatedContainer = new IsolatedContainer;
         globalContainer()->setIsolatedContainer($isolatedContainer);
 
-        // Convert Swoole Request to Psr\Http\Message\ServerRequestInterface
+        // Convert OpenSwoole Request to Psr\Http\Message\ServerRequestInterface
         // $request = HttpRequest::createFromSwoole($swooleRequest);
         $request = new Request($swooleRequest);
 

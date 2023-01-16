@@ -10,7 +10,7 @@ namespace Boilerwork\Server;
  **/
 final class HandleTcpUdp
 {
-    public function onReceive(\Swoole\Server $server, int $fd, int $reactorId, string $data): void
+    public function onReceive(\OpenSwoole\Server $server, int $fd, int $reactorId, string $data): void
     {
         echo "\nonReceive\n";
     }

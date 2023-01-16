@@ -7,8 +7,8 @@ namespace Boilerwork\Persistence\Pools;
 
 use Boilerwork\Support\Singleton;
 use Redis;
-use Swoole\Database\RedisConfig;
-use Swoole\Database\RedisPool as SwooleRedisPool;
+use OpenSwoole\Database\RedisConfig;
+use OpenSwoole\Database\RedisPool as SwooleRedisPool;
 
 final class RedisPool
 {

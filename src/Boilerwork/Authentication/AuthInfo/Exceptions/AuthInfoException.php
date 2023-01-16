@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Authentication\AuthInfo\Exceptions;
 
-use Swoole\Exception;
+use OpenSwoole\Exception;
 
 class AuthInfoException extends Exception
 {

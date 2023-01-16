@@ -14,7 +14,7 @@ use Boilerwork\Support\ValueObjects\Language\Iso6391Code;
 use Boilerwork\Support\ValueObjects\Language\Language;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ServerRequestInterface;
-use Swoole\Http\Request as SwooleRequest;
+use OpenSwoole\Http\Request as SwooleRequest;
 
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17, Psr\Http\Message\ServerRequestInterface
