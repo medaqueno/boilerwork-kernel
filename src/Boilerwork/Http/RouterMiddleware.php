@@ -9,7 +9,6 @@ use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Http\Response;
 use Boilerwork\Support\Exceptions\CustomException;
 use FastRoute\RouteCollector;
-use OpenSwoole\Core\Psr\Response as PsrResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -21,29 +20,36 @@ final class RouterMiddleware implements MiddlewareInterface
 {
     private $dispatcher;
 
-    private RouteCollector $r;
+    private static array $routes;
 
-    public function __construct()
+    /**
+     *
+     * @param array $routes
+     * @return void
+     */
+    public function __construct(array $routes)
     {
-        $routesPath = base_path('/routes/httpApi.php');
+        foreach ($routes as $route) {
+            self::addRoute($route);
+        }
+    }
 
-        $this->dispatcher = \FastRoute\simpleDispatcher(
-            function (\FastRoute\RouteCollector $r) use ($routesPath) {
-                $routes = include($routesPath);
-                foreach ($routes as $route) {
-                    $r->addRoute($route[0], $route[1], $route[2]);
-                }
-
-                $this->r = $r;
-            }
-        );
+    public static function addRoute(array $route)
+    {
+        self::$routes[] = $route;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $this->dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
+            foreach (self::$routes as $route) {
+                $r->addRoute($route[0], $route[1], $route[2]);
+            }
+        });
+
         $isolatedContainer = new IsolatedContainer;
         globalContainer()->setIsolatedContainer($isolatedContainer);
-
+        var_dump("ROUUUTUER");
         $request = new Request($request);
         try {
             return $this->handleRequest($request);
@@ -70,8 +76,6 @@ final class RouterMiddleware implements MiddlewareInterface
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
                 return Response::empty(405);
             case \FastRoute\Dispatcher::FOUND:
-
-                // $this->checkAuthorization(uri: $request_uri, method: $request_method);
 
                 foreach ($routeInfo[2] as $key => $value) {
                     $request = $request->withAttribute($key, $value);
@@ -109,22 +113,5 @@ final class RouterMiddleware implements MiddlewareInterface
             th: $th,
             request: $request
         );
-    }
-
-    public function getRouteCollector(): RouteCollector
-    {
-        return $this->r;
-    }
-
-    private function checkAuthorization($uri, $method): void
-    {
-        // foreach ($this->getRoutes() as $item) {
-        //     if (isset($item[3]) && $item[0] === $method && $item[1] === $uri) {
-
-        //         authInfo()->hasAuthorization($item[3]) === true ?: throw new AuthorizationException();
-
-        //         break;
-        //     }
-        // }
     }
 }

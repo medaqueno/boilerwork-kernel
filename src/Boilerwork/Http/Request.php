@@ -5,11 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Http;
 
-use Boilerwork\Authentication\AuthInfo\AuthInfo;
-use Boilerwork\Authentication\AuthInfo\AuthInfoNotFound;
-use Boilerwork\Authentication\AuthInfo\HasAuthInfo;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
-use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Support\ValueObjects\Language\Iso6391Code;
 use Boilerwork\Support\ValueObjects\Language\Language;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,8 +16,6 @@ use OpenSwoole\Core\Psr\ServerRequest as OpenSwooleRequest;
  **/
 class Request extends OpenSwooleRequest implements ServerRequestInterface
 {
-    use HasAuthInfo;
-
     /**
      * Builds Psr\Http\Message\ServerRequestInterface
      * with extra methods
@@ -44,7 +38,6 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
             protocolVersion: '1.1'
         );
 
-        $this->setAuthInfo();
         $this->paging();
     }
 
@@ -104,25 +97,5 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
     public function query(string|int $param): mixed
     {
         return $this->getQueryParams()[$param] ?? null;
-    }
-
-    /**
-     * Return user metadata relative.
-     **/
-    public function authInfo(): AuthInfo
-    {
-        try {
-            $response = AuthInfo::fromRequest(
-                userId: new Identity($this->getHeaderLine('X-Redis-Claim-userId')),
-                tenantId: new Identity($this->getHeaderLine('X-Redis-Claim-tenantId')),
-                authorizations: explode(',', $this->getHeaderLine('X-Redis-Claim-authorizations')),
-                //     // transactionId: $this->getHeaderLine('transactionId') ?: Identity::create(),
-                //     // region: $this->getHeaderLine('region') ?: null,
-            );
-        } catch (\Exception $e) {
-            $response = new AuthInfoNotFound();
-        }
-
-        return $response;
     }
 }
