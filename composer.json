@@ -28,7 +28,7 @@
   },
   "require-dev": {
     "deminy/counit": "^0.2.0",
-    "openswoole/ide-helper": "~22.0.0",
+    "openswoole/ide-helper": "^22",
     "phpunit/phpunit": "^9.5",
     "ukko/phpredis-phpdoc": "5.0.1-beta8",
     "kwn/php-rdkafka-stubs": "^2.2"
