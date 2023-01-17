@@ -49,7 +49,7 @@ final class RouterMiddleware implements MiddlewareInterface
 
         $isolatedContainer = new IsolatedContainer;
         globalContainer()->setIsolatedContainer($isolatedContainer);
-        var_dump("ROUUUTUER");
+
         $request = new Request($request);
         try {
             return $this->handleRequest($request);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "00b3e7675a708d2cf74f5006dde5e062",
+    "content-hash": "f4977b2391cc2b4a4547acabb3c5c2f9",
     "packages": [
         {
             "name": "aimeos/map",
@@ -1723,16 +1723,16 @@
         },
         {
             "name": "openswoole/core",
-            "version": "22.1.0",
+            "version": "22.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/openswoole/core.git",
-                "reference": "73ed15d44d67c6efe26f1d0a6b7ca23c4ee60595"
+                "reference": "0f13386fdc590c1897782bf13584affc34d917b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/openswoole/core/zipball/73ed15d44d67c6efe26f1d0a6b7ca23c4ee60595",
-                "reference": "73ed15d44d67c6efe26f1d0a6b7ca23c4ee60595",
+                "url": "https://api.github.com/repos/openswoole/core/zipball/0f13386fdc590c1897782bf13584affc34d917b7",
+                "reference": "0f13386fdc590c1897782bf13584affc34d917b7",
                 "shasum": ""
             },
             "require": {
@@ -1790,7 +1790,7 @@
                 "pull-request": "https://github.com/openswoole/openswoole/pulls",
                 "source": "https://github.com/openswoole/openswoole"
             },
-            "time": "2022-12-27T12:25:36+00:00"
+            "time": "2023-01-16T22:25:10+00:00"
         },
         {
             "name": "peppeocchi/php-cron-scheduler",
@@ -4667,16 +4667,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.15.2",
+            "version": "v4.15.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "f59bbe44bf7d96f24f3e2b4ddc21cd52c1d2adbc"
+                "reference": "570e980a201d8ed0236b0a62ddf2c9cbb2034039"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/f59bbe44bf7d96f24f3e2b4ddc21cd52c1d2adbc",
-                "reference": "f59bbe44bf7d96f24f3e2b4ddc21cd52c1d2adbc",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/570e980a201d8ed0236b0a62ddf2c9cbb2034039",
+                "reference": "570e980a201d8ed0236b0a62ddf2c9cbb2034039",
                 "shasum": ""
             },
             "require": {
@@ -4717,9 +4717,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v4.15.2"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v4.15.3"
             },
-            "time": "2022-11-12T15:38:23+00:00"
+            "time": "2023-01-16T22:05:37+00:00"
         },
         {
             "name": "openswoole/ide-helper",
