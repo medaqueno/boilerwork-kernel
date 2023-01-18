@@ -10,9 +10,11 @@ namespace Boilerwork\Messaging;
  *
  * This interface must be instantiated instead instead of any adapter.
  */
-interface MessagingClientInterface
+interface MessageClientInterface
 {
     public function publish(string $message, string $topic): void;
 
     public function subscribe(array $topics);
+
+    public function timeout(): int;
 }

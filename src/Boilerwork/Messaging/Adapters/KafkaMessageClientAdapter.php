@@ -5,14 +5,14 @@ declare(strict_types=1);
 
 namespace Boilerwork\Messaging\Adapters;
 
-use Boilerwork\Messaging\MessagingClientInterface;
+use Boilerwork\Messaging\MessageClientInterface;
 
 /**
  * Uses rdkafka extension and librdkafka library in order to work.
  *
  * @see https://arnaud.le-blanc.net/php-rdkafka-doc/phpdoc/index.html
  */
-class KafkaMessageClientAdapter implements MessagingClientInterface
+class KafkaMessageClientAdapter implements MessageClientInterface
 {
     const TIMEOUT = 60; // Seconds
 
@@ -149,5 +149,14 @@ class KafkaMessageClientAdapter implements MessagingClientInterface
                 break;
             }
         }
+    }
+
+    /**
+     *
+     * @return int Timeout in seconds
+     */
+    public function timeout(): int
+    {
+        return self::TIMEOUT;
     }
 }
