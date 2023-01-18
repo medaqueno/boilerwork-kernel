@@ -11,11 +11,20 @@ use Psr\Http\Message\ServerRequestInterface;
 
 readonly class AuthInfo
 {
+    private readonly array $authorizationsParsed;
+
     private function __construct(
         public readonly Identity $userId,
         public readonly Identity $tenantId,
         public readonly array $authorizations,
     ) {
+
+        // array_filter removes any falsy value that could exist from any non exixting authorization string
+        $this->authorizationsParsed = array_filter(
+            array_map(function ($item) {
+                return AuthorizationsProvider::tryFrom($item);
+            }, $authorizations)
+        );
     }
 
     public static function fromRequest(
@@ -71,7 +80,7 @@ readonly class AuthInfo
         $result = array_filter(
             $allowedAuthorizations,
             function ($item) {
-                return in_array($item, $this->authorizations) || $item === AuthorizationsProvider::PUBLIC;
+                return in_array($item, $this->authorizationsParsed) || $item === AuthorizationsProvider::PUBLIC;
             }
         );
 
