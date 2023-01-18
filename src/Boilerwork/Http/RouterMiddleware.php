@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 namespace Boilerwork\Http;
 
-use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Http\Response;
 use Boilerwork\Support\Exceptions\CustomException;
 use FastRoute\RouteCollector;
@@ -46,9 +45,6 @@ final class RouterMiddleware implements MiddlewareInterface
                 $r->addRoute($route[0], $route[1], $route[2]);
             }
         });
-
-        $isolatedContainer = new IsolatedContainer;
-        globalContainer()->setIsolatedContainer($isolatedContainer);
 
         $request = new Request($request);
         try {

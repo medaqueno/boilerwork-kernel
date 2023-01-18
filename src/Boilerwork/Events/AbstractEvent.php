@@ -5,6 +5,8 @@ declare(strict_types=1);
 
 namespace Boilerwork\Events;
 
+use Boilerwork\Tracking\TrackContextNotFoundException;
+use Boilerwork\Tracking\TrackingContext;
 use DateTimeImmutable;
 
 abstract class AbstractEvent
@@ -21,6 +23,11 @@ abstract class AbstractEvent
 
     public function wrapSerialize(array $data): array
     {
+        /**
+         * @var TrackingContext $trackingContext
+         */
+        $trackingContext = container()->has(TrackingContext::NAME) ? container()->get(TrackingContext::NAME) : throw new TrackContextNotFoundException();
+
         if ($this->serializedData !== null) {
             return $this->serializedData;
         }
@@ -31,8 +38,9 @@ abstract class AbstractEvent
             'type' => static::class,
             'ocurredOn' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
             'data' => $data,
-            'metadata' => [],
-            // 'metadata' => authInfo()->serialize(),
+            'metadata' => [
+                'trackingContext' => $trackingContext->toArray()
+            ],
         ];
     }
 

@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Messaging;
 
 use Boilerwork\Container\IsolatedContainer;
+use Boilerwork\Tracking\TrackingContext;
 use DateTime;
 
 final class MessageProcessor
@@ -16,9 +17,6 @@ final class MessageProcessor
         private readonly MessagingProviderInterface $subscriptions,
         private readonly array $topics
     ) {
-        $isolatedContainer = new IsolatedContainer;
-        globalContainer()->setIsolatedContainer($isolatedContainer);
-
         $this->messageClient = globalContainer()->get(MessageClientInterface::class);
     }
 
@@ -36,9 +34,11 @@ final class MessageProcessor
         while (true) {
             $messageReceived = $consumer->consume($this->messageClient->timeout() * 1000);
 
+            // Create an isolated container for each incoming Message
+            globalContainer()->setIsolatedContainer(new IsolatedContainer);
+
             switch ($messageReceived->err) {
                 case \RD_KAFKA_RESP_ERR_NO_ERROR:
-
                     foreach ($this->subscriptions->getSubscriptions() as $item) {
 
                         $topicReceived = explode('__', $messageReceived->topic_name)[1];
@@ -55,7 +55,10 @@ final class MessageProcessor
                                 headers: $messageReceived->headers,
                             );
 
-                            $class = globalContainer()->get($item['target']);
+                            // Make it Accesible in local isolated container
+                            container()->instance(TrackingContext::NAME, $message->trackingContext());
+
+                            $class = container()->get($item['target']);
                             try {
                                 call_user_func($class, $message);
                             } catch (\Throwable $th) {

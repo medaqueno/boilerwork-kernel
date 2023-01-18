@@ -3,11 +3,11 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Authentication\AuthInfo;
+namespace Boilerwork\Authorization;
 
 use Boilerwork\Authorization\AuthorizationsProvider;
 
-final class AuthInfoNotFound extends AuthInfo
+final readonly class AuthInfoNotFound extends AuthInfo
 {
     public function __construct()
     {
@@ -18,14 +18,14 @@ final class AuthInfoNotFound extends AuthInfo
         $result = array_filter(
             $allowedAuthorizations,
             function ($item) {
-                return $item === AuthorizationsProvider::PUBLIC->value;
+                return $item === AuthorizationsProvider::PUBLIC;
             }
         );
 
         return count($result) > 0;
     }
 
-    public function serialize(): array
+    public function toArray(): array
     {
         return [];
     }

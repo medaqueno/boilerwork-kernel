@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Authentication\AuthInfo\Exceptions;
+namespace Boilerwork\Authorization;
 
 use Boilerwork\Support\Exceptions\CustomException;
 

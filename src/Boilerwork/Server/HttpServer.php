@@ -6,7 +6,9 @@ declare(strict_types=1);
 namespace Boilerwork\Server;
 
 use Boilerwork\Authorization\AuthorizationsMiddleware;
+use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Http\RouterMiddleware;
+use Boilerwork\Tracking\TrackingMiddleware;
 use OpenSwoole\Core\Psr\Middleware\StackHandler;
 use OpenSwoole\Http\Server;
 use OpenSwoole\Util;
@@ -62,7 +64,8 @@ final class HttpServer
         // Add Middlewares here
         $this->stack = (new StackHandler())
             ->add(new RouterMiddleware($routes))
-            ->add(new AuthorizationsMiddleware($routes));
+            ->add(new AuthorizationsMiddleware($routes))
+            ->add(new TrackingMiddleware()); // MUST always be the first to process an incoming request
 
         // Add dedicated processes to Server Event Loop
         if (count($processes) > 0) {
