@@ -3,8 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Http;
+namespace Boilerwork\Server;
 
+use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
 use Boilerwork\Support\Exceptions\CustomException;
 use FastRoute\RouteCollector;

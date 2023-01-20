@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Messaging;
 
 use Boilerwork\Authorization\AuthInfo;
+use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Tracking\TrackingContext;
 use DateTimeInterface;
 
@@ -28,9 +29,18 @@ final class Message
 
     public function trackingContext(): TrackingContext
     {
-        $trackingContext = TrackingContext::fromMessage($this->parsedPayload()->metadata->trackingContext->transactionId);
-        $trackingContext->addAuthInfo(AuthInfo::fromMessage((array)$this->parsedPayload()->metadata->trackingContext->authInfo));
 
+        if (isset($this->parsedPayload()->metadata->trackingContext)) {
+            $transactionId =  $this->parsedPayload()->metadata->trackingContext->transactionId;
+            $authInfo = (array)$this->parsedPayload()->metadata->trackingContext->authInfo;
+        } else {
+            $transactionId = Identity::create()->toPrimitive();
+            $authInfo = [];
+        }
+
+        $trackingContext = TrackingContext::fromMessage($transactionId);
+
+        $trackingContext->addAuthInfo(AuthInfo::fromMessage($authInfo));
         return $trackingContext;
     }
 }

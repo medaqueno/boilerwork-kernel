@@ -51,17 +51,17 @@ readonly class AuthInfo
      * @return AuthInfo
      */
     public static function fromMessage(
-        array $message
+        array $data
     ): self {
 
-        if (!isset($message['userId']) || !isset($message['tenantId']) || !isset($message['authorizations'])) {
+        if (!isset($data['userId']) || !isset($data['tenantId']) || !isset($data['authorizations'])) {
             return new AuthInfoNotFound();
         }
 
         return new self(
-            userId: new Identity($message['userId']),
-            tenantId: new Identity($message['tenantId']),
-            authorizations: $message['authorizations'],
+            userId: new Identity($data['userId']),
+            tenantId: new Identity($data['tenantId']),
+            authorizations: $data['authorizations'],
         );
     }
 

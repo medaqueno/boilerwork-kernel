@@ -55,7 +55,7 @@ final class TrackingContext
     {
         return [
             'transactionId' => $this->transactionId->toPrimitive(),
-            'authInfo' => $this->authInfo->toArray(),
+            'authInfo' => $this->authInfo?->toArray(),
         ];
     }
 

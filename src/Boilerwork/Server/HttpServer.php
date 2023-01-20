@@ -6,8 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Server;
 
 use Boilerwork\Authorization\AuthorizationsMiddleware;
-use Boilerwork\Container\IsolatedContainer;
-use Boilerwork\Http\RouterMiddleware;
+use Boilerwork\Server\RouterMiddleware;
 use Boilerwork\Tracking\TrackingMiddleware;
 use OpenSwoole\Core\Psr\Middleware\StackHandler;
 use OpenSwoole\Http\Server;
