@@ -55,8 +55,6 @@ final class RouterMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        echo "QUE PASA\n";
-        var_dump(self::$routes);
         $this->dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
             foreach (self::$routes as $route) {
                 $r->addRoute($route[0], $route[1], $route[2]);
