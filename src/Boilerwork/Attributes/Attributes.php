@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Attributes;
 
+use ReflectionAttribute;
 use ReflectionClass;
 
 final class Attributes
@@ -32,30 +33,52 @@ final class Attributes
             }
             if ($namespace !== null && $className !== null) {
 
-                $reflection = new ReflectionClass($namespace . '\\' . $className);
+                $class = new ReflectionClass($namespace . '\\' . $className);
+                $className = $class->getName();
+
+                $attributesInClass = $class->getAttributes();
+                // if ($class->getName() !== 'App\Core\Authentication\Application\DeactivateUser\DeactivateUserCommandHandler') {
+                //     continue;
+                // }
+
+                // TODO: ADD More Attributes
+                foreach ($attributesInClass as $attr) {
+                    $attributeClass = $attr->getName();
+                    match ($attributeClass) {
+                        // 'Boilerwork\Messaging\SubscribesTo' => (new $attributeClass(
+                        //     topics: $attr->getArguments() ?? '',
+                        // ))(subscriber: $className),
+                        // 'Boilerwork\Server\Route' => (new $attributeClass(
+                        //     method: $attr->getArguments()['method'] ?? '',
+                        //     route: $attr->getArguments()['route'] ?? '',
+                        //     authorizations: $attr->getArguments()['authorizations'] ?? [],
+                        // ))(target: $className),
+                    };
+                    // $attrs->newInstance();
+                }
 
                 // Para utilizar con un Attribute como: #[\Binds(abstract: ReadModelInterface::class, concrete: PostgreSqlReadModels::class)]
-                foreach ($reflection->getMethods() as $method) {
+                foreach ($class->getMethods() as $method) {
 
-                    // $attributes = $method->getAttributes(Bind::class, ReflectionAttribute::IS_INSTANCEOF);
-                    $attributes = $method->getAttributes();
-                    foreach ($attributes as $attribute) {
+                    $attributesInMethods = $method->getAttributes();
+                    foreach ($attributesInMethods as $attribute) {
                         $attribute->newInstance();
                     }
 
-                    // Para utilizar con un Attribute como: @Implements("interface"="\App\Core\ItemDomainName\Application\Shared\ReadModelInterface","repository"="\App\Core\ItemDomainName\Infra\Persistence\PostgreSqlReadModels")
-                    // obtener el doc block del método
-                    /*    $docBlock = $method->getDocComment();
-                    if ($docBlock === false) continue;
-                    // var_dump($docBlock);
-                    if (preg_match('/@Implements\("interface"="([^"]+)","repository"="([^"]+)"\)/', $docBlock, $matches)) {
-                        $interface = $matches[1];
-                        $repository = $matches[2];
-                        var_dump($interface, $repository);
-                        // ahora tienes el nombre de la interfaz en $interface
-                        // y el nombre del repositorio en $repository
+                    $parameters = $method->getParameters();
+                    foreach ($parameters as $param) {
+
+                        // El tipado del atributo
+                        // $paramType = $param->getType()->getName();
+                        $param->getAttributes();
+                        $attributesInParams = $param->getAttributes();
+
+                        foreach ($attributesInParams as $attribute) {
+                            $attributeClass = $attribute->getName();
+                            new $attributeClass(...$attribute->getArguments());
+                            // $attribute->newInstance();
+                        }
                     }
-                    */
                 }
             }
         }

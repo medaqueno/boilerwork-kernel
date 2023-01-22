@@ -62,7 +62,7 @@ final class HttpServer
 
         // Add Middlewares here
         $this->stack = (new StackHandler())
-            ->add(new RouterMiddleware($routes))
+            ->add(RouterMiddleware::getInstance($routes))
             ->add(new AuthorizationsMiddleware($routes))
             ->add(new TrackingMiddleware()); // MUST always be the first to process an incoming request
 

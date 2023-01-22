@@ -5,9 +5,11 @@ declare(strict_types=1);
 
 namespace Boilerwork\Server;
 
+
 use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
 use Boilerwork\Support\Exceptions\CustomException;
+use Boilerwork\Support\Singleton;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -16,18 +18,30 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Throwable;
 
+#[Singleton]
 final class RouterMiddleware implements MiddlewareInterface
 {
     private $dispatcher;
 
+    private static self $instance;
+
     private static array $routes;
+
+    public static function getInstance($args): self
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new static($args);
+        }
+
+        return self::$instance;
+    }
 
     /**
      *
      * @param array $routes
      * @return void
      */
-    public function __construct(array $routes)
+    private function __construct(array $routes)
     {
         foreach ($routes as $route) {
             self::addRoute($route);
@@ -41,6 +55,8 @@ final class RouterMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        echo "QUE PASA\n";
+        var_dump(self::$routes);
         $this->dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
             foreach (self::$routes as $route) {
                 $r->addRoute($route[0], $route[1], $route[2]);
