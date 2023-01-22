@@ -43,14 +43,29 @@ final class AuthorizationsMiddleware implements MiddlewareInterface
     private function hasAuthorization(AuthInfo $authInfo, string $method, string $uri): bool
     {
         $response = false;
-
         foreach ($this->routes as $item) {
-            if (isset($item[3]) && $item[0] === $method && $item[1] === $uri) {
+
+            if (isset($item[3]) && $item[0] === $method && $this->matchUrl(pattern: $item[1], url: $uri)) {
                 $response = $authInfo->hasAuthorization($item[3]);
                 break;
             }
         }
 
         return $response;
+    }
+
+
+    private function matchUrl($pattern, $url): bool
+    {
+        if (strpos($url, $pattern) === 0) {
+            return true;
+        } else {
+            $regex = preg_replace("#\{(.*)\}#", "(.*)", $pattern);
+            if (preg_match("#^" . $regex . "$#", $url)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 readonly class AuthInfo
 {
-    private readonly array $authorizationsParsed;
+    private readonly array $userAuthorizationsParsed;
 
     private function __construct(
         public readonly Identity $userId,
@@ -19,8 +19,8 @@ readonly class AuthInfo
         public readonly array $authorizations,
     ) {
 
-        // array_filter removes any falsy value that could exist from any non exixting authorization string
-        $this->authorizationsParsed = array_filter(
+        // array_filter removes any falsy value that could exist from any non existing authorization string
+        $this->userAuthorizationsParsed = array_filter(
             array_map(function ($item) {
                 return AuthorizationsProvider::tryFrom($item);
             }, $authorizations)
@@ -80,7 +80,7 @@ readonly class AuthInfo
         $result = array_filter(
             $allowedAuthorizations,
             function ($item) {
-                return in_array($item, $this->authorizationsParsed) || $item === AuthorizationsProvider::PUBLIC;
+                return in_array($item, $this->userAuthorizationsParsed) || $item === AuthorizationsProvider::PUBLIC;
             }
         );
 
