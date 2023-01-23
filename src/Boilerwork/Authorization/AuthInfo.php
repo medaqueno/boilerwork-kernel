@@ -68,14 +68,14 @@ readonly class AuthInfo
     /**
      * Check if User has authorizations needed in the authorizations provided.
      *
-     * AuthorizationsProvider::MAX_AUTHORIZATION authorization is added to allowed authorization automatically.
+     * AuthorizationsProvider::IS_SUPER_ADMIN authorization is added to allowed authorization automatically.
      * If the endpoint has Public authorization, it will pass.
      *
      */
     public function hasAuthorization(array $allowedAuthorizations): bool
     {
         // Add Max permission by default to allowed Authorizations
-        array_push($allowedAuthorizations, AuthorizationsProvider::MAX_AUTHORIZATION);
+        array_push($allowedAuthorizations, AuthorizationsProvider::IS_SUPER_ADMIN);
 
         $result = array_filter(
             $allowedAuthorizations,
