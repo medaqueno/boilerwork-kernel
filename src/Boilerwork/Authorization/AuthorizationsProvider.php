@@ -50,7 +50,6 @@ enum AuthorizationsProvider: string
             self::MASTERS->value,
             self::INTEGRATIONS->value,
             self::FEES->value,
-            self::MY_TENANT->value,
         ];
     }
 
