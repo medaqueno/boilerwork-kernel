@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Boilerwork\Http;
 
+use Boilerwork\Authorization\AuthInfo;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Support\ValueObjects\Language\Iso6391Code;
 use Boilerwork\Support\ValueObjects\Language\Language;
@@ -16,12 +17,15 @@ use OpenSwoole\Core\Psr\ServerRequest as OpenSwooleRequest;
  **/
 class Request extends OpenSwooleRequest implements ServerRequestInterface
 {
+    private readonly AuthInfo $authInfo;
+
     /**
      * Builds Psr\Http\Message\ServerRequestInterface
      * with extra methods
      **/
     public function __construct(ServerRequestInterface $request)
     {
+
         $server = $request->getServerParams();
         $headers = $request->getHeaders();
 
@@ -37,6 +41,8 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
             parsedBody: $this->parseBody($request),
             protocolVersion: '1.1'
         );
+
+        $this->authInfo = $request->getAttribute('AuthInfo');
 
         $this->paging();
     }
@@ -97,5 +103,13 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
     public function query(string|int $param): mixed
     {
         return $this->getQueryParams()[$param] ?? null;
+    }
+
+    /**
+     * Return specific query param
+     **/
+    public function authInfo(): AuthInfo
+    {
+        return $this->authInfo;
     }
 }

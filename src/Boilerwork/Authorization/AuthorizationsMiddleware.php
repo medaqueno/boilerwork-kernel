@@ -37,7 +37,8 @@ final class AuthorizationsMiddleware implements MiddlewareInterface
             uri: $request->getUri()->getPath()
         );
 
-        return $hasAuthorization === true ? $handler->handle($request) : Response::error(new AuthorizationException());
+        // Inject to the request the Authorization info or response error
+        return $hasAuthorization === true ? $handler->handle($request->withAttribute('AuthInfo', $authInfo)) : Response::error(new AuthorizationException());
     }
 
     private function hasAuthorization(AuthInfo $authInfo, string $method, string $uri): bool
