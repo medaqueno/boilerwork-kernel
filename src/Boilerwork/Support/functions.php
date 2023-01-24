@@ -3,7 +3,6 @@
 
 declare(strict_types=1);
 
-use Boilerwork\Authentication\AuthInfo\AuthInfo;
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Support\Logs\Logger;
 use Boilerwork\Messaging\MessagePublisher;
@@ -63,13 +62,6 @@ if (!function_exists('globalContainer')) {
     function globalContainer()
     {
         return \Boilerwork\Container\Container::getInstance();
-    }
-}
-
-if (!function_exists('authInfo')) {
-    function authInfo(): AuthInfo
-    {
-        return container()->get('AuthInfo');
     }
 }
 
