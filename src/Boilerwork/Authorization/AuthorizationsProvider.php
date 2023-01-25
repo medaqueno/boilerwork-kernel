@@ -1,3 +1,4 @@
+```php
 #!/usr/bin/env php
 <?php
 
@@ -50,6 +51,7 @@ enum AuthorizationsProvider: string
             self::MASTERS->value,
             self::INTEGRATIONS->value,
             self::FEES->value,
+            self::MY_TENANT->value,
         ];
     }
 
@@ -57,6 +59,8 @@ enum AuthorizationsProvider: string
     {
         return [
             self::IS_ADMIN_TENANT->value,
+            self::UI_ADVISER->value,
+            self::UI_MANAGER->value,
             self::DASHBOARD->value,
             self::CATALOGUE->value,
             self::ANALYTICS->value,
@@ -73,6 +77,8 @@ enum AuthorizationsProvider: string
     {
         return [
             self::IS_USER_TENANT->value,
+            self::UI_ADVISER->value,
+            self::UI_MANAGER->value,
             self::DASHBOARD->value,
             self::ANALYTICS->value,
             self::OWN_PRODUCT->value,
@@ -84,12 +90,21 @@ enum AuthorizationsProvider: string
 
     public static function getIsUiAdviser(): array
     {
-        return [];
+        return [
+            self::IS_SUPER_ADMIN->value,
+            self::IS_ADMIN_TENANT->value,
+            self::IS_USER_TENANT->value,
+            self::UI_ADVISER->value
+        ];
     }
 
     public static function getIsUiManager(): array
     {
         return [
+            self::IS_SUPER_ADMIN->value,
+            self::IS_ADMIN_TENANT->value,
+            self::IS_USER_TENANT->value,
+            self::UI_MANAGER->value,
             self::DASHBOARD->value,
             self::CATALOGUE->value,
             self::ANALYTICS->value,
