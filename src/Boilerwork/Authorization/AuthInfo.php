@@ -94,7 +94,7 @@ readonly class AuthInfo
 
     public function tenantId(): Identity
     {
-        return $this->tenantId();
+        return $this->tenantId;
     }
 
     public function authorizations(): array
