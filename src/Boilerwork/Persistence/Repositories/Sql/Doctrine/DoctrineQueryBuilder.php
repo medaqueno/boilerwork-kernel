@@ -14,9 +14,12 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
+use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Autocomplete;
+
 final class DoctrineQueryBuilder
 {
     use Criteria;
+    use Autocomplete;
 
     private QueryBuilder $queryBuilder;
 
@@ -29,7 +32,8 @@ final class DoctrineQueryBuilder
      */
     public function __construct(
         private array $connectionParams
-    ) {
+    )
+    {
         $this->conn = DriverManager::getConnection($connectionParams);
     }
 
@@ -239,7 +243,7 @@ final class DoctrineQueryBuilder
 
     public function addSelect(...$columns): self
     {
-        $this->queryBuilder =  $this->connector->conn->createQueryBuilder()
+        $this->queryBuilder = $this->connector->conn->createQueryBuilder()
             ->addSelect(...$columns);
 
         return $this;
@@ -471,17 +475,17 @@ final class DoctrineQueryBuilder
         }
 
         /**
-         * Instead using limit + offset which has an awful performance in huge tables, we adapt the keyset pagination pattern.
-         * Variables:
-         *  id -> column autoincremental
-         *  perPage
-         *  page
-         *  table_name
-         * Example:
-            select * from table_name where id >
-	            (select max(maxId.id) as maxId from (select id from table_name WHERE id >= 1 ORDER BY id ASC limit perPage*page-1) as maxId limit 1)
-            ORDER BY id ASC limit perPage;
-         */
+        * Instead using limit + offset which has an awful performance in huge tables, we adapt the keyset pagination pattern.
+        * Variables:
+        *  id -> column autoincremental
+        *  perPage
+        *  page
+        *  table_name
+        * Example:
+        select * from table_name where id >
+        (select max(maxId.id) as maxId from (select id from table_name WHERE id >= 1 ORDER BY id ASC limit perPage*page-1) as maxId limit 1)
+        ORDER BY id ASC limit perPage;
+        */
         if ($pagingDto->page() === 1) {
             $this->queryBuilder
                 ->andWhere($this->primaryColumn . ' >= 1')
