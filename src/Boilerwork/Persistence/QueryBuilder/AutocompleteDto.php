@@ -9,26 +9,48 @@ use Boilerwork\Validation\Assert;
 
 final class AutocompleteDto
 {
+    private $searchLanguages = array();
     private function __construct(
         private readonly string $text,
-        private readonly string $langSearch
+        private readonly string $langSearch,
+        private readonly array $indexFields
     )
     {
+        $indexBy = array_filter($indexFields);
+        Assert::lazy()
+            ->that($indexBy)
+            ->notEmpty('indexFields is mandatory', 'indexFields.invalidValue')
+            ->verifyNow();
+
+        if ($indexBy) {
+            foreach ($indexFields as $key => $value) {
+                array_push($this->searchLanguages, $key);
+                Assert::lazy()
+                    ->that($key)
+                    ->notEmpty('Lang key in  indexFields is mandatory', 'langKeyIndexFields.invalidValue')
+                    ->that($value)
+                    ->notEmpty('Lang vlue in  indexFields is mandatory', 'langValueIndexFields.invalidValue')
+                    ->verifyNow();
+            }
+        }
+
         Assert::lazy()
             ->that($text)
             ->notEmpty('Text is mandatory', 'autocompleteText.invalidValue')
             ->that($langSearch)
-            ->inArray(static::$searchLanguages, 'Value must be a supported search language: ES ', 'autocompleteLangSearch.invalidValue')
+            ->inArray($this->searchLanguages, 'Value must be a supported search language ', 'autocompleteLangSearch.invalidValue')
             ->verifyNow();
-
     }
 
-    protected static $searchLanguages = array('ES');
 
 
     public function text(): string
     {
         return $this->text;
+    }
+    public function textLowerCase(): string
+    {
+        return strtolower($this->text);
     }
 
     public function langSearch(): string
@@ -36,23 +58,19 @@ final class AutocompleteDto
         return $this->langSearch;
     }
 
-    public function langSearchLowerCase(): string
+    public function indexFields(): array
     {
-        return strtolower($this->langSearch);
+        return $this->indexFields;
     }
 
-    public function textLowerCase(): string
+    public static function create(string $text, ?string $lang, array $indexFields = []): static
     {
-        return strtolower($this->text);
-    }
-
-    public static function fromData(string $text, ?string $lang): static
-    {
-        $iso = $lang ?? 'ES';
+        $iso = $lang ?? array_key_first($indexFields) ?? 'ES';
 
         return new static (
             text: $text,
-            langSearch: strtoupper($iso)
+            langSearch: strtoupper($iso),
+            indexFields: $indexFields
         );
     }
 }

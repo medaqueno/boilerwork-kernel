@@ -14,26 +14,24 @@ trait Autocomplete
     public function addAutocomplete(AutocompleteDto $autocompleteDto): self
     {
         $text = $autocompleteDto->textLowerCase();
-        $langSearch = $autocompleteDto->langSearchLowerCase();
+        $langSearch = $autocompleteDto->langSearch();
+        $indexFields = $autocompleteDto->indexFields();
 
-        $this->addAutocompleteFilter($text, $langSearch);
+        $this->addAutocompleteFilter($text, $langSearch, $indexFields);
 
         return $this;
     }
 
-    private function addAutocompleteFilter(string $text, string $langSearch): QueryBuilder
+    private function addAutocompleteFilter(string $text, string $langSearch, array $indexFields): QueryBuilder
     {
-        $query = $this->queryBuilder
+
+        $this->queryBuilder
             ->where(
                 sprintf(
-                    "autocomplete_%s  LIKE '%s%%'",
-                    $langSearch,
+                    "%s  LIKE '%s%%'",
+                    $indexFields[$langSearch],
                     $text
                 )
-            )
-            ->orderBy(
-                'autocomplete_order',
-                'DESC'
             )
             ->setMaxResults(20);
 
