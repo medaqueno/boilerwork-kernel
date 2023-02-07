@@ -8,6 +8,7 @@ namespace Boilerwork\Persistence\Repositories\Sql\Doctrine;
 use Boilerwork\Persistence\Exceptions\PagingException;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
+use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\CriteriaExtended;
 use Boilerwork\Support\ValueObjects\Language\Language;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
@@ -19,6 +20,7 @@ use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Autocomplete;
 final class DoctrineQueryBuilder
 {
     use Criteria;
+    use CriteriaExtended;
     use Autocomplete;
 
     private QueryBuilder $queryBuilder;
@@ -454,6 +456,7 @@ final class DoctrineQueryBuilder
     {
         $countQuery = clone $this->queryBuilder;
         $countQuery->resetQueryParts(['select', 'orderBy']);
+        var_dump($countQuery->getSQL());
         $pagingDto->setTotalCount(
             $countQuery->addSelect('COUNT(*)')->setMaxResults(1)->fetchOne()
         );
@@ -529,6 +532,12 @@ final class DoctrineQueryBuilder
             ->addSelect($select)
             ->addSelect($fallbackSelect);
 
+        return $this;
+    }
+
+    public function scopePublish(): self
+    {
+        $this->queryBuilder->andWhere('deleted_at is null');
         return $this;
     }
 }
