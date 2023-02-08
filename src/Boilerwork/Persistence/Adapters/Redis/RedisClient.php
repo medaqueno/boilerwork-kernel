@@ -96,9 +96,126 @@ final class RedisClient
         return $this->conn->expire($key, $ttl);
     }
 
-    public function raw($method, ...$params): mixed
+    /**
+     * @deprecated
+     */
+    public function raw(string $method, ...$params): mixed
     {
-        return $this->conn->$method(...$params);
+        return $this->rawCommand($method, ...$params);
+    }
+
+    public function rawCommand(string $command, ...$arguments): mixed
+    {
+        return $this->conn->rawCommand(
+            $command,
+            $arguments
+        );
+    }
+
+    /**
+     * @param string $key
+     * @param string $payload '[{"attr1": "foo", "attr2": "bar"},{"attr1": "zip", "attr2": "bar"}]'
+     * @return mixed
+     */
+    public function jsonSet(string $key, string $payload): mixed
+    {
+        return $this->conn->rawCommand(
+            'JSON.SET',
+            $key,
+            '$',
+            $payload
+        );
+    }
+
+    public function jsonSetRaw(string $key, string $payload, string $path): mixed
+    {
+        return $this->conn->rawCommand(
+            'JSON.SET',
+            $key,
+            $path,
+            $payload
+        );
+    }
+
+    /**
+     * @param string $key
+     * @param array<attribute,operator,value> $conditions
+     *
+     * @desc Build from variadic a string like: '$..[?(@.attr1=="foo" && @.attr2=="bar")]'
+     *      Possible Operators: ==, >, <, >=, <=, !=
+     *
+     * @example -> jsonGet('keyName', ['attr1', '==', 'foo'], ['attr2', '==', 'bar']);
+     *
+     * @return array
+     */
+    public function jsonGet(string $key, array ...$conditions): array
+    {
+        if (count($conditions) > 0) {
+
+            $conds = '$..[?(';
+
+            foreach ($conditions as $item) {
+                $conds .= sprintf('@.%s%s"%s" && ', $item[0],  $item[1], $item[2]);
+            }
+
+            $conds = rtrim($conds, " && ") . ')]';
+
+            return json_decode($this->conn->rawCommand(
+                'JSON.GET',
+                $key,
+                $conds
+            ));
+        } else {
+            return json_decode($this->conn->rawCommand(
+                'JSON.GET',
+                $key
+            ));
+        }
+    }
+
+    /**
+     * @param string $key
+     * @param array<attribute,operator,value> $conditions
+     *
+     * @desc Build from variadic a string like: '$..[?(@.attr1=="foo" || @.attr2=="bar")]'
+     *      Possible Operators: ==, >, <, >=, <=, !=
+     *
+     * @example -> jsonGet('keyName', ['attr1', '==', 'foo'], ['attr2', '==', 'bar']);
+     *
+     * @return array
+     */
+    public function jsonGetOr(string $key, array ...$conditions): array
+    {
+        if (count($conditions) > 0) {
+
+            $conds = '$..[?(';
+
+            foreach ($conditions as $item) {
+                $conds .= sprintf('@.%s%s"%s" || ', $item[0],  $item[1], $item[2]);
+            }
+
+            $conds = rtrim($conds, " || ") . ')]';
+
+            return json_decode($this->conn->rawCommand(
+                'JSON.GET',
+                $key,
+                $conds
+            ));
+        } else {
+            return json_decode($this->conn->rawCommand(
+                'JSON.GET',
+                $key
+            ));
+        }
+    }
+
+    public function jsonGetRaw(string $key, string $path): array
+    {
+        return json_decode($this->conn->rawCommand(
+            'JSON.GET',
+            $key,
+            $path
+        ));
     }
 
     public function initTransaction(): Redis
