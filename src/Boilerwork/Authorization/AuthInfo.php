@@ -75,7 +75,7 @@ readonly class AuthInfo
     public function hasAuthorization(array $allowedAuthorizations): bool
     {
         // Add Max permission by default to allowed Authorizations
-        array_push($allowedAuthorizations, AuthorizationsProvider::IS_SUPER_ADMIN);
+        // array_push($allowedAuthorizations, AuthorizationsProvider::IS_SUPER_ADMIN);
 
         $result = array_filter(
             $allowedAuthorizations,

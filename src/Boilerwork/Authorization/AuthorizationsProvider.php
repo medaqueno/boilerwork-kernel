@@ -12,6 +12,9 @@ enum AuthorizationsProvider: string
 {
     case PUBLIC = 'public';
 
+        // case IS_SUPER_ADMIN = 'is_super_admin';
+        // case IS_ADMIN_QUADRANT = 'is_admin_quadrant';
+
         // Permissions by user type
     case IS_SUPER_ADMIN = 'is_admin_quadrant';
     case IS_ADMIN_TENANT = 'is_admin_tenant';
