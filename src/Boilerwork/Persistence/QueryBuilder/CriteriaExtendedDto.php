@@ -50,7 +50,8 @@ final class CriteriaExtendedDto
         $keyParamsByOrder = array_key_first(array_filter(array_keys($this->params), fn($item) => explode('|', $item)[1] === $orderBy[0]));
         $filtersArray = explode('|', array_keys($this->params)[$keyParamsByOrder]);
         if (isset($filtersArray[2])) {
-            $sortArray = explode('.', $filtersArray[0]);
+            $sortExplode = explode('.', $filtersArray[0]);
+            $sortArray = array_filter($sortExplode, fn($m) => $m != '*');
             $sortWrap = array_map(fn($item): string => "'" . $item . "'", $sortArray);
             if (isset($filtersArray[3])) {
                 $sort = $filtersArray[2] . "->" . implode('->', $sortWrap) . "->>'" . $filtersArray[3] . "'";
