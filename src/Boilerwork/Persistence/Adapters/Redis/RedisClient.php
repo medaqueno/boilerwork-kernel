@@ -108,7 +108,7 @@ final class RedisClient
     {
         return $this->conn->rawCommand(
             $command,
-            $arguments
+            ...$arguments
         );
     }
 
