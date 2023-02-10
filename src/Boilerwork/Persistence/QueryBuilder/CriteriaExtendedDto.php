@@ -13,8 +13,7 @@ final class CriteriaExtendedDto
         private readonly array $params,
         private readonly ?string $orderBy,
 
-    )
-    {
+    ) {
         Assert::lazy()
             ->that($orderBy)
             ->nullOr()
@@ -24,7 +23,7 @@ final class CriteriaExtendedDto
 
         if ($orderBy) {
             // Only allow order by fields existing in params
-            $paramsAlias = array_map(fn($item): string => explode('|', $item)[1], array_keys($params));
+            $paramsAlias = array_map(fn ($item): string => explode('|', $item)[1], array_keys($params));
             Assert::lazy()
                 ->that(explode(',', $orderBy)[0])
                 ->inArray($paramsAlias, sprintf('Sort field must be a valid value: %s', implode(',', $paramsAlias)), 'criteriaSortValue.notAllowed')
@@ -47,12 +46,12 @@ final class CriteriaExtendedDto
         }
 
         $orderBy = explode(',', $this->orderBy);
-        $keyParamsByOrder = array_key_first(array_filter(array_keys($this->params), fn($item) => explode('|', $item)[1] === $orderBy[0]));
+        $keyParamsByOrder = array_key_first(array_filter(array_keys($this->params), fn ($item) => explode('|', $item)[1] === $orderBy[0]));
         $filtersArray = explode('|', array_keys($this->params)[$keyParamsByOrder]);
         if (isset($filtersArray[2])) {
             $sortExplode = explode('.', $filtersArray[0]);
-            $sortArray = array_filter($sortExplode, fn($m) => $m != '*');
-            $sortWrap = array_map(fn($item): string => "'" . $item . "'", $sortArray);
+            $sortArray = array_filter($sortExplode, fn ($m) => $m != '*');
+            $sortWrap = array_map(fn ($item): string => "'" . $item . "'", $sortArray);
             if (isset($filtersArray[3])) {
                 $sort = $filtersArray[2] . "->" . implode('->', $sortWrap) . "->>'" . $filtersArray[3] . "'";
             } else {
@@ -71,7 +70,7 @@ final class CriteriaExtendedDto
 
     public static function create(array $params = [], ?string $orderBy = null): static
     {
-        return new static (
+        return new static(
             params: $params,
             orderBy: $orderBy
         );
