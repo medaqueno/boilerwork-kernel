@@ -49,11 +49,12 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
 
     public function acceptLanguage(): string
     {
-        $lang = count($this->getHeader('Accept-Language')) > 0 ?
-            Language::fromIso6391Code(new Iso6391Code($this->getHeader('Accept-Language')[0]))->toPrimitive()
-            : Language::FALLBACK;
+        $headers = $this->getHeaders();
+        $langRequest = (string)$headers['accept-language'];
 
-        return $lang;
+        return  isset($langRequest) ?
+            mb_strtoupper(Language::fromIso6391Code(new Iso6391Code($langRequest))->toPrimitive())
+            : Language::FALLBACK;
     }
 
     private function paging(): void
