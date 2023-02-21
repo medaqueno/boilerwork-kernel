@@ -148,7 +148,7 @@ final class RedisClient
      *
      * @return array
      */
-    public function jsonGet(string $key, array ...$conditions): array
+    public function jsonGet(string $key, array ...$conditions): array|null
     {
         if (count($conditions) > 0) {
 
@@ -188,7 +188,7 @@ final class RedisClient
      *
      * @return array
      */
-    public function jsonGetOr(string $key, array ...$conditions): array
+    public function jsonGetOr(string $key, array ...$conditions): array|null
     {
         if (count($conditions) > 0) {
 
@@ -217,7 +217,7 @@ final class RedisClient
         }
     }
 
-    public function jsonGetRaw(string $key, string $path): array
+    public function jsonGetRaw(string $key, string $path): array|null
     {
         $res = $this->conn->rawCommand(
             'JSON.GET',
