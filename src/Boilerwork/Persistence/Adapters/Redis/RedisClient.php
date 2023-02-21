@@ -164,12 +164,12 @@ final class RedisClient
                 'JSON.GET',
                 $key,
                 $conds
-            ));
+            ) ?: []);
         } else {
             return json_decode($this->conn->rawCommand(
                 'JSON.GET',
                 $key
-            ));
+            ) ?: []);
         }
     }
 
@@ -200,12 +200,12 @@ final class RedisClient
                 'JSON.GET',
                 $key,
                 $conds
-            ));
+            ) ?: []);
         } else {
             return json_decode($this->conn->rawCommand(
                 'JSON.GET',
                 $key
-            ));
+            ) ?: []);
         }
     }
 
@@ -215,7 +215,7 @@ final class RedisClient
             'JSON.GET',
             $key,
             $path
-        ));
+        ) ?: []);
     }
 
     public function initTransaction(): Redis
