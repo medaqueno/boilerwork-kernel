@@ -22,12 +22,22 @@ final class Attributes
         $files = $this->scanDir($this->dir);
 
         foreach ($files as $file) {
-            $classes = get_declared_classes();
-            include $file;
-            $new_classes = array_diff(get_declared_classes(), $classes);
+            $namespace = $className = null;
+            $contents = file_get_contents($file);
 
-            foreach ($new_classes as $class) {
-                $ref = new ReflectionClass($class);
+            // buscar el namespace
+            if (preg_match('/namespace ([^;]+);/', $contents, $matches)) {
+                $namespace = $matches[1];
+            }
+            // buscar el nombre de la clase
+            if (preg_match('/class ([^\s]+)/', $contents, $matches)) {
+                $className = $matches[1];
+            }
+
+
+            if ($namespace !== null && $className !== null) {
+
+                $ref = new ReflectionClass($namespace . '\\' . $className);
 
                 $attributesInClass = $ref->getAttributes();
 
