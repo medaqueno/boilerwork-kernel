@@ -9,6 +9,7 @@
     "beberlei/assert": "^3.3",
     "doctrine/dbal": "^3.5",
     "doctrine/migrations": "^3.5",
+    "elasticsearch/elasticsearch": "^8.6",
     "giggsey/libphonenumber-for-php": "^8.12",
     "guzzlehttp/guzzle": "^7.0",
     "illuminate/container": "^9.4",
