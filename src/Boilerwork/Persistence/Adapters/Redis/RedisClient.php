@@ -160,16 +160,20 @@ final class RedisClient
 
             $conds = rtrim($conds, " && ") . ')]';
 
-            return json_decode($this->conn->rawCommand(
+            $res = $this->conn->rawCommand(
                 'JSON.GET',
                 $key,
                 $conds
-            ) ?: []);
+            );
+
+            return is_string($res) ? json_decode($res, true) : null;
         } else {
-            return json_decode($this->conn->rawCommand(
+            $res = $this->conn->rawCommand(
                 'JSON.GET',
                 $key
-            ) ?: []);
+            );
+
+            return is_string($res) ? json_decode($res, true) : null;
         }
     }
 
@@ -196,26 +200,32 @@ final class RedisClient
 
             $conds = rtrim($conds, " || ") . ')]';
 
-            return json_decode($this->conn->rawCommand(
+            $res = $this->conn->rawCommand(
                 'JSON.GET',
                 $key,
                 $conds
-            ) ?: []);
+            );
+
+            return is_string($res) ? json_decode($res, true) : null;
         } else {
-            return json_decode($this->conn->rawCommand(
+            $res = $this->conn->rawCommand(
                 'JSON.GET',
                 $key
-            ) ?: []);
+            );
+
+            return is_string($res) ? json_decode($res, true) : null;
         }
     }
 
     public function jsonGetRaw(string $key, string $path): array
     {
-        return json_decode($this->conn->rawCommand(
+        $res = $this->conn->rawCommand(
             'JSON.GET',
             $key,
             $path
-        ) ?: []);
+        );
+
+        return is_string($res) ? json_decode($res, true) : null;
     }
 
     public function initTransaction(): Redis
