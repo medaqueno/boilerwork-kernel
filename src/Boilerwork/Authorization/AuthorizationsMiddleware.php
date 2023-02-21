@@ -15,9 +15,30 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class AuthorizationsMiddleware implements MiddlewareInterface
 {
+    private static self $instance;
+
+    private static array $routes;
+
+    public static function getInstance($args = []): self
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new static($args);
+        }
+
+        return self::$instance;
+    }
+
     public function __construct(
-        private readonly array $routes
+        array $routes
     ) {
+        foreach ($routes as $route) {
+            self::addRoute($route);
+        }
+    }
+
+    public static function addRoute(array $route)
+    {
+        self::$routes[] = $route;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -44,7 +65,7 @@ final class AuthorizationsMiddleware implements MiddlewareInterface
     private function hasAuthorization(AuthInfo $authInfo, string $method, string $uri): bool
     {
         $response = false;
-        foreach ($this->routes as $item) {
+        foreach (self::$routes as $item) {
 
             if (isset($item[3]) && $item[0] === $method && $this->matchUrl(pattern: $item[1], url: $uri)) {
                 $response = $authInfo->hasAuthorization($item[3]);

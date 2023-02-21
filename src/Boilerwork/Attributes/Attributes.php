@@ -20,65 +20,55 @@ final class Attributes
     public function scan()
     {
         $files = $this->scanDir($this->dir);
+
         foreach ($files as $file) {
-            $namespace = $className = null;
-            $contents = file_get_contents($file);
-            // buscar el namespace
-            if (preg_match('/namespace ([^;]+);/', $contents, $matches)) {
-                $namespace = $matches[1];
-            }
-            // buscar el nombre de la clase
-            if (preg_match('/class ([^\s]+)/', $contents, $matches)) {
-                $className = $matches[1];
-            }
-            if ($namespace !== null && $className !== null) {
+            $classes = get_declared_classes();
+            include $file;
+            $new_classes = array_diff(get_declared_classes(), $classes);
 
-                $class = new ReflectionClass($namespace . '\\' . $className);
-                $className = $class->getName();
+            foreach ($new_classes as $class) {
+                $ref = new ReflectionClass($class);
 
-                $attributesInClass = $class->getAttributes();
-                // if ($class->getName() !== 'App\Core\Authentication\Application\DeactivateUser\DeactivateUserCommandHandler') {
-                //     continue;
-                // }
+                $attributesInClass = $ref->getAttributes();
 
-                // TODO: ADD More Attributes
-                foreach ($attributesInClass as $attr) {
-                    $attributeClass = $attr->getName();
-                    match ($attributeClass) {
-                        // 'Boilerwork\Messaging\SubscribesTo' => (new $attributeClass(
-                        //     topics: $attr->getArguments() ?? '',
-                        // ))(subscriber: $className),
-                        // 'Boilerwork\Server\Route' => (new $attributeClass(
-                        //     method: $attr->getArguments()['method'] ?? '',
-                        //     route: $attr->getArguments()['route'] ?? '',
-                        //     authorizations: $attr->getArguments()['authorizations'] ?? [],
-                        // ))(target: $className),
-                    };
-                    // $attrs->newInstance();
+                foreach ($attributesInClass as $attribute) {
+
+                    if ($attribute->getName() === 'Boilerwork\Server\Route') {
+                        $attributeClass = $attribute->getName();
+                        new $attributeClass(
+                            method: $attribute->getArguments()['method'],
+                            target: $ref->getName(),
+                            route: $attribute->getArguments()['route'],
+                            authorizations: $attribute->getArguments()['authorizations'],
+                        );
+                    }
                 }
 
-                // Para utilizar con un Attribute como: #[\Binds(abstract: ReadModelInterface::class, concrete: PostgreSqlReadModels::class)]
-                foreach ($class->getMethods() as $method) {
+                $methods = $ref->getMethods();
+                foreach ($methods as $method) {
+                    $attributes = $method->getAttributes();
+                    foreach ($attributes as $attribute) {
 
-                    $attributesInMethods = $method->getAttributes();
-                    foreach ($attributesInMethods as $attribute) {
-                        $attribute->newInstance();
-                    }
-
-                    $parameters = $method->getParameters();
-                    foreach ($parameters as $param) {
-
-                        // El tipado del atributo
-                        // $paramType = $param->getType()->getName();
-                        $param->getAttributes();
-                        $attributesInParams = $param->getAttributes();
-
-                        foreach ($attributesInParams as $attribute) {
+                        if ($attribute->getName() === 'Boilerwork\Container\Bind') {
                             $attributeClass = $attribute->getName();
                             new $attributeClass(...$attribute->getArguments());
-                            // $attribute->newInstance();
                         }
                     }
+
+                    // $parameters = $method->getParameters();
+                    // foreach ($parameters as $param) {
+
+                    //     // El tipado del atributo
+                    //     // $paramType = $param->getType()->getName();
+                    //     $param->getAttributes();
+                    //     $attributesInParams = $param->getAttributes();
+
+                    //     foreach ($attributesInParams as $attribute) {
+                    //         $attributeClass = $attribute->getName();
+                    //         new $attributeClass(...$attribute->getArguments());
+                    //         // $attribute->newInstance();
+                    //     }
+                    // }
                 }
             }
         }
@@ -89,12 +79,11 @@ final class Attributes
         $files = array();
         $scan = scandir($dir);
         foreach ($scan as $item) {
-
             if ($item === '.' || $item === '..') continue;
             $item = $dir . '/' . $item;
             if (is_dir($item)) {
                 $files = array_merge($files, $this->scanDir($item));
-            } else {
+            } else if (pathinfo($item, PATHINFO_EXTENSION) == "php") {
                 $files[] = $item;
             }
         }

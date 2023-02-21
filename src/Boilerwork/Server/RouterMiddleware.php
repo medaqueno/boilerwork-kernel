@@ -18,7 +18,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Throwable;
 
-#[Singleton]
 final class RouterMiddleware implements MiddlewareInterface
 {
     private $dispatcher;
@@ -27,7 +26,7 @@ final class RouterMiddleware implements MiddlewareInterface
 
     private static array $routes;
 
-    public static function getInstance($args): self
+    public static function getInstance($args = []): self
     {
         if (!isset(self::$instance)) {
             self::$instance = new static($args);
