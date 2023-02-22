@@ -16,7 +16,7 @@ use Http\Promise\Promise;
 
 final class ElasticSearchAdapter
 {
-    public Client $client;
+    private readonly Client $client;
 
     public function __construct()
     {
