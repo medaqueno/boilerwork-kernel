@@ -78,18 +78,18 @@ final class ElasticSearchAdapter
         return $this->client->indices()->getSettings(['index' => $indexNames]);
     }
 
-    public function updateMappings(string $indexName, array $mapping = []): Elasticsearch|Promise
+    public function updateMappings(string $indexName, array $mappings = []): Elasticsearch|Promise
     {
         $this->client->indices()->close([
             'index' => $indexName
         ]);
 
-        $mapping = [
+        $mappings = [
             'index' => $indexName,
-            'body' => $mapping,
+            'body' => $mappings,
         ];
 
-        $response = $this->client->indices()->putMapping($mapping);
+        $response = $this->client->indices()->putMapping($mappings);
 
         $this->client->indices()->open([
             'index' => $indexName
@@ -183,12 +183,16 @@ final class ElasticSearchAdapter
     /**
      * Devuelve el número de resultados de una consulta de búsqueda en Elasticsearch.
      *
-     * @param array $params Parámetros de la consulta de búsqueda.
+     * @param string $indexNamenombre del índice
      *
      * @return int
      */
-    public function count(array $params): int
+    public function count(string $indexName): int
     {
+        $params = [
+            'index' => $indexName,
+        ];
+
         return $this->client->count($params)['count'];
     }
 
