@@ -30,9 +30,7 @@ final readonly class Route
         Assert::that($method)->choice(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTION', 'TRACE', 'HEAD'], 'Method parameter value in Attribute Route is not valid');
         Assert::that($route)->notEmpty('Route parameter value in Attribute Route must not be empty');
 
-        $router = RouterMiddleware::getInstance();
-        $router->addRoute([$method, $route, $target, $authorizations]);
-        $auths = AuthorizationsMiddleware::getInstance();
-        $auths->addRoute([$method, $route, null, $authorizations]);
+        RouterMiddleware::addRoute([$method, $route, $target, $authorizations]);
+        AuthorizationsMiddleware::addRoute([$method, $route, null, $authorizations]);
     }
 }
