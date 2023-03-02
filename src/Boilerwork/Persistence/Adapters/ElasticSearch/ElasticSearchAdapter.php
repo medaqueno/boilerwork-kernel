@@ -24,6 +24,7 @@ final class ElasticSearchAdapter
             ->setHosts([
                 sprintf('%s:%d', env('ELASTIC_SEARCH_HOST'), env('ELASTIC_SEARCH_PORT')),
             ])
+            ->setBasicAuthentication(env('ELASTIC_SEARCH_USERNAME'), env('ELASTIC_SEARCH_PASSWORD'))
             ->build();
     }
 
@@ -78,18 +79,18 @@ final class ElasticSearchAdapter
         return $this->client->indices()->getSettings(['index' => $indexNames]);
     }
 
-    public function updateMappings(string $indexName, array $mappings = []): Elasticsearch|Promise
+    public function updateMappings(string $indexName, array $mapping = []): Elasticsearch|Promise
     {
         $this->client->indices()->close([
             'index' => $indexName
         ]);
 
-        $mappings = [
+        $mapping = [
             'index' => $indexName,
-            'body' => $mappings,
+            'body' => $mapping,
         ];
 
-        $response = $this->client->indices()->putMapping($mappings);
+        $response = $this->client->indices()->putMapping($mapping);
 
         $this->client->indices()->open([
             'index' => $indexName
