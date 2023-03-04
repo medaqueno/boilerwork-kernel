@@ -59,12 +59,12 @@ final class Country extends ValueObject
 
     public function toPrimitive(): string
     {
-        return $this->iso31661Alpha2Code()->toPrimitive();
+        return $this->toString();
     }
 
-    public function value(): string
+    public function toString(): string
     {
-        return $this->toPrimitive();
+        return $this->iso31661Alpha2Code()->toPrimitive();
     }
 
     public function equals(ValueObject $object): bool

@@ -18,6 +18,11 @@ abstract class Money extends ValueObject
 
     public function toPrimitive(): string
     {
+        return $this->toString();
+    }
+
+    public function toString(): string
+    {
         return sprintf('%s %s', $this->currency->toPrimitive(), $this->rounded());
     }
 

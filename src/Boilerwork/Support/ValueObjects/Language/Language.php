@@ -42,6 +42,11 @@ final class Language extends ValueObject
         return $this->iso6391()->toPrimitive();
     }
 
+    public function name(): string
+    {
+        return LanguageDataProvider::data()[$this->toPrimitive()];
+    }
+
     public function equals(ValueObject $object): bool
     {
         return $this->toPrimitive() === $object->toPrimitive()
@@ -50,12 +55,12 @@ final class Language extends ValueObject
 
     public function toPrimitive(): string
     {
-        return $this->iso6391()->toPrimitive();
+        return $this->toString();
     }
 
-    public function name(): string
+    public function toString(): string
     {
-        return LanguageDataProvider::data()[$this->toPrimitive()];
+        return $this->iso6391()->toPrimitive();
     }
 
     public function toArray(): array

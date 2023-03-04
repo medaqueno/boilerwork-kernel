@@ -35,11 +35,6 @@ final class PostalCode extends ValueObject
         return $this->value;
     }
 
-    public function value(): string
-    {
-        return $this->toString();
-    }
-
     private function isValid(Iso31661Alpha2Code $iso31661Alpha2Code, $value)
     {
         foreach (static::$mappings as $item) {

@@ -29,9 +29,4 @@ final class AdministrativeArea extends ValueObject
     {
         return $this->value;
     }
-
-    public function value(): string
-    {
-        return $this->toString();
-    }
 }

@@ -91,13 +91,13 @@ final class Address extends ValueObject
     public function toArray(): array
     {
         return [
-            'street' => $this->street->value(),
-            'administrativeArea1' => $this->administrativeArea1 ? $this->administrativeArea1->value() : null,
-            'administrativeArea2' => $this->administrativeArea2 ? $this->administrativeArea2->value() : null,
-            'postalCode' => $this->postalCode->value(),
-            'location' => $this->location->value(),
-            'country' => $this->country->value(),
-            'coordinates' => $this->coordinates->value(),
+            'street' => $this->street->toArray(),
+            'administrativeArea1' => $this->administrativeArea1 ? $this->administrativeArea1->toString() : null,
+            'administrativeArea2' => $this->administrativeArea2 ? $this->administrativeArea2->toString() : null,
+            'postalCode' => $this->postalCode ? $this->postalCode->toString() : null,
+            'location' => $this->location->toString(),
+            'country' => $this->country->toString(),
+            'coordinates' => $this->coordinates->toArray(),
         ];
     }
 }

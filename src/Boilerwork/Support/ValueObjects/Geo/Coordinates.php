@@ -46,10 +46,10 @@ final class Coordinates extends ValueObject
 
     public function toPrimitive(): array
     {
-        return $this->value();
+        return $this->toArray();
     }
 
-    public function value(): array
+    public function toArray(): array
     {
         return [$this->latitude, $this->longitude];
     }

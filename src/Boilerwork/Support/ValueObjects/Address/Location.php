@@ -27,11 +27,6 @@ final class Location extends ValueObject
 
     public function toString(): string
     {
-        return $this->id->value();
-    }
-
-    public function value(): string
-    {
-        return $this->toString();
+        return $this->id->toString();
     }
 }

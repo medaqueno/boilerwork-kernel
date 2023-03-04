@@ -11,9 +11,9 @@ final class Street extends ValueObject
 {
     private function __construct(
         private string $name,
-        private ?int $number = null,
-        private ?string $other1 = null,
-        private ?string $other2 = null
+        private ?string $number,
+        private ?string $other1,
+        private ?string $other2
     ) {
         Assert::lazy()->tryAll()
             ->that($name)
@@ -24,9 +24,9 @@ final class Street extends ValueObject
 
     public static function fromValues(
         string $name,
-        ?int $number = null,
-        ?string $other1 = null,
-        ?string $other2 = null
+        ?string $number,
+        ?string $other1,
+        ?string $other2
     ): self {
         return new self(
             name: $name,
@@ -41,7 +41,7 @@ final class Street extends ValueObject
         return $this->name;
     }
 
-    public function number(): ?int
+    public function number(): ?string
     {
         return $this->number;
     }
@@ -56,7 +56,12 @@ final class Street extends ValueObject
         return $this->other2;
     }
 
-    public function value(): array
+    public function toString(): string
+    {
+        return sprintf('%s %s, %s %s', $this->name(), $this->number(), $this->other1(), $this->other2());
+    }
+
+    public function toArray(): array
     {
         return [
             'name' => $this->name(),
