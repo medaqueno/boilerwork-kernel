@@ -23,8 +23,8 @@ final class Country extends ValueObject
     {
         $data = DataProvider::fromIso31661Alpha2Code($code);
 
-        $alpha2      = new Iso31661Alpha2Code($data[0]);
-        $alpha3      = new Iso31661Alpha3Code($data[1]);
+        $alpha2      = Iso31661Alpha2Code::fromString($data[0]);
+        $alpha3      = Iso31661Alpha3Code::fromString($data[1]);
 
         $name        = $data[3];
 
@@ -35,8 +35,8 @@ final class Country extends ValueObject
     {
         $data = DataProvider::fromIso31661Alpha3Code($code);
 
-        $alpha2      = new Iso31661Alpha2Code($data[0]);
-        $alpha3      = new Iso31661Alpha3Code($data[1]);
+        $alpha2      = Iso31661Alpha2Code::fromString($data[0]);
+        $alpha3      = Iso31661Alpha3Code::fromString($data[1]);
         $name        = $data[3];
 
         return new static($alpha2, $alpha3, $name);
@@ -57,17 +57,22 @@ final class Country extends ValueObject
         return $this->englishName;
     }
 
+    public function toPrimitive(): string
+    {
+        return $this->iso31661Alpha2Code()->toPrimitive();
+    }
+
+    public function value(): string
+    {
+        return $this->toPrimitive();
+    }
+
     public function equals(ValueObject $object): bool
     {
         return $this->iso31661Alpha2Code->toPrimitive() === $object->iso31661Alpha2Code->toPrimitive()
             && $this->iso31661Alpha3Code->toPrimitive() === $object->iso31661Alpha3Code->toPrimitive()
             && $this->englishName === $object->englishName
             && $object instanceof self;
-    }
-
-    public function toPrimitive(): string
-    {
-        return $this->iso31661Alpha2Code()->toPrimitive();
     }
 
     public function toArray(): array

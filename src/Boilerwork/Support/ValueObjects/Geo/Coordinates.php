@@ -22,6 +22,13 @@ final class Coordinates extends ValueObject
             ->verifyNow();
     }
 
+    public static function fromValues(
+        float $latitude,
+        float $longitude
+    ): self {
+        return new self(latitude: $latitude, longitude: $longitude);
+    }
+
     public function latitude(): float
     {
         return $this->latitude;
@@ -38,6 +45,11 @@ final class Coordinates extends ValueObject
     }
 
     public function toPrimitive(): array
+    {
+        return $this->value();
+    }
+
+    public function value(): array
     {
         return [$this->latitude, $this->longitude];
     }

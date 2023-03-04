@@ -281,6 +281,12 @@ class Iso31661Alpha2Code extends ValueObject
     ) {
     }
 
+    public static function fromString(
+        string $value
+    ): self {
+        return new self($value);
+    }
+
     public function equals(ValueObject $object): bool
     {
         return $this->toPrimitive() === $object->toPrimitive() && $object instanceof self;
@@ -289,5 +295,10 @@ class Iso31661Alpha2Code extends ValueObject
     public function toPrimitive(): string
     {
         return $this->value;
+    }
+
+    public function value(): string
+    {
+        return $this->toPrimitive();
     }
 }
