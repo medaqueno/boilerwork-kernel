@@ -44,6 +44,11 @@ abstract class Uuid extends ValueObject
 
     public function toPrimitive(): string
     {
+        return $this->value();
+    }
+
+    public function value(): string
+    {
         return $this->value;
     }
 }

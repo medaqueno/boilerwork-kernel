@@ -42,7 +42,7 @@ final class Address extends ValueObject
             administrativeArea1: $administrativeArea1 ? AdministrativeArea::fromString($administrativeArea1) : null,
             administrativeArea2: $administrativeArea2 ? AdministrativeArea::fromString($administrativeArea2) : null,
             postalCode: $postalCode ? PostalCode::fromString($postalCode, Iso31661Alpha2Code::fromString($countryIso31662)) : null,
-            location: Location::fromString($location),
+            location: Location::fromId($location),
             country: Country::fromIso31661Alpha2Code(Iso31661Alpha2Code::fromString($countryIso31662)),
             coordinates: $coordinates,
         );
