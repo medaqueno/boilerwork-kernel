@@ -22,22 +22,26 @@ final class Address extends ValueObject
     }
 
     public static function fromScalars(
-        Street $street,
-        ?AdministrativeArea $administrativeArea1,
-        ?AdministrativeArea $administrativeArea2,
-        PostalCode $postalCode,
-        Location $location,
-        Country $country,
-        ?Coordinates $coordinates,
+        string $streetName,
+        ?string $streetNumber,
+        ?string $streetOther1,
+        ?string $streetOther2,
+        ?string $administrativeArea1,
+        ?string $administrativeArea2,
+        string $postalCode,
+        string $location,
+        string $countryIso31662,
+        ?float $latitude,
+        ?float $longitude,
     ): self {
         return new self(
-            street: $street,
-            administrativeArea1: $administrativeArea1,
-            administrativeArea2: $administrativeArea2,
-            postalCode: $postalCode,
-            location: $location,
-            country: $country,
-            coordinates: $coordinates,
+            street: Street::fromValues($streetName, $streetNumber, $streetOther1, $streetOther2),
+            administrativeArea1: AdministrativeArea::fromString($administrativeArea1),
+            administrativeArea2: AdministrativeArea::fromString($administrativeArea2),
+            postalCode: PostalCode::fromString($postalCode),
+            location: Location::fromString($location),
+            country: Country::fromIso31661Alpha2Code($countryIso31662),
+            coordinates: Coordinates::fromValues($latitude, $longitude),
         );
     }
 
