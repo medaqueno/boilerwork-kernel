@@ -6,6 +6,7 @@ namespace Boilerwork\Support\ValueObjects\Address;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Support\ValueObjects\Country\Country;
+use Boilerwork\Support\ValueObjects\Country\Iso31661Alpha2Code;
 use Boilerwork\Support\ValueObjects\Geo\Coordinates;
 
 final class Address extends ValueObject
@@ -14,7 +15,7 @@ final class Address extends ValueObject
         private Street $street,
         private ?AdministrativeArea $administrativeArea1,
         private ?AdministrativeArea $administrativeArea2,
-        private PostalCode $postalCode,
+        private ?PostalCode $postalCode,
         private Location $location,
         private Country $country,
         private ?Coordinates $coordinates,
@@ -28,20 +29,22 @@ final class Address extends ValueObject
         ?string $streetOther2,
         ?string $administrativeArea1,
         ?string $administrativeArea2,
-        string $postalCode,
+        ?string $postalCode,
         string $location,
         string $countryIso31662,
         ?float $latitude,
         ?float $longitude,
     ): self {
+        $coordinates = ($latitude !== null && $longitude !== null) ? Coordinates::fromValues($latitude, $longitude) : null;
+
         return new self(
             street: Street::fromValues($streetName, $streetNumber, $streetOther1, $streetOther2),
-            administrativeArea1: AdministrativeArea::fromString($administrativeArea1),
-            administrativeArea2: AdministrativeArea::fromString($administrativeArea2),
-            postalCode: PostalCode::fromString($postalCode),
+            administrativeArea1: $administrativeArea1 ? AdministrativeArea::fromString($administrativeArea1) : null,
+            administrativeArea2: $administrativeArea2 ? AdministrativeArea::fromString($administrativeArea2) : null,
+            postalCode: $postalCode ? PostalCode::fromString($postalCode, Iso31661Alpha2Code::fromString($countryIso31662)) : null,
             location: Location::fromString($location),
-            country: Country::fromIso31661Alpha2Code($countryIso31662),
-            coordinates: Coordinates::fromValues($latitude, $longitude),
+            country: Country::fromIso31661Alpha2Code(Iso31661Alpha2Code::fromString($countryIso31662)),
+            coordinates: $coordinates,
         );
     }
 
@@ -60,7 +63,7 @@ final class Address extends ValueObject
         return $this->administrativeArea2;
     }
 
-    public function postalCode(): PostalCode
+    public function postalCode(): ?PostalCode
     {
         return $this->postalCode;
     }
