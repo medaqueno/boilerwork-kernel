@@ -17,8 +17,7 @@ final class Street extends ValueObject
     ) {
         Assert::lazy()->tryAll()
             ->that($name)
-            ->string('Name must be a string', 'street.invalidType')
-            ->notEmpty('Name must not be empty', 'street.name.notEmpty')
+            ->notEmpty('Name must not be empty', 'streetName.notEmpty')
             ->verifyNow();
     }
 

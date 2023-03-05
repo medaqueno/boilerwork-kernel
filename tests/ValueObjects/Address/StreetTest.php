@@ -2,55 +2,72 @@
 
 declare(strict_types=1);
 
-use App\Core\DigitalCatalogue\Domain\Model\Accommodation\ValueObjects\Address\Street;
+use Boilerwork\Support\ValueObjects\Address\Street;
 use Boilerwork\Validation\CustomAssertionFailedException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass App\Core\DigitalCatalogue\Domain\Model\Accommodation\ValueObjects\Address\Street
- * @group accommodation
+ * @covers \Boilerwork\Support\ValueObjects\Address\Street
  */
 class StreetTest extends TestCase
 {
-    /**
-     * @test
-     * @covers ::fromValues
-     */
-    public function it_should_create_street_with_valid_data(): void
+    public function testFromValues(): void
     {
-        $street = Street::fromValues('Gran Vía', 10, 'Puerta 1', 'Planta 1');
-        $this->assertSame([
-            'name' => 'Gran Vía',
-            'number' => 10,
-            'other1' => 'Puerta 1',
-            'other2' => 'Planta 1'
-        ], $street->value());
-        $this->assertSame('Gran Vía', $street->name());
-        $this->assertSame(10, $street->number());
-        $this->assertSame('Puerta 1', $street->other1());
-        $this->assertSame('Planta 1', $street->other2());
+        $name = 'Fake St';
+        $number = '123';
+        $other1 = 'Unit 1';
+        $other2 = 'Floor 2';
+        $street = Street::fromValues($name, $number, $other1, $other2);
+
+        $this->assertInstanceOf(Street::class, $street);
+        $this->assertEquals($name, $street->name());
+        $this->assertEquals($number, $street->number());
+        $this->assertEquals($other1, $street->other1());
+        $this->assertEquals($other2, $street->other2());
     }
 
-
-    /**
-     * @test
-     * @covers ::__construct
-     * @covers ::fromValues
-     */
-    public function it_should_throw_exception_when_creating_street_with_empty_name(): void
+    public function testEmptyNameThrowsException(): void
     {
         $this->expectException(CustomAssertionFailedException::class);
-        Street::fromValues('');
+        $this->expectExceptionMessage('Name must not be empty');
+
+        Street::fromValues('', null, null, null);
     }
 
-    /**
-     * @test
-     * @covers ::__construct
-     * @covers ::fromValues
-     */
-    public function it_should_throw_exception_when_creating_street_with_invalid_name(): void
+    public function testInvalidNameTypeThrowsException(): void
     {
         $this->expectException(TypeError::class);
-        Street::fromValues(null);
+
+        Street::fromValues(null, null, null, null);
+    }
+
+    public function testToArray(): void
+    {
+        $name = 'Fake St';
+        $number = '123';
+        $other1 = 'Unit 1';
+        $other2 = 'Floor 2';
+        $street = Street::fromValues($name, $number, $other1, $other2);
+
+        $expected = [
+            'name' => $name,
+            'number' => $number,
+            'other1' => $other1,
+            'other2' => $other2
+        ];
+
+        $this->assertEquals($expected, $street->toArray());
+    }
+
+    public function testToString(): void
+    {
+        $name = 'Fake St';
+        $number = '123';
+        $other1 = 'Unit 1';
+        $other2 = 'Floor 2';
+        $street = Street::fromValues($name, $number, $other1, $other2);
+
+        $expected = sprintf('%s %s, %s %s', $name, $number, $other1, $other2);
+        $this->assertEquals($expected, $street->toString());
     }
 }

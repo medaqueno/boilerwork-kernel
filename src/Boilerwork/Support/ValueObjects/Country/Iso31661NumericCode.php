@@ -29,6 +29,11 @@ class Iso31661NumericCode extends ValueObject
 
     public function toPrimitive(): string
     {
+        return $this->toString();
+    }
+
+    public function toString(): string
+    {
         return $this->value;
     }
 

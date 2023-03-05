@@ -21,7 +21,7 @@ final class PostalCode extends ValueObject
             ->notEmpty('Value must not be empty', 'postalCode.notEmpty')
             ->maxLength(24, 'Value must be 24 characters length', 'location.invalidLength')
             ->that($this->isValid($iso31661Alpha2Code, $value))
-            ->true("Invalid PostalCode", 'accommodationPostalCode.invalidValue')
+            ->true("Invalid PostalCode", 'postalCode.invalidValue')
             ->verifyNow();
     }
 
@@ -38,7 +38,7 @@ final class PostalCode extends ValueObject
     private function isValid(Iso31661Alpha2Code $iso31661Alpha2Code, $value)
     {
         foreach (static::$mappings as $item) {
-            if ($iso31661Alpha2Code->value() === $item['ISO']) {
+            if ($iso31661Alpha2Code->toString() === $item['ISO']) {
                 if (preg_match("/" . $item["Regex"] . "/", $value)) {
                     return true;
                 }

@@ -2,48 +2,32 @@
 
 declare(strict_types=1);
 
-use App\Core\DigitalCatalogue\Domain\Model\Accommodation\ValueObjects\Address\AdministrativeArea;
+use Boilerwork\Support\ValueObjects\Address\AdministrativeArea;
 use Boilerwork\Validation\CustomAssertionFailedException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \App\Core\DigitalCatalogue\Domain\Model\Accommodation\ValueObjects\Address\AdministrativeArea
- * @group accommodation
+ * @covers \Boilerwork\Support\ValueObjects\Address\AdministrativeArea
  */
 class AdministrativeAreaTest extends TestCase
 {
-    /**
-     * @test
-     * @covers ::fromString
-     * @covers ::value
-     * @covers ::toString
-     */
-    public function it_should_create_administrative_area_with_valid_data(): void
+    public function testCanCreateFromString(): void
     {
-        $administrativeArea = AdministrativeArea::fromString('California');
-        $this->assertSame('California', $administrativeArea->value());
-        $this->assertSame('California', $administrativeArea->toString());
+        $adminArea = AdministrativeArea::fromString('New York');
+        $this->assertInstanceOf(AdministrativeArea::class, $adminArea);
+        $this->assertEquals('New York', $adminArea->toString());
     }
 
-    /**
-     * @test
-     * @covers ::__construct
-     * @covers ::fromString
-     */
-    public function it_should_throw_exception_when_creating_administrative_area_with_invalid_value_type(): void
+    public function testCannotCreateFromStringWithInvalidType(): void
     {
         $this->expectException(TypeError::class);
-        AdministrativeArea::fromString(null);
+        AdministrativeArea::fromString(123);
     }
 
-    /**
-     * @test
-     * @covers ::__construct
-     * @covers ::fromString
-     */
-    public function it_should_throw_exception_when_creating_administrative_area_with_invalid_length(): void
+    public function testCannotCreateFromStringWithInvalidLength(): void
     {
         $this->expectException(CustomAssertionFailedException::class);
-        AdministrativeArea::fromString('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzab');
+        $this->expectExceptionMessage('administrativeArea.invalidLength');
+        AdministrativeArea::fromString(str_repeat('a', 129));
     }
 }

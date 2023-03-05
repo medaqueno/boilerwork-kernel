@@ -2,59 +2,35 @@
 
 declare(strict_types=1);
 
-use App\Core\DigitalCatalogue\Domain\Model\Accommodation\ValueObjects\Address\Location;
+use Boilerwork\Support\ValueObjects\Address\Location;
+use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Validation\CustomAssertionFailedException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \App\Core\DigitalCatalogue\Domain\Model\Accommodation\ValueObjects\Address\Location
- * @group accommodation
+ * @coversDefaultClass \Boilerwork\Support\ValueObjects\Address\Location
  */
 class LocationTest extends TestCase
 {
     /**
      * @test
-     * @covers ::fromString
-     * @covers ::value
-     * @covers ::toString
+     * @group address
      */
-    public function it_should_create_location_with_valid_data(): void
+    public function it_can_be_created_from_string(): void
     {
-        $location = Location::fromString('San Francisco');
-        $this->assertSame('San Francisco', $location->value());
-        $this->assertSame('San Francisco', $location->toString());
+        $id = Identity::create();
+        $location = Location::fromId($id->toString());
+        $this->assertEquals($id->toString(), $location->toString());
     }
 
     /**
      * @test
-     * @covers ::__construct
-     * @covers ::fromString
+     * @group address
      */
-    public function it_should_throw_exception_when_creating_location_with_empty_value(): void
+    public function it_throws_custom_exception_when_id_is_invalid(): void
     {
         $this->expectException(CustomAssertionFailedException::class);
-        Location::fromString('');
-    }
 
-    /**
-     * @test
-     * @covers ::__construct
-     * @covers ::fromString
-     */
-    public function it_should_throw_exception_when_creating_location_with_invalid_value_type(): void
-    {
-        $this->expectException(TypeError::class);
-        Location::fromString(null);
-    }
-
-    /**
-     * @test
-     * @covers ::__construct
-     * @covers ::fromString
-     */
-    public function it_should_throw_exception_when_creating_location_with_invalid_length(): void
-    {
-        $this->expectException(CustomAssertionFailedException::class);
-        Location::fromString('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzasdadasdasasdf');
+        Location::fromId('invalid_id');
     }
 }

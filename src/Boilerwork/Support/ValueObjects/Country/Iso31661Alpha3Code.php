@@ -289,11 +289,11 @@ class Iso31661Alpha3Code extends ValueObject
 
     public function toPrimitive(): string
     {
-        return $this->value;
+        return $this->toString();
     }
 
-    public function value(): string
+    public function toString(): string
     {
-        return $this->toPrimitive();
+        return $this->value;
     }
 }

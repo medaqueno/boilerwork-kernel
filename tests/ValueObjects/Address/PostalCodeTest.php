@@ -10,22 +10,50 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Boilerwork\Support\ValueObjects\Address\PostalCode
- * @group accommodation
+ * @group Address
  */
 class PostalCodeTest extends TestCase
 {
-    public function testCanBeCreated(): void
+    /**
+     * @test
+     */
+    public function it_can_be_created_from_string(): void
     {
-        $postalCode = PostalCode::fromString('08003', Iso31661Alpha2Code::fromString('ES'));
+        $postalCode = PostalCode::fromString('08001', Iso31661Alpha2Code::fromString('ES'));
 
-        $this->assertEquals('08003', $postalCode->value());
+        $this->assertSame('08001', $postalCode->toString());
     }
 
-    public function testCannotBeCreatedWithInvalidData(): void
+    /**
+     * @test
+     */
+    public function it_can_not_be_created_with_empty_value(): void
+    {
+        $this->expectException(CustomAssertionFailedException::class);
+        $this->expectExceptionMessage('postalCode.notEmpty');
+
+        $movida = PostalCode::fromString('', Iso31661Alpha2Code::fromString('ES'));
+        var_dump($movida);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_not_be_created_with_invalid_value(): void
     {
         $this->expectException(CustomAssertionFailedException::class);
         $this->expectExceptionMessage('Invalid PostalCode');
 
-        PostalCode::fromString('123', Iso31661Alpha2Code::fromString('ES'));
+        PostalCode::fromString('invalid', Iso31661Alpha2Code::fromString('ES'));
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_not_be_created_with_invalid_type(): void
+    {
+        $this->expectException(\TypeError::class);
+
+        PostalCode::fromString([], Iso31661Alpha2Code::fromString('ES'));
     }
 }

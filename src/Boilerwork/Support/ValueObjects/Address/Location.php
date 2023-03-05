@@ -15,7 +15,7 @@ final class Location extends ValueObject
 
     ) {
         Assert::lazy()->tryAll()
-            ->that($id)
+            ->that($id->toString())
             ->uuid('Value must be a valid UUID', 'locationId.invalidValue')
             ->verifyNow();
     }
