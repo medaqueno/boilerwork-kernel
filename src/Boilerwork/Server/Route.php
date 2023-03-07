@@ -15,16 +15,16 @@ final readonly class Route
     /**
      * @example
      *  Route(
-        method: 'POST',
-        route: 'auth/login',
-        authorizations: [AuthorizationsProvider::PUBLIC],
-        )
+    method: 'POST',
+    route: 'auth/login',
+    authorizations: [AuthorizationsProvider::PUBLIC],
+    )
      */
     public function __construct(
         private string $method,
-        private string $target,
         private string $route,
         private array $authorizations = [],
+        private ?string $target = null,
     ) {
 
         Assert::that($method)->choice(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTION', 'TRACE', 'HEAD'], 'Method parameter value in Attribute Route is not valid');

@@ -47,9 +47,9 @@ final class Attributes
                         $attributeClass = $attribute->getName();
                         new $attributeClass(
                             method: $attribute->getArguments()['method'],
-                            target: $ref->getName(),
                             route: $attribute->getArguments()['route'],
                             authorizations: $attribute->getArguments()['authorizations'],
+                            target: $ref->getName(),
                         );
                     }
                 }
