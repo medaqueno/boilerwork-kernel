@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace App\Core\Shared;
+namespace Boilerwork\Support;
 
 use function json_encode;
 
