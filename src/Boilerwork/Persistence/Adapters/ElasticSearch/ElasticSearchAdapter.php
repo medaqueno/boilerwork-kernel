@@ -41,7 +41,7 @@ final class ElasticSearchAdapter
         return $this->client->indices()->create(
             [
                 'index' => $indexName,
-                $params
+                'body' => $params
             ]
         );
     }
