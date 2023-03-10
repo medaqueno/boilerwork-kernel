@@ -21,9 +21,19 @@ final class CriteriaDto
             ->verifyNow();
 
         if ($orderBy) {
+
+            $paramsParsed = [];
+            foreach ($params as $key => $value) {
+                $paramsParsed[] = explode('.', $key);
+            }
+            // Flatten
+            $paramsParsed = array_merge(...$paramsParsed);
+
             // Only allow order by fields existing in params
-            Assert::lazy()->that($params)
-                ->keyExists(explode(',', $orderBy)[0], sprintf('Sort field must be a valid value: %s', implode(',', array_keys($params))), 'criteriaSortValue.notAllowed')
+            $orderFields = explode(',', $orderBy);
+
+            Assert::lazy()->that(array_intersect($paramsParsed, $orderFields))
+                ->count(1, 'Sort field must be a valid value', 'criteriaSortValue.notAllowed')
                 ->verifyNow();
         }
     }
