@@ -33,7 +33,7 @@ final class CriteriaDto
             $orderFields = explode(',', $orderBy);
 
             Assert::lazy()->that(array_intersect($paramsParsed, $orderFields))
-                ->count(1, 'Sort field must be a valid value', 'criteriaSortValue.notAllowed')
+                ->minCount(1, 'Sort field must be a valid value', 'criteriaSortValue.notAllowed')
                 ->verifyNow();
         }
     }
