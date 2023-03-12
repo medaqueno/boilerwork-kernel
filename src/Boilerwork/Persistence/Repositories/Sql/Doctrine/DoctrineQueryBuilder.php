@@ -254,7 +254,7 @@ final class DoctrineQueryBuilder
 
     public function addSelect(...$columns): self
     {
-        $this->queryBuilder = $this->connector->conn->createQueryBuilder()
+        $this->queryBuilder = $this->conn->createQueryBuilder()
             ->addSelect(...$columns);
 
         return $this;
@@ -465,7 +465,6 @@ final class DoctrineQueryBuilder
     {
         $countQuery = clone $this->queryBuilder;
         $countQuery->resetQueryParts(['select', 'orderBy']);
-        var_dump($countQuery->getSQL());
         $pagingDto->setTotalCount(
             $countQuery->addSelect('COUNT(*)')->setMaxResults(1)->fetchOne()
         );
@@ -486,41 +485,8 @@ final class DoctrineQueryBuilder
             );
         }
 
-        /**
-         * Instead using limit + offset which has an awful performance in huge tables, we adapt the keyset pagination pattern.
-         * Variables:
-         *  id -> column autoincremental
-         *  perPage
-         *  page
-         *  table_name
-         * Example:
-        select * from table_name where id >
-        (select max(maxId.id) as maxId from (select id from table_name WHERE id >= 1 ORDER BY id ASC limit perPage*page-1) as maxId limit 1)
-        ORDER BY id ASC limit perPage;
-         */
-        if ($pagingDto->page() === 1) {
-            $this->queryBuilder
-                ->andWhere($this->primaryColumn . ' >= 1')
-                ->addOrderBy('' . $this->primaryColumn . '', 'ASC')
-                ->setMaxResults($pagingDto->perPage());
-        } else {
-            $fromIdPrimaryStatement = sprintf(
-                $this->primaryColumn . ' > (
-                                select max(maxId.' . $this->primaryColumn . ') as maxId from
-                                    (select ' . $this->primaryColumn . ' from %s WHERE ' . $this->primaryColumn . ' >= 1 ORDER BY ' . $this->primaryColumn . ' ASC limit %u) as maxId
-                                limit 1
-                                )',
-                $table,
-                $pagingDto->perPage() * ($pagingDto->page() - 1)
-            );
-
-            $this->queryBuilder
-                ->andWhere($fromIdPrimaryStatement);
-        }
-
-        $this->queryBuilder
-            ->addOrderBy($this->primaryColumn, 'ASC')
-            ->setMaxResults($pagingDto->perPage());
+        $offset = $pagingDto->perPage() * ($pagingDto->page() - 1);
+        $this->queryBuilder->setFirstResult($offset)->setMaxResults($pagingDto->perPage());
     }
 
 
