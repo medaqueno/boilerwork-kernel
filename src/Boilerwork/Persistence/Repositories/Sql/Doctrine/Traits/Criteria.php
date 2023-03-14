@@ -34,8 +34,10 @@ trait Criteria
     {
         foreach ($filterBy as $key => $value) {
             $this->queryBuilder
-                ->andWhere($key . ' = :criteria_' . $key)
-                ->setParameter('criteria_' . $key, $value);
+                // ->andWhere($key . ' = :criteria_' . $key)
+                // ->setParameter('criteria_' . $key, $value);
+                ->andWhere(sprintf('lower(unaccent(%s::TEXT)) = lower(unaccent(:criteria_%s))', $key, $key))
+                ->setParameter(sprintf('criteria_%s', $key), $value);
         }
 
         return $this->queryBuilder;
