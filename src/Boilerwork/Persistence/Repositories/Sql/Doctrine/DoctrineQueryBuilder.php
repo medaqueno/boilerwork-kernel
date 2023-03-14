@@ -27,6 +27,8 @@ final class DoctrineQueryBuilder
 
     private Connection $conn;
 
+    private const DEFAULT_LIMIT = 25;
+
     /**
      * Injected configuration from Container
      *
@@ -176,6 +178,7 @@ final class DoctrineQueryBuilder
 
     /**
      * Return all rows
+     * @deprecated use fetchAllAssociative()
      */
     public function fetchAll(): array
     {
@@ -184,9 +187,14 @@ final class DoctrineQueryBuilder
 
     /**
      * Return all rows
+     * If not LIMIT present, a default value is added: @see self::DEFAULT_LIMIT
      */
     public function fetchAllAssociative(): array
     {
+        if (stripos($this->queryBuilder->getSQL(), 'LIMIT') === false) {
+            $this->queryBuilder->setMaxResults(self::DEFAULT_LIMIT);
+        }
+
         return $this->queryBuilder->fetchAllAssociative();
     }
 
