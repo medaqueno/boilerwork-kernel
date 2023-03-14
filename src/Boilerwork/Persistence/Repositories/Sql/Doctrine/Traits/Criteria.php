@@ -36,8 +36,9 @@ trait Criteria
             $this->queryBuilder
                 ->andWhere($key . ' = :criteria_' . $key)
                 ->setParameter('criteria_' . $key, $value);
+            // ->andWhere(sprintf('unaccent(lower(%s)) = :criteria_%s'))
+            // ->setParameter(sprintf('unaccent(lower(criteria_%s))', $key), $value);
         }
-
         return $this->queryBuilder;
     }
 
@@ -60,14 +61,15 @@ trait Criteria
         foreach ($filterBy as $key => $value) {
             $this->queryBuilder
                 ->andWhere(
+                    // "jsonb_path_exists(data, '$.**.%s ? (@ == \"%s\")')",
                     sprintf(
-                        "jsonb_path_exists(data, '$.**.%s ? (@ == \"%s\")')",
+                        "unaccent(lower(data -> %s)) = unaccent(lower('%s'))",
                         $key,
                         $value,
                     )
                 );
         }
-
+        var_dump($this->queryBuilder->getSQL());
         return $this->queryBuilder;
     }
 }

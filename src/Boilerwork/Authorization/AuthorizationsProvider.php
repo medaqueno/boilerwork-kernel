@@ -12,11 +12,10 @@ enum AuthorizationsProvider: string
 {
     case PUBLIC = 'public';
 
-        // case IS_SUPER_ADMIN = 'is_super_admin';
-        // case IS_ADMIN_QUADRANT = 'is_admin_quadrant';
+    case IS_SUPER_ADMIN = 'is_super_admin';
 
         // Permissions by user type
-    case IS_SUPER_ADMIN = 'is_admin_quadrant';
+    case IS_ADMIN_QUADRANT = 'is_admin_quadrant';
     case IS_ADMIN_TENANT = 'is_admin_tenant';
     case IS_USER_TENANT = 'is_user_tenant';
 
@@ -37,10 +36,10 @@ enum AuthorizationsProvider: string
     case FEES = 'fees';
     case MY_TENANT = 'my_tenant';
 
-    public static function getIsSuperAdmin(): array
+    public static function getIsAdminQuadrant(): array
     {
         return [
-            self::IS_SUPER_ADMIN->value,
+            self::IS_ADMIN_QUADRANT->value,
             self::UI_ADVISER->value,
             self::UI_MANAGER->value,
             self::DASHBOARD->value,
@@ -107,7 +106,7 @@ enum AuthorizationsProvider: string
             self::IS_ADMIN_TENANT->value,
             self::IS_USER_TENANT->value,
             self::UI_MANAGER->value,
-            self::DASHBOARD->value,
+            //self::DASHBOARD->value,
             self::CATALOGUE->value,
             self::ANALYTICS->value,
             self::OWN_PRODUCT->value,
