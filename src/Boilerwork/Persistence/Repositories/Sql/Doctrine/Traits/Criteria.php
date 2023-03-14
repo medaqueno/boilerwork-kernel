@@ -36,9 +36,8 @@ trait Criteria
             $this->queryBuilder
                 ->andWhere($key . ' = :criteria_' . $key)
                 ->setParameter('criteria_' . $key, $value);
-            // ->andWhere(sprintf('unaccent(lower(%s)) = :criteria_%s'))
-            // ->setParameter(sprintf('unaccent(lower(criteria_%s))', $key), $value);
         }
+
         return $this->queryBuilder;
     }
 
@@ -69,7 +68,7 @@ trait Criteria
                     )
                 );
         }
-        var_dump($this->queryBuilder->getSQL());
+
         return $this->queryBuilder;
     }
 }
