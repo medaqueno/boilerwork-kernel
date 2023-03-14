@@ -10,7 +10,9 @@ use Boilerwork\Foundation\ValueObjects\ValueObject;
 
 final class Language extends ValueObject
 {
-    public const FALLBACK = 'ES';
+    public const FALLBACK = 'ES'; // UPPERCASE
+
+    public const ACCEPTED_LANGUAGES = ['ES', 'EN']; // UPPERCASE
 
     private function __construct(
         protected readonly Iso6391Code $iso6391
