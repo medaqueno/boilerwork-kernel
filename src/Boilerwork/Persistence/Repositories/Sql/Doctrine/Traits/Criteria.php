@@ -27,7 +27,7 @@ trait Criteria
 
     private function addCriteriaOrderBy(array $orderBy): QueryBuilder
     {
-        return $this->queryBuilder->addOrderBy(sort: $orderBy['sort'], order: $orderBy['operator']);
+        return $this->queryBuilder->addOrderBy(sort: sprintf('(lower(immutable_unaccent (%s)))', $orderBy['sort']), order: $orderBy['operator']);
     }
 
     private function addCriteriaFilter(array $filterBy): QueryBuilder

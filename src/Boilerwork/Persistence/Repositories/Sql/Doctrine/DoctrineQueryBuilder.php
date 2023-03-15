@@ -479,9 +479,10 @@ final class DoctrineQueryBuilder
 
         // We have no results, so we return empty data set as fast as possible
         if ($pagingDto->totalCount() === 0) {
-            $this->queryBuilder->resetQueryParts(['select', 'distinct', 'where', 'join', 'groupBy', 'having', 'orderBy', 'from'])
+            $this->queryBuilder->resetQueryParts(['select', 'distinct', 'where', 'join', 'groupBy', 'having', 'orderBy'])
                 ->select('1')
                 ->setMaxResults(0);
+
             return;
         }
 
