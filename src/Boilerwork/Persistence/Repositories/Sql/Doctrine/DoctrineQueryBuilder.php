@@ -474,7 +474,7 @@ final class DoctrineQueryBuilder
         $countQuery = clone $this->queryBuilder;
         $countQuery->resetQueryParts(['select', 'orderBy']);
         $pagingDto->setTotalCount(
-            $countQuery->addSelect('COUNT(*)')->setMaxResults(1)->fetchOne()
+            $countQuery->addSelect('COUNT(id_primary)')->setMaxResults(1)->fetchOne()
         );
 
         // We have no results, so we return empty data set as fast as possible
