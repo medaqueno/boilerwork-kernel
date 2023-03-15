@@ -36,7 +36,7 @@ trait Criteria
             $this->queryBuilder
                 // ->andWhere($key . ' = :criteria_' . $key)
                 // ->setParameter('criteria_' . $key, $value);
-                ->andWhere(sprintf('lower(unaccent(%s::TEXT)) = lower(unaccent(:criteria_%s))', $key, $key))
+                ->andWhere(sprintf('lower(immutable_unaccent(%s::TEXT)) = lower(immutable_unaccent(:criteria_%s))', $key, $key))
                 ->setParameter(sprintf('criteria_%s', $key), $value);
         }
 
@@ -64,7 +64,7 @@ trait Criteria
                 ->andWhere(
                     // "jsonb_path_exists(data, '$.**.%s ? (@ == \"%s\")')",
                     sprintf(
-                        "unaccent(lower(data -> %s)) = unaccent(lower('%s'))",
+                        "lower(immutable_unaccent (data -> %s)) = lower(immutable_unaccent ('%s'))",
                         $key,
                         $value,
                     )
