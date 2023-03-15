@@ -8,6 +8,9 @@ namespace Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits;
 use Boilerwork\Persistence\QueryBuilder\CriteriaDto;
 use Doctrine\DBAL\Query\QueryBuilder;
 
+use function is_string;
+use function sprintf;
+
 trait Criteria
 {
     public function addCriteria(CriteriaDto $criteriaDto): self
@@ -27,17 +30,25 @@ trait Criteria
 
     private function addCriteriaOrderBy(array $orderBy): QueryBuilder
     {
-        return $this->queryBuilder->addOrderBy(sort: sprintf('(lower(immutable_unaccent (%s)))', $orderBy['sort']), order: $orderBy['operator']);
+        if (is_string($orderBy['sort'])) {
+            return $this->queryBuilder->addOrderBy(sort: sprintf('(lower(immutable_unaccent (%s)))', $orderBy['sort']), order: $orderBy['operator']);
+        }
+
+        return $this->queryBuilder->addOrderBy(sort: sprintf('%s', $orderBy['sort']), order: $orderBy['operator']);
     }
 
     private function addCriteriaFilter(array $filterBy): QueryBuilder
     {
         foreach ($filterBy as $key => $value) {
-            $this->queryBuilder
-                // ->andWhere($key . ' = :criteria_' . $key)
-                // ->setParameter('criteria_' . $key, $value);
-                ->andWhere(sprintf('lower(immutable_unaccent(%s::TEXT)) = lower(immutable_unaccent(:criteria_%s))', $key, $key))
-                ->setParameter(sprintf('criteria_%s', $key), $value);
+            if (is_string($value)) {
+                $this->queryBuilder
+                    ->andWhere(sprintf('lower(immutable_unaccent(%s::TEXT)) = lower(immutable_unaccent(:criteria_%s))', $key, $key))
+                    ->setParameter(sprintf('criteria_%s', $key), $value);
+            } else {
+                $this->queryBuilder
+                    ->andWhere($key . ' = :criteria_' . $key)
+                    ->setParameter('criteria_' . $key, $value);
+            }
         }
 
         return $this->queryBuilder;
