@@ -7,7 +7,7 @@ namespace Boilerwork\Support\ValueObjects\Geo\Country;
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
 
-final class Iso31661Alpha2 extends ValueObject
+class Iso31661Alpha2 extends ValueObject
 {
     private function __construct(
         private string $value

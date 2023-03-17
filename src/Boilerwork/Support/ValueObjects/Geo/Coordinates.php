@@ -8,7 +8,7 @@ namespace Boilerwork\Support\ValueObjects\Geo;
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
 
-final class Coordinates extends ValueObject
+class Coordinates extends ValueObject
 {
     public function __construct(
         private readonly float $latitude,

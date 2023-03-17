@@ -7,7 +7,7 @@ namespace Boilerwork\Support\ValueObjects\Geo\Address;
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
 
-final class Street extends ValueObject
+class Street extends ValueObject
 {
     private function __construct(
         private string $name,

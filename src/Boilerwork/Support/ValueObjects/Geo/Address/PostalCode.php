@@ -7,7 +7,7 @@ namespace Boilerwork\Support\ValueObjects\Geo\Address;
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
 
-final class PostalCode extends ValueObject
+class PostalCode extends ValueObject
 {
     private function __construct(
         private readonly string $value,

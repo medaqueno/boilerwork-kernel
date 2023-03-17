@@ -8,7 +8,7 @@ use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Support\ValueObjects\Geo\Coordinates;
 use Boilerwork\Validation\Assert;
 
-final class Location extends ValueObject
+class Location extends ValueObject
 {
     private function __construct(
         private readonly string $name,

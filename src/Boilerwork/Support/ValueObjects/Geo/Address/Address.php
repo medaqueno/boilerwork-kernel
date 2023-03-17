@@ -9,7 +9,7 @@ use Boilerwork\Support\ValueObjects\Geo\Coordinates;
 use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha2;
 use Boilerwork\Validation\Assert;
 
-final class Address extends ValueObject
+class Address extends ValueObject
 {
     private function __construct(
         private Street $street,
