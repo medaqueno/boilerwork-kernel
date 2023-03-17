@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Boilerwork\Support\ValueObjects\Address\AdministrativeArea;
+use Boilerwork\Support\ValueObjects\Geo\Address\AdministrativeArea;
 use Boilerwork\Validation\CustomAssertionFailedException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Boilerwork\Support\ValueObjects\Address\AdministrativeArea
+ * @covers \Boilerwork\Support\ValueObjects\Geo\Address\AdministrativeArea
  */
 class AdministrativeAreaTest extends TestCase
 {

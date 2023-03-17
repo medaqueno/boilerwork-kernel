@@ -11,8 +11,8 @@ use Boilerwork\Validation\Assert;
 final class Coordinates extends ValueObject
 {
     public function __construct(
-        private float $latitude,
-        private float $longitude
+        private readonly float $latitude,
+        private readonly float $longitude
     ) {
         Assert::lazy()->tryAll()
             ->that($latitude)
@@ -22,7 +22,17 @@ final class Coordinates extends ValueObject
             ->verifyNow();
     }
 
+    /**
+     * @deprecated Use fromScalars method
+     */
     public static function fromValues(
+        float $latitude,
+        float $longitude
+    ): self {
+        return self::fromScalars($latitude, $longitude);
+    }
+
+    public static function fromScalars(
         float $latitude,
         float $longitude
     ): self {
@@ -44,6 +54,9 @@ final class Coordinates extends ValueObject
         return $this->latitude . ", " . $this->longitude;
     }
 
+    /**
+     * @deprecated use toArray or toString methods
+     */
     public function toPrimitive(): array
     {
         return $this->toArray();
@@ -51,6 +64,6 @@ final class Coordinates extends ValueObject
 
     public function toArray(): array
     {
-        return [$this->latitude, $this->longitude];
+        return ['latitude' => $this->latitude, 'longitude' => $this->longitude];
     }
 }
