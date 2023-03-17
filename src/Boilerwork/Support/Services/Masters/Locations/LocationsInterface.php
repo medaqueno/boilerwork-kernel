@@ -7,5 +7,5 @@ namespace Boilerwork\Support\Services\Masters\Locations;
 
 interface LocationsInterface
 {
-    public function getLocationById(string $id): LocationReadModel|LocationReadModelNotFound;
+    public function getLocationById(string $id): LocationDto|LocationDtoNotFound;
 }
