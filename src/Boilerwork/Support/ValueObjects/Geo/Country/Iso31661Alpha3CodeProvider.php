@@ -195,7 +195,7 @@ readonly class Iso31661Alpha3CodeProvider
     public const QAT  = 'QAT';
     public const REU  = 'REU';
     public const ROU  = 'ROU';
-    public const ROM  = 'ROM';
+    public const ROM  = 'ROU';
     public const SRB  = 'SRB';
     public const RUS  = 'RUS';
     public const RWA  = 'RWA';

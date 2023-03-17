@@ -241,7 +241,7 @@ readonly class Iso31661Alpha2CodeProvider
     public const TZ  = 'TZ';
     public const UA  = 'UA';
     public const UG  = 'UG';
-    public const UK  = 'UK'; // Exception
+    public const UK  = 'GB'; // Exception
     public const UM  = 'UM';
     public const US  = 'US';
     public const UY  = 'UY';
