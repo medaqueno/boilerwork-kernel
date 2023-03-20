@@ -32,6 +32,11 @@ readonly class AddressDto
         ?float $latitude,
         ?float $longitude,
     ): self {
+        $coordinates = null;
+        if ($latitude !== null && $longitude !== null) {
+            $coordinates = Coordinates::fromScalars($latitude, $longitude);
+        }
+
         return new self(
             $streetName,
             $streetNumber,
@@ -40,13 +45,13 @@ readonly class AddressDto
             $administrativeArea1,
             $administrativeArea2,
             $postalCode,
-            Coordinates::fromScalars($latitude,$longitude),
+            $coordinates,
         );
     }
 
-    public function coordinates(): Coordinates
+    public function coordinates(): ?Coordinates
     {
-        return $this->coordinates;
+        return $this->coordinates ?? null;
     }
 
     public function toArray(): array
@@ -61,10 +66,7 @@ readonly class AddressDto
             'administrativeArea1' => $this->administrativeArea1,
             'administrativeArea2' => $this->administrativeArea2,
             'postalCode'          => $this->postalCode,
-            'coordinates'         => [
-                'latitude'  => $this->coordinates()->latitude(),
-                'longitude' => $this->coordinates()->longitude(),
-            ],
+            'coordinates'         => $this->coordinates()?->toArray() ?? null,
         ];
     }
 }
