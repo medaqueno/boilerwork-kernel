@@ -94,6 +94,15 @@ class Country extends ValueObject
         return $this->coordinates;
     }
 
+    /**
+     * @return array{
+     *     name: string,
+     *     iso31661Alpha2: string|null,
+     *     iso31661Alpha3: string|null,
+     *     coordinates: array{ latitude: float, longitude: float }|null
+     * }
+     * @see Coordinates::toArray()
+     */
     public function toArray(): array
     {
         return [

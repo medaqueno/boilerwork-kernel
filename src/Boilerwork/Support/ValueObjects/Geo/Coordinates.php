@@ -62,6 +62,12 @@ class Coordinates extends ValueObject
         return $this->toArray();
     }
 
+    /**
+     * @return array{
+     *     latitude: float,
+     *     longitude: float
+     * }
+     */
     public function toArray(): array
     {
         return ['latitude' => $this->latitude, 'longitude' => $this->longitude];

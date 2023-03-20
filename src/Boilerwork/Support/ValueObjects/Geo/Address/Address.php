@@ -48,7 +48,7 @@ class Address extends ValueObject
     public function toString(): string
     {
         return sprintf(
-            '%s %s %s %s',
+            "%s %s %s %s",
             $this->street->toString(),
             $this->administrativeArea1 ? $this->administrativeArea1->toString() : '',
             $this->administrativeArea2 ? $this->administrativeArea2->toString() : '',
@@ -72,7 +72,7 @@ class Address extends ValueObject
     }
 
 
-    public function postalCode(): PostalCode
+    public function postalCode(): ?PostalCode
     {
         return $this->postalCode;
     }
@@ -82,14 +82,23 @@ class Address extends ValueObject
         return $this->coordinates;
     }
 
+    /**
+     * @return array{
+     *     street: array{name: string, number: string|null, other1: string|null, other2: string|null},
+     *     administrativeArea1: string|null,
+     *     administrativeArea2: string|null,
+     *     postalCode: string|null,
+     *     coordinates: array{ latitude: float, longitude: float }|null
+     * }
+     */
     public function toArray(): array
     {
         return [
             'street' => $this->street->toArray(),
-            'administrative_area_1' => $this->administrativeArea1 ? $this->administrativeArea1->toString() : null,
-            'administrative_area_2' => $this->administrativeArea2 ? $this->administrativeArea2->toString() : null,
-            'postal_code' => $this->postalCode ? $this->postalCode->toString() : null,
-            'coordinates' => $this->coordinates ? $this->coordinates->toArray() : null,
+            'administrativeArea1' => $this->administrativeArea1?->toString(),
+            'administrativeArea2' => $this->administrativeArea2?->toString(),
+            'postalCode' => $this->postalCode?->toString(),
+            'coordinates' => $this->coordinates?->toArray(),
         ];
     }
 }

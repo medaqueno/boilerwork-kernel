@@ -41,6 +41,13 @@ class Location extends ValueObject
         return $this->coordinates;
     }
 
+    /**
+     * @return array{
+     *     name: string,
+     *     coordinates: array{ latitude: float, longitude: float }|null
+     * }
+     * @see Coordinates::toArray()
+     */
     public function toArray(): array
     {
         return [

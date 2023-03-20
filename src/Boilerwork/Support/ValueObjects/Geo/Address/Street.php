@@ -60,6 +60,14 @@ class Street extends ValueObject
         return sprintf('%s %s, %s %s', $this->name(), $this->number(), $this->other1(), $this->other2());
     }
 
+    /**
+     * @return array{
+     *     name: string,
+     *     number: string|null,
+     *     other1: string|null,
+     *     other2: string|null,
+     * }
+     */
     public function toArray(): array
     {
         return [
