@@ -5,11 +5,9 @@ declare(strict_types=1);
 
 namespace Boilerwork\Server;
 
-
 use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
-use Boilerwork\Support\Exceptions\CustomException;
-use Boilerwork\Support\Singleton;
+use Exception;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -17,6 +15,9 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Throwable;
+
+use function error;
+use function sprintf;
 
 final class RouterMiddleware implements MiddlewareInterface
 {
@@ -37,7 +38,8 @@ final class RouterMiddleware implements MiddlewareInterface
 
     /**
      *
-     * @param array $routes
+     * @param  array  $routes
+     *
      * @return void
      */
     private function __construct(array $routes)
@@ -54,17 +56,19 @@ final class RouterMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
-            foreach (self::$routes as $route) {
-                $r->addRoute($route[0], $route[1], $route[2]);
-            }
-        });
 
-        $request = new Request($request);
         try {
+            $this->dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
+                foreach (self::$routes as $route) {
+                    $r->addRoute($route[0], $route[1], $route[2]);
+                }
+            });
+
+            $request = new Request($request);
+
             return $this->handleRequest($request);
         } catch (\Throwable $th) {
-            return $this->handleErrors($th, $request);
+            return $this->handleSyncErrors($th, $request);
         }
     }
 
@@ -76,9 +80,9 @@ final class RouterMiddleware implements MiddlewareInterface
             return Response::empty(404);
         }
 
-        $code = $routeInfo[0];
+        $code    = $routeInfo[0];
         $handler = $routeInfo[1];
-        $vars = empty($routeInfo[2]) ? [] : $routeInfo[2];
+        $vars    = empty($routeInfo[2]) ? [] : $routeInfo[2];
 
         switch ($code) {
             case \FastRoute\Dispatcher::NOT_FOUND:
@@ -86,7 +90,6 @@ final class RouterMiddleware implements MiddlewareInterface
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
                 return Response::empty(405);
             case \FastRoute\Dispatcher::FOUND:
-
                 foreach ($routeInfo[2] as $key => $value) {
                     $request = $request->withAttribute($key, $value);
                 }
@@ -94,26 +97,21 @@ final class RouterMiddleware implements MiddlewareInterface
                 $handler = globalContainer()->get($handler);
 
                 if (is_callable($handler) === false) {
-                    throw new RuntimeException('Port must be callable');
+                    return $this->handleSyncErrors(new RuntimeException('Port must be callable'), $request);
                 }
 
                 return $handler($request, $vars);
             default:
-
-                $exception = new CustomException(
-                    code: "serverError",
+                $exception = new \Exception(
                     message: "Server error. Contact system administrator",
-                    httpStatus: 500
+                    code: 500,
                 );
 
-                return Response::error(
-                    th: $exception,
-                    request: $request
-                );
+                return $this->handleSyncErrors($exception, $request);
         }
     }
 
-    private function handleErrors(Throwable $th, ServerRequestInterface $request): ResponseInterface
+    private function handleSyncErrors(Throwable $th, ServerRequestInterface $request): ResponseInterface
     {
         error($th);
 
@@ -121,7 +119,7 @@ final class RouterMiddleware implements MiddlewareInterface
 
         return Response::error(
             th: $th,
-            request: $request
+            request: $request,
         );
     }
 }

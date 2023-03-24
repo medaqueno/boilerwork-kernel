@@ -7,6 +7,15 @@ namespace Boilerwork\Bus;
 
 use Boilerwork\Foundation\Commands\CommandInterface;
 
+use Boilerwork\Http\Response;
+
+use function call_user_func;
+use function container;
+use function error;
+use function get_class;
+use function printf;
+use function sprintf;
+
 final class CommandBus
 {
     /**
@@ -30,16 +39,18 @@ final class CommandBus
 
     private function executeHandler(CommandInterface $command): void
     {
-        // With DI
-        $commandHandler = container()->get(get_class($command) . 'Handler');
-        // Without DI, should add ..$args
-        // $class = get_class($command) . 'Handler';
-        // $commandHandler = new $class;
-
         try {
+            // With DI
+            $commandHandler = container()->get(get_class($command) . 'Handler');
+            // Without DI, should add ..$args
+            // $class = get_class($command) . 'Handler';
+            // $commandHandler = new $class;
+
             call_user_func([$commandHandler, 'handle'], $command);
-        } catch (\Exception $e) {
-            throw $e;
+        } catch (\Throwable $th) {
+            error($th);
+
+            echo sprintf("\n ERROR HANDLED IN COMMAND BUS:: %s \n", $th->getMessage() ?: "No error message found");
         }
     }
 }
