@@ -201,7 +201,7 @@ final class Response
             $message =  $parse->error->message;
             $errors = [];
         } else {
-            $status = $th->getCode() ?: 500;
+            $status  = $th->getCode() >= 100 && $th->getCode() <= 599 ? $th->getCode() : 500;
             $code =  "serverError";
             $message = $th->getMessage() ?: 'Server error.';
             $errors = [];

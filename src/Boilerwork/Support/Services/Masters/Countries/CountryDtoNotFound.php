@@ -10,4 +10,9 @@ final readonly class CountryDtoNotFound extends CountryDto
     public function __construct()
     {
     }
+
+    public function toArray(): array
+    {
+        return [];
+    }
 }
