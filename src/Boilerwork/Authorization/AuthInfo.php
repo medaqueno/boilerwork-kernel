@@ -86,12 +86,12 @@ readonly class AuthInfo
         return count($result) > 0;
     }
 
-    public function userId(): Identity
+    public function userId(): AuthIdentity
     {
         return $this->userId;
     }
 
-    public function tenantId(): Identity
+    public function tenantId(): AuthIdentity
     {
         return $this->tenantId;
     }
