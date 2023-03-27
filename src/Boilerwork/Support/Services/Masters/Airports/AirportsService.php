@@ -24,8 +24,8 @@ final class AirportsService implements AirportsInterface
     {
         $response = $this->repository->queryBuilder
             ->select(
-                'id',
-                "data -> 'info' ->> 'iata' as iata'",
+                "id",
+                "data -> 'info' ->> 'iata' as iata",
                 "data -> 'name' as airport_name",
                 "data -> 'location' ->> 'id' as location_id",
                 "data -> 'location' -> 'name' as location_name",
