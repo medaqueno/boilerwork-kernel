@@ -52,6 +52,14 @@ final class Attributes
                             target: $ref->getName(),
                         );
                     }
+
+                    if ($attribute->getName() === 'Boilerwork\Messaging\SubscribesTo') {
+                        $attributeClass = $attribute->getName();
+                        new $attributeClass(
+                            topics: $attribute->getArguments()['topics'],
+                            target: $ref->getName(),
+                        );
+                    }
                 }
 
                 $methods = $ref->getMethods();

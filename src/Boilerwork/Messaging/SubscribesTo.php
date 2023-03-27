@@ -5,28 +5,20 @@ declare(strict_types=1);
 
 namespace Boilerwork\Messaging;
 
+use App\Shared\Providers\MessagingProvider;
 use Attribute;
 use Boilerwork\Validation\Assert;
 
-#[Attribute(Attribute::TARGET_CLASS, Attribute::IS_REPEATABLE)]
+#[Attribute(Attribute::TARGET_CLASS)]
 final readonly class SubscribesTo
 {
-    private MessageClientInterface $messageClient;
-
-    public function __construct(private array $topics = [])
+    public function __construct(private array $topics, private string $target)
     {
-        $this->messageClient = globalContainer()->get(MessageClientInterface::class);
-        Assert::that($topics)->minCount(1, 'Topics parameter value in Attribute SubscribesTo must not be empty');
-    }
+        Assert::that($topics)
+            ->minCount(1, 'Topics parameter value in Attribute SubscribesTo must not be empty');
 
-    public function __invoke(string $subscriber)
-    {
-        /*
-        echo "\n SubscribesTos: " . $subscriber . "  \n";
         foreach ($this->topics as $key => $value) {
-            // var_dump($value);
-            // $this->messageClient->subscribe();
+            MessagingProvider::addSubscription($value, $target);
         }
-        */
     }
 }
