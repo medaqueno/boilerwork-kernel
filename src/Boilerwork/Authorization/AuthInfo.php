@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Boilerwork\Authorization;
 
 use Boilerwork\Authorization\AuthorizationsProvider;
-use Boilerwork\Support\ValueObjects\Identity;
 use Psr\Http\Message\ServerRequestInterface;
 
 readonly class AuthInfo
@@ -14,8 +13,8 @@ readonly class AuthInfo
     private readonly array $userAuthorizationsParsed;
 
     private function __construct(
-        public readonly Identity $userId,
-        public readonly Identity $tenantId,
+        public readonly AuthIdentity $userId,
+        public readonly AuthIdentity $tenantId,
         public readonly array $authorizations,
     ) {
 
@@ -35,13 +34,13 @@ readonly class AuthInfo
         $tenantId = $request->hasHeader('X-Redis-Claim-tenantId') ? (string)$request->getHeader('X-Redis-Claim-tenantId') : '';
         $authorizations = $request->hasHeader('X-Redis-Claim-authorizations') ? explode(',', (string)$request->getHeader('X-Redis-Claim-authorizations')) : '';
 
-        if ($userId === '' || $tenantId === '' || $authorizations === '') {
+        if ($userId === '' || $tenantId === '' || $authorizations === '' || $userId === null || $tenantId === null || $authorizations === null) {
             return new AuthInfoNotFound();
         }
 
         return new self(
-            userId: new Identity($userId),
-            tenantId: new Identity($tenantId),
+            userId: AuthIdentity::fromString($userId),
+            tenantId: AuthIdentity::fromString($tenantId),
             authorizations: $authorizations,
         );
     }
@@ -59,8 +58,8 @@ readonly class AuthInfo
         }
 
         return new self(
-            userId: new Identity($data['userId']),
-            tenantId: new Identity($data['tenantId']),
+            userId: AuthIdentity::fromString($data['userId']),
+            tenantId: AuthIdentity::fromString($data['tenantId']),
             authorizations: $data['authorizations'],
         );
     }
