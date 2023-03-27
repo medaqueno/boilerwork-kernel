@@ -12,7 +12,7 @@ use Boilerwork\Validation\Assert;
 #[Attribute(Attribute::TARGET_CLASS)]
 final readonly class SubscribesTo
 {
-    public function __construct(private array $topics, private string $target)
+    public function __construct(private array $topics, private ?string $target = null)
     {
         Assert::that($topics)
             ->minCount(1, 'Topics parameter value in Attribute SubscribesTo must not be empty');
