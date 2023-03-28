@@ -11,7 +11,7 @@ use Boilerwork\Validation\Assert;
 final class AuthIdentity extends Identity
 {
     public function __construct(
-        private string $value
+        protected string $value
     ) {
         Assert::lazy()->tryAll()
             ->that($value)
@@ -19,7 +19,7 @@ final class AuthIdentity extends Identity
             ->uuid('Value received by AuthInfo must be a valid UUID', 'authInfoUuid.invalidFormat')
             ->verifyNow();
 
-        $this->value = strtolower($value);
+        parent::__construct($value);
     }
 
     /**

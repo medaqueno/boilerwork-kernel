@@ -15,7 +15,7 @@ use Symfony\Component\Uid\Uuid as UuidImplementation;
 abstract class Uuid extends ValueObject
 {
     public function __construct(
-        private string $value
+        protected string $value
     ) {
         Assert::lazy()->tryAll()
             ->that($value)
