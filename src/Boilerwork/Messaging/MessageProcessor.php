@@ -69,14 +69,14 @@ final class MessageProcessor
                             } catch (\Throwable $th) {
                                 error(
                                     sprintf(
-                                        'ERROR PROCESSING MESSAGE RECEIVED: %s || Error Message: %s',
+                                        'ERROR HANDLED PROCESSING MESSAGE RECEIVED: %s || Error Message: %s',
                                         json_encode($messageReceived, JSON_PRETTY_PRINT),
                                         $th->getMessage()
                                     ),
                                 );
 
                                 echo sprintf(
-                                    'ERROR PROCESSING MESSAGE RECEIVED: %s || Error Message: %s',
+                                    'ERROR HANDLED PROCESSING MESSAGE RECEIVED: %s || Error Message: %s',
                                     json_encode($messageReceived, JSON_PRETTY_PRINT),
                                     $th->getMessage()
                                 );
