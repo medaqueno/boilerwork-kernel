@@ -71,11 +71,12 @@ trait CriteriaExtended
     private function buildQuery(array $keyArray, string $filterValue): QueryBuilder
     {
         $arrayValues = explode(',', $filterValue);
-        return (count($arrayValues) > 1) ? $this->buildMultiValueQuery($keyArray, $arrayValues) : $this->queryBuilder
-            ->where($keyArray[0] . ' = :where_param')
-            ->setParameters([
-                "where_param" => $filterValue
-            ]);
+        return (count($arrayValues) > 1) ?
+            $this->buildMultiValueQuery($keyArray, $arrayValues) :
+            $this->queryBuilder
+                ->andWhere($keyArray[0] . ' = :where_'.$keyArray[0])
+                ->setParameter("where_".$keyArray[0], $filterValue)
+        ;
     }
     private function buildJsonbWhere(string $jsonBKey, string $param, string $value): string
     {
