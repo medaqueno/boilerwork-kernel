@@ -81,7 +81,7 @@ trait CriteriaExtended
     private function buildJsonbWhere(string $jsonBKey, string $param, string $value): string
     {
         return sprintf(
-            "jsonb_path_exists(%s, '$.**.%s ? (@ like_regex \"%s\")')",
+            "jsonb_path_exists(%s, '$.**.%s ? (@ like_regex \"%s\" flag \"i\")')",
             $jsonBKey,
             $param,
             $value,
