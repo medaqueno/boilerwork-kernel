@@ -7,13 +7,10 @@ namespace Boilerwork\Bus;
 
 use Boilerwork\Foundation\Commands\CommandInterface;
 
-use Boilerwork\Http\Response;
-
 use function call_user_func;
 use function container;
 use function error;
 use function get_class;
-use function printf;
 use function sprintf;
 
 final class CommandBus
@@ -23,8 +20,9 @@ final class CommandBus
      */
     public function syncHandle(CommandInterface $command)
     {
+        $commandHandler = container()->get(get_class($command) . 'Handler');
         // Execute commandHandler
-        $this->executeHandler($command);
+        call_user_func([$commandHandler, 'handle'], $command);
     }
 
     /**

@@ -7,9 +7,6 @@ namespace Boilerwork\Persistence\Repositories;
 
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\DoctrineQueryBuilder;
 
-use function env;
-use function var_dump;
-
 final class MastersRepository
 {
     public readonly DoctrineQueryBuilder $queryBuilder;
