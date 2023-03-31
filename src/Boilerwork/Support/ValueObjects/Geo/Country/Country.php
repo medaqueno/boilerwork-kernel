@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace Boilerwork\Support\ValueObjects\Geo\Country;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
+use Boilerwork\Support\MultiLingualText;
 use Boilerwork\Support\ValueObjects\Geo\Coordinates;
+use Boilerwork\Support\ValueObjects\Language\Language;
 use Boilerwork\Validation\Assert;
 
 class Country extends ValueObject
 {
     private function __construct(
-        private readonly string $name,
+        private readonly MultiLingualText $name,
         private readonly ?Iso31661Alpha2 $iso31661Alpha2,
         private readonly ?Iso31661Alpha3 $iso31661Alpha3,
         private readonly ?Coordinates $coordinates
     ) {
         Assert::lazy()->tryAll()
-            ->that($name)
-            ->notEmpty('Name must not be empty', 'country.invalidName')
             ->that($iso31661Alpha2)
             ->satisfy(function () use ($iso31661Alpha2, $iso31661Alpha3) {
                 return $iso31661Alpha2 !== null || $iso31661Alpha3 !== null;
@@ -27,56 +27,62 @@ class Country extends ValueObject
     }
 
     public static function fromScalars(
-        string $name,
+        array $name,
         string $iso31661Alpha2,
         string $iso31661Alpha3,
         ?float $latitude,
         ?float $longitude
     ): self {
+
         return new self(
-            name: $name,
+            name: MultiLingualText::fromArray($name),
             iso31661Alpha2: Iso31661Alpha2::fromString($iso31661Alpha2),
             iso31661Alpha3: Iso31661Alpha3::fromString($iso31661Alpha3),
-            coordinates: Coordinates::fromScalars($latitude, $longitude)
+            coordinates: ($latitude !== null && $longitude !== null) ? Coordinates::fromScalars($latitude, $longitude) : null
         );
     }
 
     public static function fromScalarsWithIso31661Alpha2(
-        string $name,
+        array $name,
         string $iso31661Alpha2,
         ?float $latitude,
         ?float $longitude
     ): self {
         return new self(
-            name: $name,
+            name: MultiLingualText::fromArray($name),
             iso31661Alpha2: Iso31661Alpha2::fromString($iso31661Alpha2),
             iso31661Alpha3: null,
-            coordinates: Coordinates::fromScalars($latitude, $longitude)
+            coordinates: ($latitude !== null && $longitude !== null) ? Coordinates::fromScalars($latitude, $longitude) : null
         );
     }
 
     public static function fromScalarsWithIso31661Alpha3(
-        string $name,
+        array $name,
         string $iso31661Alpha3,
         ?float $latitude,
         ?float $longitude
     ): self {
         return new self(
-            name: $name,
+            name: MultiLingualText::fromArray($name),
             iso31661Alpha2: null,
             iso31661Alpha3: Iso31661Alpha3::fromString($iso31661Alpha3),
-            coordinates: Coordinates::fromScalars($latitude, $longitude)
+            coordinates: ($latitude !== null && $longitude !== null) ? Coordinates::fromScalars($latitude, $longitude) : null
         );
     }
 
-    public function toString(): string
+    public function toString(string $language = Language::FALLBACK): string
+    {
+        return $this->name($language);
+    }
+
+    public function names(): MultiLingualText
     {
         return $this->name;
     }
 
-    public function name(): string
+    public function name(string $language = Language::FALLBACK): string
     {
-        return $this->name;
+        return $this->name->getText($language);
     }
 
     public function iso31661Alpha2(): ?Iso31661Alpha2
@@ -103,10 +109,10 @@ class Country extends ValueObject
      * }
      * @see Coordinates::toArray()
      */
-    public function toArray(): array
+    public function toArray(string $language = Language::FALLBACK): array
     {
         return [
-            'name' => $this->name,
+            'name' => $this->name->getText($language),
             'iso31661Alpha2' => $this->iso31661Alpha2?->toString(),
             'iso31661Alpha3' => $this->iso31661Alpha3?->toString(),
             'coordinates' => $this->coordinates?->toArray(),

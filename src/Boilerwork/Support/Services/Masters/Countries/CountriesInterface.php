@@ -7,5 +7,5 @@ namespace Boilerwork\Support\Services\Masters\Countries;
 
 interface CountriesInterface
 {
-    public function getCountryById(string $id): CountryDto|CountryDtoNotFound;
+    public function getCountryById(string $id): CountryEntity|CountryEntityNotFound;
 }

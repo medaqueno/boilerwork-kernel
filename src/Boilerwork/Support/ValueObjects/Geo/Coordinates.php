@@ -55,6 +55,21 @@ class Coordinates extends ValueObject
     }
 
     /**
+     * Returns the coordinates representation as a string in the (latitude,longitude) format.
+     *
+     * @return string The coordinates representation in the (latitude,longitude) format
+     *
+     */
+    public function toPoint(): string
+    {
+        return sprintf(
+            "(%f,%f)",
+            $this->latitude(),
+            $this->longitude()
+        );
+    }
+
+    /**
      * @deprecated use toArray or toString methods
      */
     public function toPrimitive(): array

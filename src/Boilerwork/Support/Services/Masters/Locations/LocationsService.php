@@ -6,9 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Support\Services\Masters\Locations;
 
 use Boilerwork\Persistence\Adapters\ElasticSearch\ElasticSearchAdapter;
-use Boilerwork\Support\MultiLingualText;
-use Boilerwork\Support\ValueObjects\Geo\Coordinates;
-use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha2;
+use Boilerwork\Support\ValueObjects\Geo\Location;
 use Boilerwork\Support\ValueObjects\Identity;
 
 final class LocationsService implements LocationsInterface
@@ -20,7 +18,7 @@ final class LocationsService implements LocationsInterface
     ) {
     }
 
-    public function getLocationById(string $id): LocationDto|LocationDtoNotFound
+    public function getLocationById(string $id): LocationEntity|LocationEntityNotFound
     {
         $params = [
             'index' => self::LOCATIONS_INDEX,
@@ -40,22 +38,20 @@ final class LocationsService implements LocationsInterface
             // Retrieve first result, assuming there will be only one
             $hit = $hits[0]['_source'];
 
-            $location = new LocationDto(
+            return new LocationEntity(
                 id: Identity::fromString($hit['id']),
-                isoAlpha2: Iso31661Alpha2::fromString($hit['iso_alpha_2']),
-                nameTranslations: MultiLingualText::fromArray([
-                    'ES' => $hit['location_es'],
-                    'EN' => $hit['location_en'],
-                ]),
-                coordinates: Coordinates::fromScalars(
+                location: Location::fromScalars(
+                    name: [
+                        'ES' => $hit['location_es'],
+                        'EN' => $hit['location_en'],
+                    ],
+                    iso31661Alpha2: $hit['iso_alpha_2'],
                     latitude: $hit['coordinates']['lat'],
                     longitude: $hit['coordinates']['lon'],
                 )
             );
-
-            return $location;
         }
 
-        return new LocationDtoNotFound();
+        return new LocationEntityNotFound();
     }
 }

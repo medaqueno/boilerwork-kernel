@@ -5,13 +5,19 @@ declare(strict_types=1);
 namespace Boilerwork\Support\ValueObjects\Geo;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
+use Boilerwork\Support\MultiLingualText;
 use Boilerwork\Support\ValueObjects\Geo\Coordinates;
+use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha2;
+use Boilerwork\Support\ValueObjects\Language\Language;
 use Boilerwork\Validation\Assert;
+
+use function var_dump;
 
 class Location extends ValueObject
 {
     private function __construct(
-        private readonly string $name,
+        private readonly MultiLingualText $name,
+        private readonly Iso31661Alpha2 $iso31661Alpha2,
         private readonly Coordinates $coordinates,
     ) {
         Assert::lazy()->tryAll()
@@ -21,19 +27,31 @@ class Location extends ValueObject
     }
 
     public static function fromScalars(
-        string $name,
+        array $name,
+        string $iso31661Alpha2,
         float $latitude,
         float $longitude,
     ): self {
         return new self(
-            name: $name,
+            name: MultiLingualText::fromArray($name),
+            iso31661Alpha2: Iso31661Alpha2::fromString($iso31661Alpha2),
             coordinates: Coordinates::fromScalars($latitude, $longitude),
         );
     }
 
-    public function name(): string
+    public function names(): MultiLingualText
     {
         return $this->name;
+    }
+
+    public function name(string $language = Language::FALLBACK): string
+    {
+        return $this->name->getText($language);
+    }
+
+    public function iso31661Alpha2(): Iso31661Alpha2
+    {
+        return $this->iso31661Alpha2;
     }
 
     public function coordinates(): Coordinates
@@ -44,14 +62,15 @@ class Location extends ValueObject
     /**
      * @return array{
      *     name: string,
-     *     coordinates: array{ latitude: float, longitude: float }|null
+     *     iso31661Alpha2: string,
+     *     coordinates: array{latitude: float, longitude: float}
      * }
-     * @see Coordinates::toArray()
      */
-    public function toArray(): array
+    public function toArray(string $language = Language::FALLBACK): array
     {
         return [
-            'name' => $this->name,
+            'name' => $this->name->getText($language),
+            'iso31661Alpha2' => $this->iso31661Alpha2()->toString(),
             'coordinates' => $this->coordinates->toArray(),
         ];
     }

@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Support\Services\Masters\Countries;
+namespace Boilerwork\Support\Services\Masters\Locations;
 
-final readonly class CountryDtoNotFound extends CountryDto
+final readonly class LocationEntityNotFound extends LocationEntity
 {
     public function __construct()
     {

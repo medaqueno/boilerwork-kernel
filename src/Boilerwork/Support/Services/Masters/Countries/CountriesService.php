@@ -6,8 +6,8 @@ declare(strict_types=1);
 namespace Boilerwork\Support\Services\Masters\Countries;
 
 use Boilerwork\Persistence\Adapters\ElasticSearch\ElasticSearchAdapter;
-use Boilerwork\Support\MultiLingualText;
-use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha2;
+use Boilerwork\Support\ValueObjects\Geo\Country\Country;
+use Boilerwork\Support\ValueObjects\Identity;
 
 use function var_dump;
 
@@ -20,7 +20,7 @@ final class CountriesService implements CountriesInterface
     ) {
     }
 
-    public function getCountryById(string $id): CountryDto|CountryDtoNotFound
+    public function getCountryById(string $id): CountryEntity|CountryEntityNotFound
     {
         $params = [
             'index' => self::INDEX_NAME,
@@ -31,6 +31,7 @@ final class CountriesService implements CountriesInterface
                     ],
                 ],
             ],
+
         ];
 
         $response = $this->client->search($params);
@@ -41,18 +42,20 @@ final class CountriesService implements CountriesInterface
             // Retrieve first result, assuming there will be only one
             $hit = $hits[0]['_source'];
 
-            $country = new CountryDto(
-                id: $hit['iso_alpha_2'],
-                isoAlpha2: Iso31661Alpha2::fromString($hit['iso_alpha_2']),
-                nameTranslations: MultiLingualText::fromArray([
-                    'ES' => $hit['country_es'],
-                    'EN' => $hit['country_en'],
-                ]),
+            return new CountryEntity(
+                id: Identity::fromString($hit['id']),
+                country: Country::fromScalarsWithIso31661Alpha2(
+                    name: [
+                        'ES' => $hit['country_es'],
+                        'EN' => $hit['country_en'],
+                    ],
+                    iso31661Alpha2: $hit['iso_alpha_2'],
+                    latitude: $hit['coordinates']['lat'],
+                    longitude: $hit['coordinates']['lon'],
+                )
             );
-
-            return $country;
         }
 
-        return new CountryDtoNotFound();
+        return new CountryEntityNotFound();
     }
 }

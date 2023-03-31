@@ -4,37 +4,38 @@ declare(strict_types=1);
 
 namespace Boilerwork\Support\Services\Masters;
 
-use Boilerwork\Support\Services\Masters\Countries\CountryDto;
-use Boilerwork\Support\Services\Masters\Locations\LocationDto;
+use Boilerwork\Support\Services\Masters\Countries\CountryEntity;
+use Boilerwork\Support\Services\Masters\Locations\LocationEntity;
+use Boilerwork\Support\ValueObjects\Geo\Address\Address;
 
 readonly class AddressCompleteDto
 {
     private function __construct(
-        private AddressDto $address,
-        private LocationDto $location,
-        private CountryDto $country,
+        private Address $address,
+        private LocationEntity $location,
+        private CountryEntity $country,
     ) {
     }
 
     public static function fromObjects(
-        AddressDto $address,
-        LocationDto $location,
-        CountryDto $country,
+        Address $address,
+        LocationEntity $location,
+        CountryEntity $country,
     ): self {
         return new self(address: $address, location: $location, country: $country);
     }
 
-    public function address(): AddressDto
+    public function address(): Address
     {
         return $this->address;
     }
 
-    public function location(): LocationDto
+    public function location(): LocationEntity
     {
         return $this->location;
     }
 
-    public function country(): CountryDto
+    public function country(): CountryEntity
     {
         return $this->country;
     }
@@ -42,33 +43,22 @@ readonly class AddressCompleteDto
     /**
      * @return array{
      *     address: array{
-     *         administrativeArea1: null|string,
-     *         administrativeArea2: null|string,
-     *         coordinates: array{
-     *             latitude: float,
-     *             longitude: float
-     *         }|null,
-     *         postalCode: null|string,
-     *         street: array{
-     *             name: string,
-     *             number: null|string,
-     *             other1: null|string,
-     *             other2: null|string
-     *         }
-     *     },
-     *     country: array{
-     *         id: string,
-     *         isoAlpha2: string,
-     *         name: array<string,string>
+     *         street: array{name: string, number: string|null, other1: string|null, other2: string|null},
+     *         administrativeArea1: string|null,
+     *         administrativeArea2: string|null,
+     *         postalCode: string|null,
+     *         coordinates: array{latitude: float, longitude: float}|null
      *     },
      *     location: array{
-     *         coordinates: array{
-     *             latitude: float,
-     *             longitude: float
-     *         },
-     *         id: string,
-     *         isoAlpha2: string,
-     *         name: array<string,string>
+     *         name: string,
+     *         iso31661Alpha2: string,
+     *         coordinates: array{latitude: float, longitude: float}
+     *     },
+     *     country: array{
+     *         name: string,
+     *         iso31661Alpha2: string|null,
+     *         iso31661Alpha3: string|null,
+     *         coordinates: array{latitude: float, longitude: float}|null
      *     }
      * }
      *
