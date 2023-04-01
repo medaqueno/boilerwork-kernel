@@ -19,12 +19,14 @@ readonly class MultiLingualText
     }
 
     /**
-     * Crea un ValueObject vacío a partir de un texto y un idioma.
+     * Creates an empty ValueObject from a text and a language.
+     * If the text does not exist, the character '-' is returned.
      *
      * @throws LazyAssertionException
      */
-    public static function fromSingleLanguageString(string $text, string $language = Language::FALLBACK): self
+    public static function fromSingleLanguageString(?string $text, string $language = Language::FALLBACK): self
     {
+        $text = $text ?? '-';
         Assert::lazy()
             ->tryAll()
             ->that($language, 'language.invalidIso3166Alpha2')
@@ -37,7 +39,7 @@ readonly class MultiLingualText
     }
 
     /**
-     * Crea un ValueObject a partir de un array
+     * Creates a ValueObject from an array.
      */
     public static function fromArray(array $texts): self
     {
@@ -45,7 +47,7 @@ readonly class MultiLingualText
     }
 
     /**
-     * Crea un ValueObject a partir de una cadena JSON.
+     * Creates a ValueObject from a JSON string.
      *
      * @throws LazyAssertionException
      */
@@ -62,7 +64,7 @@ readonly class MultiLingualText
     }
 
     /**
-     * Añade un texto en un idioma específico.
+     * Adds a text in a specific language.
      *
      * @throws LazyAssertionException
      */
@@ -83,7 +85,7 @@ readonly class MultiLingualText
     }
 
     /**
-     * Añade o reemplaza los valores a partir de un array.
+     * Adds or replaces values from an array.
      *
      * @throws LazyAssertionException
      */
@@ -95,7 +97,51 @@ readonly class MultiLingualText
     }
 
     /**
-     * Devuelve el array con todos los valores.
+     * Returns a new instance of MultiLingualText ensuring that the default language is present in the texts array.
+     *
+     * @param string $defaultLanguage The default language code (e.g., 'ES')
+     * @return self
+     */
+    public function withDefaultLanguage(string $defaultLanguage = Language::FALLBACK): self
+    {
+        if (isset($this->texts[$defaultLanguage])) {
+            return $this;
+        }
+
+        $firstText = $this->getDefaultText();
+        if ($firstText === null) {
+            return $this;
+        }
+
+        $newTexts = $this->texts;
+        $newTexts[$defaultLanguage] = $firstText;
+
+        return new self($newTexts);
+    }
+
+    /**
+     * Returns a new instance of MultiLingualText ensuring that all accepted languages are present in the texts array.
+     * If a language is not present in the texts array, the default text will be added for that language.
+     *
+     * @param array $acceptedLanguages The array of accepted language codes (e.g., ['ES', 'EN', 'FR'])
+     * @return self
+     */
+    public function withAcceptedLanguages(array $acceptedLanguages = Language::ACCEPTED_LANGUAGES): self
+    {
+        $newTexts = $this->texts;
+        $defaultText = $this->getDefaultText();
+
+        foreach ($acceptedLanguages as $language) {
+            if (!isset($newTexts[$language])) {
+                $newTexts[$language] = $defaultText;
+            }
+        }
+
+        return new self($newTexts);
+    }
+
+    /**
+     * Returns the array with all values.
      *
      * @return array
      */
@@ -105,11 +151,11 @@ readonly class MultiLingualText
     }
 
     /**
-     * Devuelve el texto en el idioma requerido.
+     * Returns the text in the required language
      *
      * @throws LazyAssertionException
      */
-    public function getText(string $language = Language::FALLBACK): ?string
+    public function getTextByLanguage(string $language = Language::FALLBACK): ?string
     {
         Assert::lazy()
             ->tryAll()
@@ -121,24 +167,34 @@ readonly class MultiLingualText
     }
 
     /**
-     * Devuelve el objeto en formato JSON.
+     * Returns the default text, which is the first available text in the array.
+     *
+     * @return string|null The default text or null if no texts are available
+     */
+    public function getDefaultText(): ?string
+    {
+        return current(array_values($this->texts)) ?: null;
+    }
+
+    /**
+     * Returns the object in JSON format.
      *
      * @return string
      */
     public function toJson(): string
     {
-        return json_encode($this->texts, JSON_THROW_ON_ERROR);
+        return json_encode($this->texts);
     }
 
     /**
-     * Devuelve el texto y el idioma requerido en formato JSON.
+     * Returns the text and the required language in JSON format.
      * @example: { 'ES': 'Text Localised' }
      *
      * @throws LazyAssertionException
      */
     public function getJsonTextByLanguage(string $language = Language::FALLBACK): ?string
     {
-        $text = $this->getText($language);
+        $text = $this->getTextByLanguage($language);
 
         if ($text === null) {
             return null;

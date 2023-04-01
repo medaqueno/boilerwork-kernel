@@ -15,24 +15,33 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Throwable;
 
+use function json_decode;
+
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17
  * https://docs.laminas.dev/laminas-diactoros/v2/overview/
  **/
 final class Response
 {
+    use HandleErrorTypesTrait;
+
     private array $customMetadata = [];
 
     private function __construct(
         private mixed $data = '',
         private int $status = 200,
-        private array $headers = []
+        private array $headers = [],
     ) {
     }
 
     /**
      * Create a configurable Response Object
      * which can be used later
+     *
+     * @param string|array $data The response data
+     * @param int $status The HTTP status code
+     * @param array $headers An array of HTTP headers
+     * @return self
      */
     public static function create(string|array $data = '', int $status = 200, array $headers = []): self
     {
@@ -41,15 +50,21 @@ final class Response
 
     /**
      * Add metadata to current metadata array
+     *
+     * @param array $customMetadata The custom metadata to add
+     * @return self
      */
     public function addMetadata(array $customMetadata): self
     {
         $this->customMetadata = array_merge($this->customMetadata, $customMetadata);
+
         return $this;
     }
 
     /**
      * Return current metadata
+     *
+     * @return array The current metadata
      */
     public function metadata(): array
     {
@@ -58,24 +73,34 @@ final class Response
 
     /**
      * Empty current metadata.
+     *
+     * @return self
      */
     public function resetMetadata(): self
     {
         $this->customMetadata = [];
+
         return $this;
     }
 
     /**
      * Add header to current headers array
+     *
+     * @param string $key The header key
+     * @param string $value The header value
+     * @return self
      */
     public function addHeader(string $key, string $value): self
     {
         $this->headers = array_merge($this->headers, [$key => $value]);
+
         return $this;
     }
 
     /**
      * Return current headers
+     *
+     * @return array The current headers
      */
     public function headers(): array
     {
@@ -83,25 +108,34 @@ final class Response
     }
 
     /**
-     * Empty current headere.
+     * Empty current headers.
+     *
+     * @return self
      */
     public function resetHeaders(): self
     {
         $this->headers = [];
+
         return $this;
     }
 
     /**
      * Set Http Status Code
+     *
+     * @param int $status The HTTP status code
+     * @return self
      */
     public function setHttpStatus(int $status): self
     {
         $this->status = $status;
+
         return $this;
     }
 
     /**
      * Transform to ResponseInterface with JSON Format
+     *
+     * @return ResponseInterface
      */
     public function toJson(): ResponseInterface
     {
@@ -114,6 +148,11 @@ final class Response
 
     /**
      * Create a ResponseInterface with JSON Format directly
+     *
+     * @param mixed $data The response data
+     * @param int $status The HTTP status code
+     * @param array $headers An array of HTTP headers
+     * @return ResponseInterface
      */
     public static function json(mixed $data = '', int $status = 200, array $headers = []): ResponseInterface
     {
@@ -122,6 +161,8 @@ final class Response
 
     /**
      * Transform to ResponseInterface with text Format
+     *
+     * @return ResponseInterface
      */
     public function toText(): ResponseInterface
     {
@@ -140,14 +181,24 @@ final class Response
 
     /**
      * Create a ResponseInterface with text Format directly
+     *
+     * @param string|StreamInterface $data The response data
+     * @param int $status The HTTP status code
+     * @param array $headers An array of HTTP headers
+     * @return ResponseInterface
      */
-    public static function text(string|StreamInterface $data = '', int $status = 200, array $headers = []): ResponseInterface
-    {
+    public static function text(
+        string|StreamInterface $data = '',
+        int $status = 200,
+        array $headers = [],
+    ): ResponseInterface {
         return (new self(data: $data, status: $status, headers: $headers))->toText();
     }
 
     /**
      * Transform to ResponseInterface with no content
+     *
+     * @return ResponseInterface
      */
     public function toEmpty(): ResponseInterface
     {
@@ -159,6 +210,10 @@ final class Response
 
     /**
      * Create a ResponseInterface with no content directly
+     *
+     * @param int $status The HTTP status code
+     * @param array $headers An array of HTTP headers
+     * @return ResponseInterface
      */
     public static function empty(int $status = 204, array $headers = []): ResponseInterface
     {
@@ -171,7 +226,7 @@ final class Response
 
         return [
             'metadata' => $metaData,
-            'data' => $data,
+            'data'     => $data,
         ];
     }
 
@@ -188,37 +243,21 @@ final class Response
 
     public static function error(Throwable $th, ?ServerRequestInterface $request = null): ResponseInterface
     {
-        if ($th instanceof CustomAssertionFailedException || $th instanceof \Assert\InvalidArgumentException) {
-            $status = 422;
-            $code =  "validationError";
-            $message = "Request is invalid or malformed";
-            $errors = json_decode($th->getMessage());
-        } else if ($th instanceof CustomException) {
-            $parse = json_decode($th->getMessage());
-
-            $status = $th->getCode();
-            $code =  $parse->error->code;
-            $message =  $parse->error->message;
-            $errors = [];
-        } else {
-            $status  = $th->getCode() >= 100 && $th->getCode() <= 599 ? $th->getCode() : 500;
-            $code =  "serverError";
-            $message = $th->getMessage() ?: 'Server error.';
-            $errors = [];
-        }
+        // Determina el tipo de error y configura los datos relacionados
+        [$status, $code, $message, $errors] = self::getErrorDetails($th);
 
         $result = [
-            "error" =>
-            [
+            "error" => [
                 "code" => $code,
                 "message" => $message,
                 "errors" => $errors
             ]
         ];
 
+        // Añade información adicional si estamos en modo de depuración
         if (env('APP_DEBUG') === 'true') {
             $result['error']['dev'] = [
-                "message" =>  $th->getMessage(),
+                "message" => $th->getMessage(),
                 "file" => $th->getFile(),
                 "line" => $th->getLine(),
                 "request" => $request,
