@@ -20,17 +20,15 @@ readonly class MultiLingualText
 
     /**
      * Creates an empty ValueObject from a text and a language.
-     * If the text does not exist, the character '-' is returned.
      *
-     * @throws LazyAssertionException
+     * @throws CustomAssertionFailedException
      */
-    public static function fromSingleLanguageString(?string $text, string $language = Language::FALLBACK): self
+    public static function fromSingleLanguageString(string $text, string $language = Language::FALLBACK): self
     {
-        $text = $text ?? '-';
         Assert::lazy()
             ->tryAll()
             ->that($language, 'language.invalidIso3166Alpha2')
-            ->notEmpty('Language must not be empty')
+            ->inArray(Language::ACCEPTED_LANGUAGES)
             ->that($text, 'text.invalidText')
             ->notEmpty('Text must not be empty')
             ->verifyNow();
@@ -49,7 +47,7 @@ readonly class MultiLingualText
     /**
      * Creates a ValueObject from a JSON string.
      *
-     * @throws LazyAssertionException
+     * @throws CustomAssertionFailedException
      */
     public static function fromJson(string $json): self
     {
@@ -66,14 +64,14 @@ readonly class MultiLingualText
     /**
      * Adds a text in a specific language.
      *
-     * @throws LazyAssertionException
+     * @throws CustomAssertionFailedException
      */
     public function addText(string $text, string $language = Language::FALLBACK): self
     {
         Assert::lazy()
             ->tryAll()
             ->that($language, 'language.invalidIso3166Alpha2')
-            ->notEmpty('Language must not be empty')
+            ->inArray(Language::ACCEPTED_LANGUAGES)
             ->that($text, 'text.invalidText')
             ->notEmpty('Text must not be empty')
             ->verifyNow();
@@ -87,7 +85,7 @@ readonly class MultiLingualText
     /**
      * Adds or replaces values from an array.
      *
-     * @throws LazyAssertionException
+     * @throws CustomAssertionFailedException
      */
     public function addOrReplaceFromArray(array $texts): self
     {
@@ -151,19 +149,35 @@ readonly class MultiLingualText
     }
 
     /**
+     * Returns a string with fallback language
+     */
+    public function __toString(): string
+    {
+        return $this->toString();
+    }
+
+    /**
+     * Returns a string with fallback language
+     */
+    public function toString(): string
+    {
+        return $this->getTextByLanguage();
+    }
+
+    /**
      * Returns the text in the required language
      *
-     * @throws LazyAssertionException
+     * @throws CustomAssertionFailedException
      */
     public function getTextByLanguage(string $language = Language::FALLBACK): ?string
     {
         Assert::lazy()
             ->tryAll()
             ->that($language, 'language.invalidIso3166Alpha2')
-            ->notEmpty('Language must not be empty')
+            ->inArray(Language::ACCEPTED_LANGUAGES)
             ->verifyNow();
 
-        return $this->texts[$language] ?? null;
+        return $this->texts[$language] ?? $this->texts[Language::FALLBACK] ?? null;
     }
 
     /**
@@ -190,7 +204,7 @@ readonly class MultiLingualText
      * Returns the text and the required language in JSON format.
      * @example: { 'ES': 'Text Localised' }
      *
-     * @throws LazyAssertionException
+     * @throws CustomAssertionFailedException
      */
     public function getJsonTextByLanguage(string $language = Language::FALLBACK): ?string
     {
