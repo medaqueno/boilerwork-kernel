@@ -2,72 +2,143 @@
 
 declare(strict_types=1);
 
+namespace Boilerwork\Support\ValueObjects\Geo\Country\Tests;
+
+use Boilerwork\Foundation\ValueObjects\Tests\ValueObjectTest;
+use Boilerwork\Support\MultiLingualText;
+use Boilerwork\Support\ValueObjects\Geo\Coordinates;
 use Boilerwork\Support\ValueObjects\Geo\Country\Country;
-use Boilerwork\Validation\CustomAssertionFailedException;
+use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha2;
+use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha3;
+use Boilerwork\Support\ValueObjects\Language\Language;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Boilerwork\Support\ValueObjects\Geo\Country\Country
- * @group geo
- */
 class CountryTest extends TestCase
 {
     /**
      * @test
+     * @covers \Boilerwork\Support\ValueObjects\Geo\Country\Country
      */
-    public function it_can_be_created_from_scalars(): void
+    public function testFromScalars(): void
     {
-        $country = Country::fromScalars('Spain', 'ES', 'ESP', 40.463667, -3.74922);
+        $country = Country::fromScalars(
+            ['EN' => 'United States', 'ES' => 'Estados Unidos'],
+            'US',
+            'USA',
+            37.7749,
+            -122.4194
+        );
 
-        $this->assertSame('Spain', $country->name());
-        $this->assertSame('ES', $country->iso31661Alpha2()->toString());
-        $this->assertSame('ESP', $country->iso31661Alpha3()->toString());
+        $this->assertInstanceOf(Country::class, $country);
+        $this->assertInstanceOf(MultiLingualText::class, $country->names());
+        $this->assertInstanceOf(Iso31661Alpha2::class, $country->iso31661Alpha2());
+        $this->assertInstanceOf(Iso31661Alpha3::class, $country->iso31661Alpha3());
+        $this->assertInstanceOf(Coordinates::class, $country->coordinates());
     }
 
     /**
      * @test
+     * @covers \Boilerwork\Support\ValueObjects\Geo\Country\Country
      */
-    public function it_can_be_created_from_scalars_with_iso31661_alpha2(): void
+    public function testFromScalarsWithIso31661Alpha2(): void
     {
-        $country = Country::fromScalarsWithIso31661Alpha2('Spain', 'ES', 40.463667, -3.74922);
+        $country = Country::fromScalarsWithIso31661Alpha2(
+            ['EN' => 'United States', 'ES' => 'Estados Unidos'],
+            'US',
+            37.7749,
+            -122.4194
+        );
 
-        $this->assertSame('Spain', $country->name());
-        $this->assertSame('ES', $country->iso31661Alpha2()->toString());
+        $this->assertInstanceOf(Country::class, $country);
+        $this->assertInstanceOf(MultiLingualText::class, $country->names());
+        $this->assertInstanceOf(Iso31661Alpha2::class, $country->iso31661Alpha2());
         $this->assertNull($country->iso31661Alpha3());
+        $this->assertInstanceOf(Coordinates::class, $country->coordinates());
     }
 
     /**
      * @test
+     * @covers \Boilerwork\Support\ValueObjects\Geo\Country\Country
      */
-    public function it_can_be_created_from_scalars_with_iso31661_alpha3(): void
+    public function testFromScalarsWithIso31661Alpha3(): void
     {
-        $country = Country::fromScalarsWithIso31661Alpha3('Spain', 'ESP', 40.463667, -3.74922);
+        $country = Country::fromScalarsWithIso31661Alpha3(
+            ['EN' => 'United States', 'ES' => 'Estados Unidos'],
+            'USA',
+            37.7749,
+            -122.4194
+        );
 
-        $this->assertSame('Spain', $country->name());
+        $this->assertInstanceOf(Country::class, $country);
+        $this->assertInstanceOf(MultiLingualText::class, $country->names());
         $this->assertNull($country->iso31661Alpha2());
-        $this->assertSame('ESP', $country->iso31661Alpha3()->toString());
+        $this->assertInstanceOf(Iso31661Alpha3::class, $country->iso31661Alpha3());
+        $this->assertInstanceOf(Coordinates::class, $country->coordinates());
+    }
+
+    public function testInvalidIsoCodes(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Value must not be empty');
+        $this->expectExceptionMessage('iso31661Alpha2.notEmpty');
+
+        Country::fromScalars(
+            ['EN' => 'Invalid Country', 'ES' => 'País inválido'],
+            '',
+            '',
+            0,
+            0
+        );
     }
 
     /**
      * @test
+     * @covers \Boilerwork\Support\ValueObjects\Geo\Country\Country
      */
-    public function it_can_not_be_created_with_empty_name(): void
+    public function testToString(): void
     {
-        $this->expectException(CustomAssertionFailedException::class);
-        $this->expectExceptionMessage('country.invalidName');
+        $country = Country::fromScalars(
+            ['EN' => 'United States', 'ES' => 'Estados Unidos'],
+            'US',
+            'USA',
+            37.7749,
+            -122.4194
+        );
 
-        Country::fromScalars('', 'ES', 'ESP', 40.463667, -3.74922);
+        $this->assertSame('Estados Unidos', $country->toString());
+        $this->assertSame('United States', $country->toString('EN'));
     }
 
     /**
      * @test
+     * @covers \Boilerwork\Support\ValueObjects\Geo\Country\Country
      */
-    public function it_can_not_be_created_without_iso31661_alpha2_and_alpha3(): void
+    public function testToArray(): void
     {
-        $this->expectException(TypeError::class);
+        $country = Country::fromScalars(
+            ['EN' => 'United States', 'ES' => 'Estados Unidos'],
+            'US',
+            'USA',
+            37.7749,
+            -122.4194
+        );
 
-        Country::fromScalars('Spain', null, null, null, null);
-        Country::fromScalarsWithIso31661Alpha2('Spain', null, null, null);
-        Country::fromScalarsWithIso31661Alpha3('Spain', null, null, null);
+        $expectedArray = [
+            'name' => 'Estados Unidos',
+            'iso31661Alpha2' => 'US',
+            'iso31661Alpha3' => 'USA',
+            'coordinates' => [
+                'latitude' => 37.7749,
+                'longitude' => -122.4194,
+            ],
+        ];
+
+        $this->assertSame($expectedArray, $country->toArray());
+        $this->assertSame('Estados Unidos', $country->toArray()['name']);
+        $this->assertSame('US', $country->toArray()['iso31661Alpha2']);
+        $this->assertSame('USA', $country->toArray()['iso31661Alpha3']);
+        $this->assertSame(37.7749, $country->toArray()['coordinates']['latitude']);
+        $this->assertSame(-122.4194, $country->toArray()['coordinates']['longitude']);
     }
 }

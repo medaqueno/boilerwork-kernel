@@ -12,8 +12,12 @@ final class CriteriaDto
     private function __construct(
         private readonly array $params,
         private readonly ?string $orderBy,
+        private readonly ?string $language,
     ) {
         Assert::lazy()
+            ->that($language)
+            ->nullOr()
+            ->notEmpty('Language must not be empty if present', 'language.notEmpty')
             ->that($orderBy)
             ->nullOr()
             // Only allow <string>,<ASC DESC asc desc> format
@@ -60,16 +64,22 @@ final class CriteriaDto
         ];
     }
 
-    public static function create(array $params = [], ?string $orderBy = null): static
+    public function language(): ?string
+    {
+        return $this->language;
+    }
+
+    public static function create(array $params = [], ?string $orderBy = null, ?string $language = null): static
     {
         return new static(
             params: $params,
-            orderBy: $orderBy
+            orderBy: $orderBy,
+            language: $language,
         );
     }
 
     public function hash(): string
     {
-        return md5(implode('', $this->params) . $this->orderBy ?? '');
+        return md5(implode('', $this->params) . $this->orderBy ?? '' . $this->language ?? '');
     }
 }

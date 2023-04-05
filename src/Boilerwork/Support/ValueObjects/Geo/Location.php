@@ -21,7 +21,7 @@ class Location extends ValueObject
         private readonly Coordinates $coordinates,
     ) {
         Assert::lazy()->tryAll()
-            ->that($name)
+            ->that($name->toArray())
             ->notEmpty('Name must not be empty', 'location.invalidName')
             ->verifyNow();
     }

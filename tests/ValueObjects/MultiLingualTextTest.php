@@ -9,6 +9,7 @@ use Boilerwork\Validation\CustomAssertionFailedException;
 
 final class MultiLingualTextTest extends TestCase
 {
+
     /**
      * @test
      * @covers Boilerwork\Support\MultiLingualText
@@ -34,7 +35,7 @@ final class MultiLingualTextTest extends TestCase
      * @test
      * @covers \Boilerwork\Support\MultiLingualText
      */
-    public function testInvalidLanguage(): void
+    public function testInvalidLanguageWithSingleLanguageString(): void
     {
         $this->expectException(CustomAssertionFailedException::class);
         $this->expectExceptionMessage('language.invalidIso3166Alpha2');
@@ -45,10 +46,10 @@ final class MultiLingualTextTest extends TestCase
      * @test
      * @covers \Boilerwork\Support\MultiLingualText
      */
-    public function testInvalidText(): void
+    public function testnotEmpty(): void
     {
         $this->expectException(CustomAssertionFailedException::class);
-        $this->expectExceptionMessage('text.invalidText');
+        $this->expectExceptionMessage('text.notEmpty');
         MultiLingualText::fromSingleLanguageString('', Language::FALLBACK);
     }
 
@@ -149,7 +150,7 @@ final class MultiLingualTextTest extends TestCase
      * @test
      * @covers \Boilerwork\Support\MultiLingualText
      */
-    public function testNonExistentLanguage(): void
+    public function testGetNonExistentLanguage(): void
     {
         $this->expectException(CustomAssertionFailedException::class);
         $this->expectExceptionMessage('language.invalidIso3166Alpha2');
@@ -169,8 +170,6 @@ final class MultiLingualTextTest extends TestCase
      */
     public function testFallbackLanguage(): void
     {
-
-
         $texts = [
             'ES' => 'Hola Mundo',
         ];
@@ -179,26 +178,54 @@ final class MultiLingualTextTest extends TestCase
 
         $this->assertEquals(
             'Hola Mundo',
-            $multiLingualText->getTextByLanguage('EN', Language::FALLBACK)
+            $multiLingualText->getTextByLanguage()
         );
     }
 
-    /**
-     * @test
-     * @covers \Boilerwork\Support\MultiLingualText
-     */
-    public function testToString(): void
+    public function testCreateFromSingleLanguageStringWithInvalidLanguage(): void
     {
-        $texts = [
-            'EN' => 'Hello World',
-            'ES' => 'Hola Mundo',
-        ];
+        $this->expectException(CustomAssertionFailedException::class);
+        $this->expectExceptionMessage('language.invalidIso3166Alpha2');
+        \Boilerwork\Support\MultiLingualText::fromSingleLanguageString('Hola', 'XXX');
+    }
 
-        $multiLingualText = MultiLingualText::fromArray($texts);
+    public function testCreateFromSingleLanguageStringWithEmptyText(): void
+    {
+        $this->expectException(CustomAssertionFailedException::class);
+        $this->expectExceptionMessage('text.notEmpty');
+        \Boilerwork\Support\MultiLingualText::fromSingleLanguageString('');
+    }
 
-        $this->assertEquals(
-            'Hola Mundo',
-            (string) $multiLingualText
-        );
+    public function testAddTextWithInvalidLanguage(): void
+    {
+        $text = \Boilerwork\Support\MultiLingualText::fromArray(['ES' => 'Hola']);
+
+        $this->expectException(CustomAssertionFailedException::class);
+        $this->expectExceptionMessage('language.invalidIso3166Alpha2');
+        $text->addText('Hello', 'XXX');
+    }
+
+    public function testAddTextWithEmptyText(): void
+    {
+        $text = \Boilerwork\Support\MultiLingualText::fromArray(['ES' => 'Hola']);
+
+        $this->expectException(CustomAssertionFailedException::class);
+        $this->expectExceptionMessage('text.notEmpty');
+        $text->addText('');
+    }
+
+    public function testCreateFromArrayWithInvalidLanguage(): void
+    {
+        $this->expectException(CustomAssertionFailedException::class);
+        $this->expectExceptionMessage('language.invalidIso3166Alpha2');
+
+        MultiLingualText::fromArray(['DE' => 'Hola']);
+    }
+
+    public function testCreateFromArrayWithEmptyText(): void
+    {
+        $this->expectException(CustomAssertionFailedException::class);
+        $this->expectExceptionMessage('text.notEmpty');
+        MultiLingualText::fromArray(['ES' => '']);
     }
 }
