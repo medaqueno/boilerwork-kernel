@@ -72,7 +72,7 @@ class Country extends ValueObject
 
     public function toString(string $language = Language::FALLBACK): string
     {
-        return $this->name($language);
+        return $this->nameByLanguage($language);
     }
 
     public function names(): MultiLingualText
@@ -80,9 +80,14 @@ class Country extends ValueObject
         return $this->name;
     }
 
-    public function name(string $language = Language::FALLBACK): string
+    public function nameByLanguage(string $language = Language::FALLBACK): string
     {
         return $this->name->getTextByLanguage($language);
+    }
+
+    public function name(): string
+    {
+        return $this->name->getDefaultText();
     }
 
     public function iso31661Alpha2(): ?Iso31661Alpha2
