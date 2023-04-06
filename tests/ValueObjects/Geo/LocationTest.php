@@ -21,8 +21,8 @@ class LocationTest extends TestCase
         );
 
         $this->assertInstanceOf(Location::class, $location);
-        $this->assertSame('Test Location', $location->name('EN'));
-        $this->assertSame('Ubicación de prueba', $location->name('ES'));
+        $this->assertSame('Test Location', $location->nameByLanguage('EN'));
+        $this->assertSame('Ubicación de prueba', $location->nameByLanguage('ES'));
         $this->assertSame('US', $location->iso31661Alpha2()->toString());
         $this->assertEquals(new Coordinates(37.7749, -122.4194), $location->coordinates());
     }
@@ -45,7 +45,7 @@ class LocationTest extends TestCase
             ],
         ];
 
-        $this->assertSame($expected, $location->toArray('EN'));
+        $this->assertSame($expected, $location->toArray());
     }
 
     public function testInvalidIso31661Alpha2(): void

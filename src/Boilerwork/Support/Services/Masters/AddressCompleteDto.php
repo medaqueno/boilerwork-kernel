@@ -7,6 +7,10 @@ namespace Boilerwork\Support\Services\Masters;
 use Boilerwork\Support\Services\Masters\Countries\CountryEntity;
 use Boilerwork\Support\Services\Masters\Locations\LocationEntity;
 use Boilerwork\Support\ValueObjects\Geo\Address\Address;
+use Boilerwork\Support\ValueObjects\Geo\Country\Country;
+use Boilerwork\Support\ValueObjects\Geo\Location;
+use Boilerwork\Support\ValueObjects\Identity;
+use Boilerwork\Support\ValueObjects\Language\Language;
 
 readonly class AddressCompleteDto
 {
@@ -24,6 +28,53 @@ readonly class AddressCompleteDto
     ): self {
         return new self(address: $address, location: $location, country: $country);
     }
+
+    public static function fromJson(string $json, string $lang = Language::FALLBACK): self
+    {
+        $data = json_decode($json, true);
+
+        $addressData     = $data['address'] ?? [];
+        $streetData      = $addressData['street'] ?? [];
+        $coordinatesData = $addressData['coordinates'] ?? null;
+        $address         = Address::fromScalars(
+            $streetData['name'],
+            $streetData['number'] ?? null,
+            $streetData['other1'] ?? null,
+            $streetData['other2'] ?? null,
+            $addressData['administrativeArea1'] ?? null,
+            $addressData['administrativeArea2'] ?? null,
+            $addressData['postalCode'] ?? null,
+            $coordinatesData['latitude'] ?? null,
+            $coordinatesData['longitude'] ?? null,
+        );
+
+        $locationData            = $data['location'];
+        $locationCoordinatesData = $locationData['coordinates'] ?? null;
+        $location                = new LocationEntity(
+            Identity::fromString($locationData['id']),
+            Location::fromScalars(
+                [$lang ?? Language::FALLBACK => $locationData['name'][$lang] ?? $locationData['name'][Language::FALLBACK]],
+                $locationData['iso31661Alpha2'],
+                $locationCoordinatesData['latitude'] ?? null,
+                $locationCoordinatesData['longitude'] ?? null,
+            )
+        );
+
+        $countryData            = $data['country'];
+        $countryCoordinatesData = $countryData['coordinates'] ?? null;
+        $country                = new CountryEntity(
+            Identity::fromString($countryData['id']),
+            Country::fromScalarsWithIso31661Alpha2(
+                [$lang ?? Language::FALLBACK => $countryData['name'][$lang] ?? $countryData['name'][Language::FALLBACK]],
+                $countryData['iso31661Alpha2'] ?? '',
+                $countryCoordinatesData['latitude'] ?? null,
+                $countryCoordinatesData['longitude'] ?? null,
+            )
+        );
+
+        return new self(address: $address, location: $location, country: $country);
+    }
+
 
     public function address(): Address
     {
@@ -50,12 +101,12 @@ readonly class AddressCompleteDto
      *         coordinates: array{latitude: float, longitude: float}|null
      *     },
      *     location: array{
-     *         name: string,
+     *         name: string|null,
      *         iso31661Alpha2: string,
      *         coordinates: array{latitude: float, longitude: float}
      *     },
      *     country: array{
-     *         name: string,
+     *         name: string|null,
      *         iso31661Alpha2: string|null,
      *         iso31661Alpha3: string|null,
      *         coordinates: array{latitude: float, longitude: float}|null
@@ -69,9 +120,9 @@ readonly class AddressCompleteDto
     public function toArray(): array
     {
         return [
-            'address' => $this->address()->toArray(),
+            'address'  => $this->address()->toArray(),
             'location' => $this->location()->toArray(),
-            'country' => $this->country()->toArray(),
+            'country'  => $this->country()->toArray(),
         ];
     }
 }

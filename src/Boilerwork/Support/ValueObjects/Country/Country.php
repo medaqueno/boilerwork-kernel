@@ -1,86 +1,126 @@
-#!/usr/bin/env php
 <?php
 
 declare(strict_types=1);
 
-namespace Boilerwork\Support\ValueObjects\Country;
+namespace Boilerwork\Support\ValueObjects\Geo\Country;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
+use Boilerwork\Support\MultiLingualText;
+use Boilerwork\Support\ValueObjects\Geo\Coordinates;
+use Boilerwork\Support\ValueObjects\Language\Language;
+use Boilerwork\Validation\Assert;
 
-/**
- *  Creates UUID using Symfony\Polyfill implementation, which turns out to be faster than pecl extension.
- **/
-final class Country extends ValueObject
+class Country extends ValueObject
 {
-    public function __construct(
-        protected Iso31661Alpha2Code $iso31661Alpha2Code,
-        protected Iso31661Alpha3Code $iso31661Alpha3Code,
-        protected string $englishName,
+    private function __construct(
+        private readonly MultiLingualText $name,
+        private readonly ?Iso31661Alpha2 $iso31661Alpha2,
+        private readonly ?Iso31661Alpha3 $iso31661Alpha3,
+        private readonly ?Coordinates $coordinates
     ) {
+        Assert::lazy()->tryAll()
+            ->that($iso31661Alpha2)
+            ->satisfy(function () use ($iso31661Alpha2, $iso31661Alpha3) {
+                return $iso31661Alpha2 !== null || $iso31661Alpha3 !== null;
+            }, 'At least one ISO 31661-X must be provided', 'country.notFoundIso')
+            ->verifyNow();
     }
 
-    public static function fromIso31661Alpha2Code(Iso31661Alpha2Code $code): static
+    public static function fromScalars(
+        array $name,
+        string $iso31661Alpha2,
+        string $iso31661Alpha3,
+        ?float $latitude,
+        ?float $longitude
+    ): self {
+
+        return new self(
+            name: MultiLingualText::fromArray($name),
+            iso31661Alpha2: Iso31661Alpha2::fromString($iso31661Alpha2),
+            iso31661Alpha3: Iso31661Alpha3::fromString($iso31661Alpha3),
+            coordinates: ($latitude !== null && $longitude !== null) ? Coordinates::fromScalars($latitude, $longitude) : null
+        );
+    }
+
+    public static function fromScalarsWithIso31661Alpha2(
+        array $name,
+        string $iso31661Alpha2,
+        ?float $latitude,
+        ?float $longitude
+    ): self {
+        return new self(
+            name: MultiLingualText::fromArray($name),
+            iso31661Alpha2: Iso31661Alpha2::fromString($iso31661Alpha2),
+            iso31661Alpha3: null,
+            coordinates: ($latitude !== null && $longitude !== null) ? Coordinates::fromScalars($latitude, $longitude) : null
+        );
+    }
+
+    public static function fromScalarsWithIso31661Alpha3(
+        array $name,
+        string $iso31661Alpha3,
+        ?float $latitude,
+        ?float $longitude
+    ): self {
+        return new self(
+            name: MultiLingualText::fromArray($name),
+            iso31661Alpha2: null,
+            iso31661Alpha3: Iso31661Alpha3::fromString($iso31661Alpha3),
+            coordinates: ($latitude !== null && $longitude !== null) ? Coordinates::fromScalars($latitude, $longitude) : null
+        );
+    }
+
+    public function toString(string $language = Language::FALLBACK): string
     {
-        $data = DataProvider::fromIso31661Alpha2Code($code);
-
-        $alpha2      = Iso31661Alpha2Code::fromString($data[0]);
-        $alpha3      = Iso31661Alpha3Code::fromString($data[1]);
-
-        $name        = $data[3];
-
-        return new static($alpha2, $alpha3, $name);
+        return $this->name($language);
     }
 
-    public static function fromIso31661Alpha3Code(Iso31661Alpha3Code $code): static
+    public function names(): MultiLingualText
     {
-        $data = DataProvider::fromIso31661Alpha3Code($code);
-
-        $alpha2      = Iso31661Alpha2Code::fromString($data[0]);
-        $alpha3      = Iso31661Alpha3Code::fromString($data[1]);
-        $name        = $data[3];
-
-        return new static($alpha2, $alpha3, $name);
+        return $this->name;
     }
 
-    public function iso31661Alpha2Code(): Iso31661Alpha2Code
+    public function nameByLanguage(?string $language): string
     {
-        return $this->iso31661Alpha2Code;
+        return $this->name->getTextByLanguage($language);
     }
 
-    public function iso31661Alpha3Code(): Iso31661Alpha3Code
+    public function name(): string
     {
-        return $this->iso31661Alpha3Code;
+        return $this->name->getDefaultText();
     }
 
-    public function englishName(): string
+    public function iso31661Alpha2(): ?Iso31661Alpha2
     {
-        return $this->englishName;
+        return $this->iso31661Alpha2;
     }
 
-    public function toPrimitive(): string
+    public function iso31661Alpha3(): ?Iso31661Alpha3
     {
-        return $this->toString();
+        return $this->iso31661Alpha3;
     }
 
-    public function toString(): string
+    public function coordinates(): ?Coordinates
     {
-        return $this->iso31661Alpha2Code()->toPrimitive();
+        return $this->coordinates;
     }
 
-    public function equals(ValueObject $object): bool
-    {
-        return $this->iso31661Alpha2Code->toPrimitive() === $object->iso31661Alpha2Code->toPrimitive()
-            && $this->iso31661Alpha3Code->toPrimitive() === $object->iso31661Alpha3Code->toPrimitive()
-            && $this->englishName === $object->englishName
-            && $object instanceof self;
-    }
-
-    public function toArray(): array
+    /**
+     * @return array{
+     *     name: string|null,
+     *     iso31661Alpha2: string|null,
+     *     iso31661Alpha3: string|null,
+     *     coordinates: array{ latitude: float, longitude: float }|null
+     * }
+     * @see Coordinates::toArray()
+     */
+    public function toArray(string $language = null): array
     {
         return [
-            'iso31661Alpha2Code' => $this->iso31661Alpha2Code()->toPrimitive(),
-            'iso31661Alpha3Code' => $this->iso31661Alpha3Code()->toPrimitive(),
-            'englishName' => $this->englishName(),
+            'name' => $language ? $this->name->getTextByLanguage($language) : $this->name->getDefaultText(),
+            'iso31661Alpha2' => $this->iso31661Alpha2?->toString(),
+            'iso31661Alpha3' => $this->iso31661Alpha3?->toString(),
+            'coordinates' => $this->coordinates?->toArray(),
         ];
     }
 }

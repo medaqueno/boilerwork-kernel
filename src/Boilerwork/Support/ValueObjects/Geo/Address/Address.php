@@ -22,14 +22,14 @@ class Address extends ValueObject
 
     public static function fromScalars(
         string $streetName,
-        ?string $streetNumber,
-        ?string $streetOther1,
-        ?string $streetOther2,
-        ?string $administrativeArea1,
-        ?string $administrativeArea2,
-        ?string $postalCode,
-        ?float $latitude,
-        ?float $longitude,
+        ?string $streetNumber = null,
+        ?string $streetOther1 = null,
+        ?string $streetOther2 = null,
+        ?string $administrativeArea1 = null,
+        ?string $administrativeArea2 = null,
+        ?string $postalCode = null,
+        ?float $latitude = null,
+        ?float $longitude = null,
     ): self {
         return new self(
             street: Street::fromScalars(

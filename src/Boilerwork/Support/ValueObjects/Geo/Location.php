@@ -21,7 +21,7 @@ class Location extends ValueObject
         private readonly Coordinates $coordinates,
     ) {
         Assert::lazy()->tryAll()
-            ->that($name->toArray())
+            ->that($name)
             ->notEmpty('Name must not be empty', 'location.invalidName')
             ->verifyNow();
     }
@@ -32,6 +32,7 @@ class Location extends ValueObject
         float $latitude,
         float $longitude,
     ): self {
+
         return new self(
             name: MultiLingualText::fromArray($name),
             iso31661Alpha2: Iso31661Alpha2::fromString($iso31661Alpha2),
@@ -44,9 +45,14 @@ class Location extends ValueObject
         return $this->name;
     }
 
-    public function name(string $language = Language::FALLBACK): string
+    public function nameByLanguage(string $language = Language::FALLBACK): string
     {
         return $this->name->getTextByLanguage($language);
+    }
+
+    public function name(): string
+    {
+        return $this->name->getDefaultText();
     }
 
     public function iso31661Alpha2(): Iso31661Alpha2
@@ -61,15 +67,15 @@ class Location extends ValueObject
 
     /**
      * @return array{
-     *     name: string,
+     *     name: string|null,
      *     iso31661Alpha2: string,
      *     coordinates: array{latitude: float, longitude: float}
      * }
      */
-    public function toArray(string $language = Language::FALLBACK): array
+    public function toArray(string $language = null): array
     {
         return [
-            'name' => $this->name->getTextByLanguage($language),
+            'name' => $language ? $this->name->getTextByLanguage($language) : $this->name->getDefaultText(),
             'iso31661Alpha2' => $this->iso31661Alpha2()->toString(),
             'coordinates' => $this->coordinates->toArray(),
         ];
