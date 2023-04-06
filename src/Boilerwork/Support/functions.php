@@ -106,3 +106,25 @@ if (!function_exists('logger')) {
         Logger::logger(message: $message, mode: $mode, channel: $channel);
     }
 }
+
+if (!function_exists('attrsToSnakeCase')) {
+    function attrsToSnakeCase($input)
+    {
+        if (is_object($input)) {
+            $input = json_decode(json_encode($input), true);
+        }
+
+        $result = [];
+        foreach ($input as $key => $value) {
+            $snakeKey = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
+
+            if (is_array($value) || is_object($value)) {
+                $value = attrsToSnakeCase((array) $value);
+            }
+
+            $result[$snakeKey] = $value;
+        }
+
+        return $result;
+    }
+}

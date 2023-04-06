@@ -72,9 +72,9 @@ class AddressTest extends TestCase
                 'other1' => 'Apt 4B',
                 'other2' => 'Building 1'
             ],
-            'administrative_area1' => 'New York',
-            'administrative_area2' => 'NY',
-            'postal_code' => '10001',
+            'administrativeArea1' => 'New York',
+            'administrativeArea2' => 'NY',
+            'postalCode' => '10001',
             'coordinates' => [
                 'latitude' => 40.712776,
                 'longitude' => -74.005974

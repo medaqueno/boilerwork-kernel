@@ -124,8 +124,8 @@ class CountryTest extends TestCase
 
         $expectedArray = [
             'name' => 'Estados Unidos',
-            'iso31661_alpha2' => 'US',
-            'iso31661_alpha3' => 'USA',
+            'iso31661Alpha2' => 'US',
+            'iso31661Alpha3' => 'USA',
             'coordinates' => [
                 'latitude' => 37.7749,
                 'longitude' => -122.4194,
@@ -134,8 +134,8 @@ class CountryTest extends TestCase
 
         $this->assertSame($expectedArray, $country->toArray());
         $this->assertSame('Estados Unidos', $country->toArray()['name']);
-        $this->assertSame('US', $country->toArray()['iso31661_alpha2']);
-        $this->assertSame('USA', $country->toArray()['iso31661_alpha3']);
+        $this->assertSame('US', $country->toArray()['iso31661Alpha2']);
+        $this->assertSame('USA', $country->toArray()['iso31661Alpha3']);
         $this->assertSame(37.7749, $country->toArray()['coordinates']['latitude']);
         $this->assertSame(-122.4194, $country->toArray()['coordinates']['longitude']);
     }

@@ -108,15 +108,15 @@ class AddressCompleteDtoTest extends TestCase
                     'other1' => null,
                     'other2' => null,
                 ],
-                'administrative_area1' => null,
-                'administrative_area2' => null,
-                'postal_code' => null,
+                'administrativeArea1' => null,
+                'administrativeArea2' => null,
+                'postalCode' => null,
                 'coordinates' => null,
             ],
             'location' => [
                 'id' => $locationId->toString(),
                 'name' => 'Test Location',
-                'iso31661_alpha2' => 'US',
+                'iso31661Alpha2' => 'US',
                 'coordinates' => [
                     'latitude' => 37.7749,
                     'longitude' => -122.4194,
@@ -125,8 +125,7 @@ class AddressCompleteDtoTest extends TestCase
             'country' => [
                 'id' => $countryId->toString(),
                 'name' => 'United States',
-                'iso31661_alpha2' => 'US',
-                'iso31661_alpha3' => null,
+                'iso31661Alpha2' => 'US',
                 'coordinates' => [
                     'latitude' => 37.7749,
                     'longitude' => -122.4194,

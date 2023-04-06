@@ -5,8 +5,6 @@ declare(strict_types=1);
 
 namespace Boilerwork\Http;
 
-use Boilerwork\Support\Exceptions\CustomException;
-use Boilerwork\Validation\CustomAssertionFailedException;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\Response\TextResponse;
@@ -15,7 +13,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Throwable;
 
-use function json_decode;
+use function array_map;
+use function is_array;
+use function is_object;
+use function pascalCaseToSnakeCase;
+use function preg_replace;
+use function str_replace;
+use function strtolower;
+use function var_dump;
 
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17
@@ -38,9 +43,10 @@ final class Response
      * Create a configurable Response Object
      * which can be used later
      *
-     * @param string|array $data The response data
-     * @param int $status The HTTP status code
-     * @param array $headers An array of HTTP headers
+     * @param  string|array  $data  The response data
+     * @param  int  $status  The HTTP status code
+     * @param  array  $headers  An array of HTTP headers
+     *
      * @return self
      */
     public static function create(string|array $data = '', int $status = 200, array $headers = []): self
@@ -51,7 +57,8 @@ final class Response
     /**
      * Add metadata to current metadata array
      *
-     * @param array $customMetadata The custom metadata to add
+     * @param  array  $customMetadata  The custom metadata to add
+     *
      * @return self
      */
     public function addMetadata(array $customMetadata): self
@@ -86,8 +93,9 @@ final class Response
     /**
      * Add header to current headers array
      *
-     * @param string $key The header key
-     * @param string $value The header value
+     * @param  string  $key  The header key
+     * @param  string  $value  The header value
+     *
      * @return self
      */
     public function addHeader(string $key, string $value): self
@@ -122,7 +130,8 @@ final class Response
     /**
      * Set Http Status Code
      *
-     * @param int $status The HTTP status code
+     * @param  int  $status  The HTTP status code
+     *
      * @return self
      */
     public function setHttpStatus(int $status): self
@@ -139,8 +148,10 @@ final class Response
      */
     public function toJson(): ResponseInterface
     {
+        $data = attrsToSnakeCase($this->data);
+
         return new JsonResponse(
-            $this->wrapResponse($this->data),
+            $this->wrapResponse($data),
             $this->status,
             $this->headers
         );
@@ -149,15 +160,17 @@ final class Response
     /**
      * Create a ResponseInterface with JSON Format directly
      *
-     * @param mixed $data The response data
-     * @param int $status The HTTP status code
-     * @param array $headers An array of HTTP headers
+     * @param  mixed  $data  The response data
+     * @param  int  $status  The HTTP status code
+     * @param  array  $headers  An array of HTTP headers
+     *
      * @return ResponseInterface
      */
     public static function json(mixed $data = '', int $status = 200, array $headers = []): ResponseInterface
     {
         return (new self(data: $data, status: $status, headers: $headers))->toJson();
     }
+
 
     /**
      * Transform to ResponseInterface with text Format
@@ -182,9 +195,10 @@ final class Response
     /**
      * Create a ResponseInterface with text Format directly
      *
-     * @param string|StreamInterface $data The response data
-     * @param int $status The HTTP status code
-     * @param array $headers An array of HTTP headers
+     * @param  string|StreamInterface  $data  The response data
+     * @param  int  $status  The HTTP status code
+     * @param  array  $headers  An array of HTTP headers
+     *
      * @return ResponseInterface
      */
     public static function text(
@@ -211,8 +225,9 @@ final class Response
     /**
      * Create a ResponseInterface with no content directly
      *
-     * @param int $status The HTTP status code
-     * @param array $headers An array of HTTP headers
+     * @param  int  $status  The HTTP status code
+     * @param  array  $headers  An array of HTTP headers
+     *
      * @return ResponseInterface
      */
     public static function empty(int $status = 204, array $headers = []): ResponseInterface
@@ -248,20 +263,20 @@ final class Response
 
         $result = [
             "error" => [
-                "code" => $code,
+                "code"    => $code,
                 "message" => $message,
-                "errors" => $errors
-            ]
+                "errors"  => $errors,
+            ],
         ];
 
         // Añade información adicional si estamos en modo de depuración
         if (env('APP_DEBUG') === 'true') {
             $result['error']['dev'] = [
                 "message" => $th->getMessage(),
-                "file" => $th->getFile(),
-                "line" => $th->getLine(),
+                "file"    => $th->getFile(),
+                "line"    => $th->getLine(),
                 "request" => $request,
-                "trace" => env('TRACE_ERRORS') === "true" ? $th->getTrace() : null,
+                "trace"   => env('TRACE_ERRORS') === "true" ? $th->getTrace() : null,
             ];
         }
 

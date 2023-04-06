@@ -95,9 +95,9 @@ class Address extends ValueObject
     {
         return [
             'street' => $this->street->toArray(),
-            'administrative_area1' => $this->administrativeArea1?->toString(),
-            'administrative_area2' => $this->administrativeArea2?->toString(),
-            'postal_code' => $this->postalCode?->toString(),
+            'administrativeArea1' => $this->administrativeArea1?->toString(),
+            'administrativeArea2' => $this->administrativeArea2?->toString(),
+            'postalCode' => $this->postalCode?->toString(),
             'coordinates' => $this->coordinates?->toArray(),
         ];
     }
