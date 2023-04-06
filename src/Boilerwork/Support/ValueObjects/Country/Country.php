@@ -80,7 +80,7 @@ class Country extends ValueObject
         return $this->name;
     }
 
-    public function nameByLanguage(?string $language): string
+    public function nameByLanguage(string $language = Language::FALLBACK): string
     {
         return $this->name->getTextByLanguage($language);
     }
@@ -107,17 +107,17 @@ class Country extends ValueObject
 
     /**
      * @return array{
-     *     name: string|null,
+     *     name: string,
      *     iso31661Alpha2: string|null,
      *     iso31661Alpha3: string|null,
      *     coordinates: array{ latitude: float, longitude: float }|null
      * }
      * @see Coordinates::toArray()
      */
-    public function toArray(string $language = null): array
+    public function toArray(string $language = Language::FALLBACK): array
     {
         return [
-            'name' => $language ? $this->name->getTextByLanguage($language) : $this->name->getDefaultText(),
+            'name' => $this->name->getTextByLanguage($language),
             'iso31661Alpha2' => $this->iso31661Alpha2?->toString(),
             'iso31661Alpha3' => $this->iso31661Alpha3?->toString(),
             'coordinates' => $this->coordinates?->toArray(),
