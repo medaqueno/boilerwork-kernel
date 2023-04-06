@@ -20,9 +20,7 @@ readonly class LocationEntity
     {
         return [
             'id' => $this->id->toString(),
-            'name' => $this->location->name(),
-            'iso31661Alpha2' => $this->location->iso31661Alpha2()->toString(),
-            'coordinates' => $this->location->coordinates()?->toArray(),
+            ...$this->location->toArray()
         ];
     }
 }

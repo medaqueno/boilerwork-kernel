@@ -118,8 +118,8 @@ class Country extends ValueObject
     {
         return [
             'name' => $this->name->getTextByLanguage($language),
-            'iso31661Alpha2' => $this->iso31661Alpha2?->toString(),
-            'iso31661Alpha3' => $this->iso31661Alpha3?->toString(),
+            'iso31661_alpha2' => $this->iso31661Alpha2?->toString(),
+            'iso31661_alpha3' => $this->iso31661Alpha3?->toString(),
             'coordinates' => $this->coordinates?->toArray(),
         ];
     }

@@ -38,7 +38,7 @@ class LocationTest extends TestCase
 
         $expected = [
             'name' => 'Test Location',
-            'iso31661Alpha2' => 'US',
+            'iso31661_alpha2' => 'US',
             'coordinates' => [
                 'latitude' => 37.7749,
                 'longitude' => -122.4194,

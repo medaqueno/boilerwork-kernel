@@ -20,9 +20,7 @@ readonly class CountryEntity
     {
         return [
             'id' => $this->id->toString(),
-            'name' => $this->country->name(),
-            'iso31661Alpha2' => $this->country->iso31661Alpha2()->toString(),
-            'coordinates' => $this->country->coordinates()?->toArray(),
+            ...$this->country->toArray()
         ];
     }
 }

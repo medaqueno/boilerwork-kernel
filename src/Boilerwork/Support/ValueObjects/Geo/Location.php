@@ -45,11 +45,6 @@ class Location extends ValueObject
         return $this->name;
     }
 
-    public function toString(string $language = Language::FALLBACK): string
-    {
-        return $this->nameByLanguage($language);
-    }
-
     public function nameByLanguage(string $language = Language::FALLBACK): string
     {
         return $this->name->getTextByLanguage($language);
@@ -81,7 +76,7 @@ class Location extends ValueObject
     {
         return [
             'name' => $language ? $this->name->getTextByLanguage($language) : $this->name->getDefaultText(),
-            'iso31661Alpha2' => $this->iso31661Alpha2()->toString(),
+            'iso31661_alpha2' => $this->iso31661Alpha2()->toString(),
             'coordinates' => $this->coordinates->toArray(),
         ];
     }
