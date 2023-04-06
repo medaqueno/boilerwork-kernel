@@ -126,6 +126,7 @@ class AddressCompleteDtoTest extends TestCase
                 'id' => $countryId->toString(),
                 'name' => 'United States',
                 'iso31661Alpha2' => 'US',
+                'iso31661Alpha3' => null,
                 'coordinates' => [
                     'latitude' => 37.7749,
                     'longitude' => -122.4194,

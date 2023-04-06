@@ -13,15 +13,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Throwable;
 
-use function array_map;
-use function is_array;
-use function is_object;
-use function pascalCaseToSnakeCase;
-use function preg_replace;
-use function str_replace;
-use function strtolower;
-use function var_dump;
-
 /**
  * Implements Laminas Diactoros PSR-7 and PSR-17
  * https://docs.laminas.dev/laminas-diactoros/v2/overview/
@@ -170,7 +161,6 @@ final class Response
     {
         return (new self(data: $data, status: $status, headers: $headers))->toJson();
     }
-
 
     /**
      * Transform to ResponseInterface with text Format

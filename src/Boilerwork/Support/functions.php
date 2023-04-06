@@ -108,15 +108,33 @@ if (!function_exists('logger')) {
 }
 
 if (!function_exists('attrsToSnakeCase')) {
+
+    function toSnakeCase($string)
+    {
+        if (!is_string($string)) {
+            return $string;
+        }
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $string));
+    }
+
+    function objectToArray($object)
+    {
+        return json_decode(json_encode($object), true);
+    }
+
     function attrsToSnakeCase($input)
     {
+        if (is_string($input)) {
+            return toSnakeCase($input);
+        }
+
         if (is_object($input)) {
-            $input = json_decode(json_encode($input), true);
+            $input = objectToArray($input);
         }
 
         $result = [];
         foreach ($input as $key => $value) {
-            $snakeKey = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
+            $snakeKey = toSnakeCase($key);
 
             if (is_array($value) || is_object($value)) {
                 $value = attrsToSnakeCase((array) $value);

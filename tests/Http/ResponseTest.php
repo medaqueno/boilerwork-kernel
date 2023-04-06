@@ -74,6 +74,7 @@ final class ResponseTest extends TestCase
 
         $this->assertArrayHasKey('metaAttr', $metadata);
         $this->assertArrayHasKey('metaAttr2', $metadata);
+
         $this->assertStringContainsString('"metadata":{"metaAttr":"metaValue","metaAttr2":"metaValue2"}', $resp->toJson()->getBody()->__toString());
     }
 
@@ -126,5 +127,71 @@ final class ResponseTest extends TestCase
         );
 
         $this->assertArrayHasKey('x-header-1', $resp->getHeaders());
+    }
+
+    /**
+     * @test
+     * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
+     **/
+    public function testJsonContentTypeHeader(): void
+    {
+        $data = ['key' => 'value'];
+        $resp = Response::json($data);
+
+        $this->assertEquals('application/json', $resp->getHeaderLine('Content-Type'));
+    }
+
+    /**
+     * @test
+     * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
+     **/
+    public function testJsonResponseStatus(): void
+    {
+        $data = ['key' => 'value'];
+        $statusCode = 201;
+        $resp = Response::json($data, $statusCode);
+        $this->assertEquals($statusCode, $resp->getStatusCode());
+    }
+
+    /**
+     * @test
+     * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
+     **/
+    public function testJsonResponseData(): void
+    {
+        $data = ['key' => 'value'];
+        $resp = Response::json($data);
+        $this->assertJsonStringEqualsJsonString(json_encode(['data' => $data, 'metadata' => []]), $resp->getBody()->__toString());
+    }
+
+    /**
+     * @test
+     * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
+     **/
+    public function testJsonResponseEmptyData(): void
+    {
+        $data = [];
+        $resp = Response::json($data);
+        $this->assertJsonStringEqualsJsonString(json_encode(['data' => $data, 'metadata' => []]), $resp->getBody()->__toString());
+    }
+
+    /**
+     * @test
+     * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
+     **/
+    public function testEmptyResponseDefaultStatus(): void
+    {
+        $resp = Response::empty();
+        $this->assertEquals(204, $resp->getStatusCode());
+    }
+
+    /**
+     * @test
+     * @covers \App\Core\ExampleBoundedContext\UI\Ports\Http\Response
+     **/
+    public function testEmptyResponseBody(): void
+    {
+        $resp = Response::empty();
+        $this->assertEmpty($resp->getBody()->__toString());
     }
 }
