@@ -12,6 +12,11 @@ use Boilerwork\Support\ValueObjects\Geo\Location;
 use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Support\ValueObjects\Language\Language;
 
+use function json_encode;
+
+use const JSON_FORCE_OBJECT;
+use const JSON_UNESCAPED_UNICODE;
+
 readonly class AddressCompleteDto
 {
     private function __construct(
@@ -48,7 +53,8 @@ readonly class AddressCompleteDto
             $coordinatesData['longitude'] ?? null,
         );
 
-        $locationData            = $data['location'];
+        $locationData = $data['location'];
+
         $locationCoordinatesData = $locationData['coordinates'] ?? null;
         $location                = new LocationEntity(
             Identity::fromString($locationData['id']),
@@ -124,5 +130,23 @@ readonly class AddressCompleteDto
             'location' => $this->location()->toArray(),
             'country'  => $this->country()->toArray(),
         ];
+    }
+
+    public function toArrayWithLangs(): array
+    {
+        return [
+            'address'  => $this->address()->toArray(),
+            'location' => $this->location()->toArrayWithLangs(),
+            'country'  => $this->country()->toArrayWithLangs(),
+        ];
+    }
+
+    public function toJsonWithLangs(): string
+    {
+        return json_encode([
+            'address'  => $this->address()->toArray(),
+            'location' => $this->location()->toArrayWithLangs(),
+            'country'  => $this->country()->toArrayWithLangs(),
+        ], JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
     }
 }

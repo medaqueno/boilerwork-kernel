@@ -23,4 +23,12 @@ readonly class CountryEntity
             ...$this->country->toArray()
         ];
     }
+
+    public function toArrayWithLangs(): array
+    {
+        return [
+            'id' => $this->id->toString(),
+            ...$this->country->toArrayWithLangs()
+        ];
+    }
 }

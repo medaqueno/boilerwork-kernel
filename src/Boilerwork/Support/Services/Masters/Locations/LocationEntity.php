@@ -23,4 +23,12 @@ readonly class LocationEntity
             ...$this->location->toArray()
         ];
     }
+
+    public function toArrayWithLangs(): array
+    {
+        return [
+            'id' => $this->id->toString(),
+            ...$this->location->toArrayWithLangs()
+        ];
+    }
 }

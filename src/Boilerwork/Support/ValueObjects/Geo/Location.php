@@ -6,12 +6,9 @@ namespace Boilerwork\Support\ValueObjects\Geo;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Support\MultiLingualText;
-use Boilerwork\Support\ValueObjects\Geo\Coordinates;
 use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha2;
 use Boilerwork\Support\ValueObjects\Language\Language;
 use Boilerwork\Validation\Assert;
-
-use function var_dump;
 
 class Location extends ValueObject
 {
@@ -32,7 +29,6 @@ class Location extends ValueObject
         float $latitude,
         float $longitude,
     ): self {
-
         return new self(
             name: MultiLingualText::fromArray($name),
             iso31661Alpha2: Iso31661Alpha2::fromString($iso31661Alpha2),
@@ -45,17 +41,17 @@ class Location extends ValueObject
         return $this->name;
     }
 
-    public function toString(string $language = Language::FALLBACK): string
+    public function toString(string $language = Language::FALLBACK): ?string
     {
         return $this->nameByLanguage($language);
     }
 
-    public function nameByLanguage(string $language = Language::FALLBACK): string
+    public function nameByLanguage(string $language = Language::FALLBACK): ?string
     {
         return $this->name->getTextByLanguage($language);
     }
 
-    public function name(): string
+    public function name(): ?string
     {
         return $this->name->getDefaultText();
     }
@@ -80,9 +76,18 @@ class Location extends ValueObject
     public function toArray(string $language = null): array
     {
         return [
-            'name' => $language ? $this->name->getTextByLanguage($language) : $this->name->getDefaultText(),
+            'name'           => $language ? $this->name->getTextByLanguage($language) : $this->name->getDefaultText(),
             'iso31661Alpha2' => $this->iso31661Alpha2()->toString(),
-            'coordinates' => $this->coordinates->toArray(),
+            'coordinates'    => $this->coordinates->toArray(),
+        ];
+    }
+
+    public function toArrayWithLangs(): array
+    {
+        return [
+            'name'           => $this->names()->toArray(),
+            'iso31661Alpha2' => $this->iso31661Alpha2()->toString(),
+            'coordinates'    => $this->coordinates->toArray(),
         ];
     }
 }

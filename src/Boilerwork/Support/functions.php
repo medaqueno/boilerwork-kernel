@@ -114,7 +114,7 @@ if (!function_exists('attrsToSnakeCase')) {
         if (!is_string($string)) {
             return $string;
         }
-        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $string));
+        return strtolower(preg_replace('/(?<=[a-z])[A-Z]/', '_$0', $string));
     }
 
     function objectToArray($object)

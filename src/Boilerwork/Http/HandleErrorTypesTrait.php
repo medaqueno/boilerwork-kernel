@@ -13,6 +13,7 @@ use TypeError;
 use function json_decode;
 use function ltrim;
 use function preg_match;
+use function var_dump;
 
 trait HandleErrorTypesTrait
 {
@@ -32,8 +33,12 @@ trait HandleErrorTypesTrait
     {
         $status = 400;
         $code = "typeError";
-        $message = "Wrong parameters given";
+        $message = "Wrong parameters type";
         preg_match('/Argument \#(\d+) \((.*?)\) must be of type (.*?), (.*?) given/', $th->getMessage(), $matches);
+
+        $variableName = 'unknown';
+        $actualType = 'unknown';
+        $expectedType = 'unknown';
 
         if (count($matches) >= 5) {
             $variableName = ltrim($matches[2], '$');
