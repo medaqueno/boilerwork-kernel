@@ -29,7 +29,7 @@ class CountryTest extends TestCase
         );
 
         $this->assertInstanceOf(Country::class, $country);
-        $this->assertInstanceOf(MultiLingualText::class, $country->names());
+        $this->assertInstanceOf(MultiLingualText::class, $country->toNames());
         $this->assertInstanceOf(Iso31661Alpha2::class, $country->iso31661Alpha2());
         $this->assertInstanceOf(Iso31661Alpha3::class, $country->iso31661Alpha3());
         $this->assertInstanceOf(Coordinates::class, $country->coordinates());
@@ -49,7 +49,7 @@ class CountryTest extends TestCase
         );
 
         $this->assertInstanceOf(Country::class, $country);
-        $this->assertInstanceOf(MultiLingualText::class, $country->names());
+        $this->assertInstanceOf(MultiLingualText::class, $country->toNames());
         $this->assertInstanceOf(Iso31661Alpha2::class, $country->iso31661Alpha2());
         $this->assertNull($country->iso31661Alpha3());
         $this->assertInstanceOf(Coordinates::class, $country->coordinates());
@@ -69,7 +69,7 @@ class CountryTest extends TestCase
         );
 
         $this->assertInstanceOf(Country::class, $country);
-        $this->assertInstanceOf(MultiLingualText::class, $country->names());
+        $this->assertInstanceOf(MultiLingualText::class, $country->toNames());
         $this->assertNull($country->iso31661Alpha2());
         $this->assertInstanceOf(Iso31661Alpha3::class, $country->iso31661Alpha3());
         $this->assertInstanceOf(Coordinates::class, $country->coordinates());
@@ -132,8 +132,8 @@ class CountryTest extends TestCase
             ],
         ];
 
-        $this->assertSame($expectedArray, $country->toArray());
-        $this->assertSame('Estados Unidos', $country->toArray()['name']);
+        $this->assertSame($expectedArray, $country->toArray('ES'));
+        $this->assertSame('Estados Unidos', $country->toArray('ES')['name']);
         $this->assertSame('US', $country->toArray()['iso31661Alpha2']);
         $this->assertSame('USA', $country->toArray()['iso31661Alpha3']);
         $this->assertSame(37.7749, $country->toArray()['coordinates']['latitude']);

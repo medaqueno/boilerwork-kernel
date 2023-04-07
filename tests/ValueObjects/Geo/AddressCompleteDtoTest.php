@@ -90,15 +90,15 @@ class AddressCompleteDtoTest extends TestCase
         $address = Address::fromScalars('Main St', '123');
         $location = new LocationEntity(
             $locationId,
-            Location::fromScalars(['ES' => 'Test Location'], 'US', 37.7749, -122.4194)
+            Location::fromScalars(['EN' => 'Test Location'], 'US', 37.7749, -122.4194)
         );
         $country = new CountryEntity(
             $countryId,
-            Country::fromScalarsWithIso31661Alpha2(['ES' => 'United States'], 'US', 37.7749, -122.4194)
+            Country::fromScalarsWithIso31661Alpha2(['EN' => 'United States'], 'US', 37.7749, -122.4194)
         );
 
         $addressCompleteDto = AddressCompleteDto::fromObjects($address, $location, $country);
-        $arrayRepresentation = $addressCompleteDto->toArray();
+        $arrayRepresentation = $addressCompleteDto->toArrayInLang('EN');
 
         $expected = [
             'address' => [

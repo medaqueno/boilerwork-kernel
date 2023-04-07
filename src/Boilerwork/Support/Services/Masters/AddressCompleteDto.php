@@ -12,6 +12,7 @@ use Boilerwork\Support\ValueObjects\Geo\Location;
 use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Support\ValueObjects\Language\Language;
 
+use function json_decode;
 use function json_encode;
 
 use const JSON_FORCE_OBJECT;
@@ -59,7 +60,7 @@ readonly class AddressCompleteDto
         $location                = new LocationEntity(
             Identity::fromString($locationData['id']),
             Location::fromScalars(
-                [$lang ?? Language::FALLBACK => $locationData['name'][$lang] ?? $locationData['name'][Language::FALLBACK]],
+                $locationData['name'],
                 $locationData['iso31661Alpha2'],
                 $locationCoordinatesData['latitude'] ?? null,
                 $locationCoordinatesData['longitude'] ?? null,
@@ -71,7 +72,7 @@ readonly class AddressCompleteDto
         $country                = new CountryEntity(
             Identity::fromString($countryData['id']),
             Country::fromScalarsWithIso31661Alpha2(
-                [$lang ?? Language::FALLBACK => $countryData['name'][$lang] ?? $countryData['name'][Language::FALLBACK]],
+                $countryData['name'],
                 $countryData['iso31661Alpha2'] ?? '',
                 $countryCoordinatesData['latitude'] ?? null,
                 $countryCoordinatesData['longitude'] ?? null,
@@ -98,25 +99,42 @@ readonly class AddressCompleteDto
     }
 
     /**
+     *
      * @return array{
-     *     address: array{
-     *         street: array{name: string, number: string|null, other1: string|null, other2: string|null},
-     *         administrativeArea1: string|null,
-     *         administrativeArea2: string|null,
-     *         postalCode: string|null,
-     *         coordinates: array{latitude: float, longitude: float}|null
-     *     },
-     *     location: array{
-     *         name: string|null,
-     *         iso31661Alpha2: string,
-     *         coordinates: array{latitude: float, longitude: float}
-     *     },
-     *     country: array{
-     *         name: string|null,
-     *         iso31661Alpha2: string|null,
-     *         iso31661Alpha3: string|null,
-     *         coordinates: array{latitude: float, longitude: float}|null
-     *     }
+     * address: {
+     *  street: {
+     *      name: array,
+     *      number: null|string,
+     *      other1: null|string,
+     *      other2: null|string
+     *  },
+     *  administrative_area1: null|string,
+     *  administrative_area2: null|string,
+     *  postal_code: null|string,
+     *  coordinates: {
+     *      latitude: float,
+     *      longitude: float
+     *  }?null
+     *  },
+     * location: {
+     *  id: string,
+     *  name: array,
+     *  iso31661alpha2: string,
+     *  coordinates: {
+     *      latitude: float,
+     *      longitude: float
+     *  }?null
+     *  },
+     * country: {
+     *  id: string,
+     *  name: array,
+     *  iso31661alpha2: string,
+     *  iso31661alpha3: null|string,
+     *  coordinates: {
+     *      latitude: float,
+     *      longitude: float
+     *   }?null
+     *  }
      * }
      *
      * @see Address::toArray()
@@ -132,21 +150,56 @@ readonly class AddressCompleteDto
         ];
     }
 
-    public function toArrayWithLangs(): array
+    /**
+     *
+     * @return array{
+     * address: {
+     *  street: {
+     *      name: string,
+     *      number: null|string,
+     *      other1: null|string,
+     *      other2: null|string
+     *  },
+     *  administrative_area1: null|string,
+     *  administrative_area2: null|string,
+     *  postal_code: null|string,
+     *  coordinates: {
+     *      latitude: float,
+     *      longitude: float
+     *  }?null
+     *  },
+     * location: {
+     *  id: string,
+     *  name: string,
+     *  iso31661alpha2: string,
+     *  coordinates: {
+     *      latitude: float,
+     *      longitude: float
+     *  }?null
+     *  },
+     * country: {
+     *  id: string,
+     *  name: string,
+     *  iso31661alpha2: string,
+     *  iso31661alpha3: null|string,
+     *  coordinates: {
+     *      latitude: float,
+     *      longitude: float
+     *   }?null
+     *  }
+     * }
+     */
+    public function toArrayInLang(?string $lang): array
     {
         return [
             'address'  => $this->address()->toArray(),
-            'location' => $this->location()->toArrayWithLangs(),
-            'country'  => $this->country()->toArrayWithLangs(),
+            'location' => $this->location()->toArray($lang),
+            'country'  => $this->country()->toArray($lang),
         ];
     }
 
-    public function toJsonWithLangs(): string
+    public function toJson(): string
     {
-        return json_encode([
-            'address'  => $this->address()->toArray(),
-            'location' => $this->location()->toArrayWithLangs(),
-            'country'  => $this->country()->toArrayWithLangs(),
-        ], JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
+        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
     }
 }

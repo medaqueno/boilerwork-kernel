@@ -9,7 +9,7 @@ use Boilerwork\Persistence\Adapters\ElasticSearch\ElasticSearchAdapter;
 use Boilerwork\Support\ValueObjects\Geo\Country\Country;
 use Boilerwork\Support\ValueObjects\Identity;
 
-use function var_dump;
+use function trim;
 
 final class CountriesService implements CountriesInterface
 {

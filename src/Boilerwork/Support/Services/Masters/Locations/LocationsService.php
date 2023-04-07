@@ -9,6 +9,8 @@ use Boilerwork\Persistence\Adapters\ElasticSearch\ElasticSearchAdapter;
 use Boilerwork\Support\ValueObjects\Geo\Location;
 use Boilerwork\Support\ValueObjects\Identity;
 
+use function trim;
+
 final class LocationsService implements LocationsInterface
 {
     public const LOCATIONS_INDEX = 'all_locations';

@@ -16,19 +16,11 @@ readonly class LocationEntity
     ) {
     }
 
-    public function toArray(): array
+    public function toArray(?string $lang = null): array
     {
         return [
             'id' => $this->id->toString(),
-            ...$this->location->toArray()
-        ];
-    }
-
-    public function toArrayWithLangs(): array
-    {
-        return [
-            'id' => $this->id->toString(),
-            ...$this->location->toArrayWithLangs()
+            ...$this->location->toArray($lang)
         ];
     }
 }

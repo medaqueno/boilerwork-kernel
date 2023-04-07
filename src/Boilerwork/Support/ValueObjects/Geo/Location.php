@@ -17,10 +17,15 @@ class Location extends ValueObject
         private readonly Iso31661Alpha2 $iso31661Alpha2,
         private readonly Coordinates $coordinates,
     ) {
-        Assert::lazy()->tryAll()
-            ->that($name)
-            ->notEmpty('Name must not be empty', 'location.invalidName')
-            ->verifyNow();
+        $names = $name->toArray();
+        foreach ($names as $name) {
+            Assert::lazy()->tryAll()
+                  ->that($name)
+                  ->string('Value must be a string', 'name.invalidType')
+                  ->notEmpty('Value must not be empty', 'name.notEmpty')
+                  ->maxLength(128, 'Value must be 128 characters length', 'name.invalidLength')
+                  ->verifyNow();
+        }
     }
 
     public static function fromScalars(
@@ -36,24 +41,14 @@ class Location extends ValueObject
         );
     }
 
-    public function names(): MultiLingualText
+    public function toNames(): MultiLingualText
     {
         return $this->name;
     }
 
-    public function toString(string $language = Language::FALLBACK): ?string
-    {
-        return $this->nameByLanguage($language);
-    }
-
-    public function nameByLanguage(string $language = Language::FALLBACK): ?string
+    public function name(string $language = Language::FALLBACK): ?string
     {
         return $this->name->getTextByLanguage($language);
-    }
-
-    public function name(): ?string
-    {
-        return $this->name->getDefaultText();
     }
 
     public function iso31661Alpha2(): Iso31661Alpha2
@@ -66,28 +61,17 @@ class Location extends ValueObject
         return $this->coordinates;
     }
 
-    /**
-     * @return array{
-     *     name: string|null,
-     *     iso31661Alpha2: string,
-     *     coordinates: array{latitude: float, longitude: float}
-     * }
-     */
-    public function toArray(string $language = null): array
+    public function toArray(?string $lang = null): array
     {
         return [
-            'name'           => $language ? $this->name->getTextByLanguage($language) : $this->name->getDefaultText(),
+            'name'           => $lang ? $this->name($lang) : $this->toNames()->toArray(),
             'iso31661Alpha2' => $this->iso31661Alpha2()->toString(),
             'coordinates'    => $this->coordinates->toArray(),
         ];
     }
 
-    public function toArrayWithLangs(): array
+    public function toString(string $language = Language::FALLBACK): ?string
     {
-        return [
-            'name'           => $this->names()->toArray(),
-            'iso31661Alpha2' => $this->iso31661Alpha2()->toString(),
-            'coordinates'    => $this->coordinates->toArray(),
-        ];
+        return $this->name($language);
     }
 }
