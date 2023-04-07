@@ -31,7 +31,7 @@ trait Criteria
     private function addCriteriaOrderBy(array $orderBy): QueryBuilder
     {
         if (is_string($orderBy['sort'])) {
-            return $this->queryBuilder->addOrderBy(sort: sprintf('(lower(immutable_unaccent (%s)))', $orderBy['sort']), order: $orderBy['operator']);
+            return $this->queryBuilder->addOrderBy(sort: sprintf('(lower(immutable_unaccent (%s::TEXT)))', $orderBy['sort']), order: $orderBy['operator']);
         }
 
         return $this->queryBuilder->addOrderBy(sort: sprintf('%s', $orderBy['sort']), order: $orderBy['operator']);
