@@ -13,6 +13,7 @@ use function json_encode;
 use function sprintf;
 
 use const JSON_PRETTY_PRINT;
+use const PHP_EOL;
 
 final class MessageProcessor
 {
@@ -69,16 +70,18 @@ final class MessageProcessor
                             } catch (\Throwable $th) {
                                 error(
                                     sprintf(
-                                        'ERROR HANDLED PROCESSING MESSAGE RECEIVED: %s || Error Message: %s',
-                                        json_encode($messageReceived, JSON_PRETTY_PRINT),
-                                        $th->getMessage()
+                                        'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
+                                        $th->getMessage(),
+                                        PHP_EOL,
+                                        json_encode($messageReceived, JSON_PRETTY_PRINT)
                                     ),
                                 );
 
                                 echo sprintf(
-                                    'ERROR HANDLED PROCESSING MESSAGE RECEIVED: %s || Error Message: %s',
-                                    json_encode($messageReceived, JSON_PRETTY_PRINT),
-                                    $th->getMessage()
+                                    'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
+                                    $th->getMessage(),
+                                    PHP_EOL,
+                                    json_encode($messageReceived, JSON_PRETTY_PRINT)
                                 );
                             }
                         }
