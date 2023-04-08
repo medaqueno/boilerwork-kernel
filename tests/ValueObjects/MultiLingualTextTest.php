@@ -27,7 +27,7 @@ final class MultiLingualTextTest extends TestCase
 
         $this->assertEquals(
             $text,
-            $multiLingualText->getTextByLanguage($language)
+            $multiLingualText->toStringByLang($language)
         );
     }
 
@@ -69,12 +69,12 @@ final class MultiLingualTextTest extends TestCase
 
         $this->assertEquals(
             $text1,
-            $multiLingualText->getTextByLanguage($language1)
+            $multiLingualText->toStringByLang($language1)
         );
 
         $this->assertEquals(
             $text2,
-            $multiLingualText->getTextByLanguage($language2)
+            $multiLingualText->toStringByLang($language2)
         );
     }
 
@@ -108,12 +108,12 @@ final class MultiLingualTextTest extends TestCase
 
         $this->assertEquals(
             'Hello World',
-            $multiLingualText->getTextByLanguage('EN')
+            $multiLingualText->toStringByLang('EN')
         );
 
         $this->assertEquals(
             'Hola Mundo',
-            $multiLingualText->getTextByLanguage('ES')
+            $multiLingualText->toStringByLang('ES')
         );
     }
 
@@ -161,7 +161,7 @@ final class MultiLingualTextTest extends TestCase
         ];
 
         $multiLingualText = MultiLingualText::fromArray($texts);
-        $multiLingualText->getTextByLanguage('FR');
+        $multiLingualText->toStringByLang('FR');
     }
 
     /**
@@ -178,7 +178,7 @@ final class MultiLingualTextTest extends TestCase
 
         $this->assertEquals(
             'Hola Mundo',
-            $multiLingualText->getTextByLanguage()
+            $multiLingualText->toStringByLang()
         );
     }
 

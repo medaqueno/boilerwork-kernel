@@ -20,11 +20,11 @@ class Location extends ValueObject
         $names = $name->toArray();
         foreach ($names as $name) {
             Assert::lazy()->tryAll()
-                  ->that($name)
-                  ->string('Value must be a string', 'name.invalidType')
-                  ->notEmpty('Value must not be empty', 'name.notEmpty')
-                  ->maxLength(128, 'Value must be 128 characters length', 'name.invalidLength')
-                  ->verifyNow();
+                ->that($name)
+                ->string('Value must be a string', 'name.invalidType')
+                ->notEmpty('Value must not be empty', 'name.notEmpty')
+                ->maxLength(128, 'Value must be 128 characters length', 'name.invalidLength')
+                ->verifyNow();
         }
     }
 
@@ -48,7 +48,7 @@ class Location extends ValueObject
 
     public function name(string $language = Language::FALLBACK): ?string
     {
-        return $this->name->getTextByLanguage($language);
+        return $this->name->toStringByLang($language);
     }
 
     public function iso31661Alpha2(): Iso31661Alpha2

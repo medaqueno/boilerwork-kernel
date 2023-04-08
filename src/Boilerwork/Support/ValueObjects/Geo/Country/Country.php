@@ -24,19 +24,19 @@ class Country extends ValueObject
         $names = $name->toArray();
         foreach ($names as $name) {
             Assert::lazy()->tryAll()
-                  ->that($name)
-                  ->string('Value must be a string', 'countryName.invalidType')
-                  ->notEmpty('Value must not be empty', 'countryName.notEmpty')
-                  ->maxLength(128, 'Value must be 128 characters length', 'countryName.invalidLength')
-                  ->verifyNow();
+                ->that($name)
+                ->string('Value must be a string', 'countryName.invalidType')
+                ->notEmpty('Value must not be empty', 'countryName.notEmpty')
+                ->maxLength(128, 'Value must be 128 characters length', 'countryName.invalidLength')
+                ->verifyNow();
         }
 
         Assert::lazy()->tryAll()
-              ->that($iso31661Alpha2)
-              ->satisfy(function () use ($iso31661Alpha2, $iso31661Alpha3) {
-                  return $iso31661Alpha2 !== null || $iso31661Alpha3 !== null;
-              }, 'At least one ISO 31661-X must be provided', 'country.notFoundIso')
-              ->verifyNow();
+            ->that($iso31661Alpha2)
+            ->satisfy(function () use ($iso31661Alpha2, $iso31661Alpha3) {
+                return $iso31661Alpha2 !== null || $iso31661Alpha3 !== null;
+            }, 'At least one ISO 31661-X must be provided', 'country.notFoundIso')
+            ->verifyNow();
     }
 
     public static function fromScalars(
@@ -98,7 +98,7 @@ class Country extends ValueObject
 
     public function name(string $language = Language::FALLBACK): ?string
     {
-        return $this->name->getTextByLanguage($language);
+        return $this->name->toStringByLang($language);
     }
 
     public function iso31661Alpha2(): ?Iso31661Alpha2

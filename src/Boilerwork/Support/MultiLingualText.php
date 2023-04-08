@@ -12,6 +12,8 @@ use function array_diff;
 use function array_filter;
 use function array_keys;
 use function array_merge;
+use function array_values;
+use function current;
 use function implode;
 use function json_decode;
 use function json_encode;
@@ -167,21 +169,22 @@ readonly class MultiLingualText
     }
 
     /**
-     * Returns the array with all values.
+     * Returns the default text, which is the first available text in the array.
      *
-     * @return array
+     * @return string|null The default text or null if no texts are available
      */
-    public function toArray(): array
+    private function getDefaultText(): ?string
     {
-        return $this->texts;
+        return current(array_values($this->texts)) ?: null;
     }
+
 
     /**
      * Returns the text in the required language
      *
      * @throws LazyAssertionException
      */
-    public function getTextByLanguage(string $language = Language::FALLBACK): ?string
+    public function toStringByLang(string $language = Language::FALLBACK): ?string
     {
         Assert::lazy()
             ->tryAll()
@@ -197,13 +200,13 @@ readonly class MultiLingualText
     }
 
     /**
-     * Returns the default text, which is the first available text in the array.
+     * Returns the array with all values.
      *
-     * @return string|null The default text or null if no texts are available
+     * @return array
      */
-    public function getDefaultText(): ?string
+    public function toArray(): array
     {
-        return current(array_values($this->texts)) ?: null;
+        return $this->texts;
     }
 
     /**
@@ -222,9 +225,9 @@ readonly class MultiLingualText
      * @example: { 'ES': 'Text Localised' }
      *
      */
-    public function getJsonTextByLanguage(string $language = Language::FALLBACK): ?string
+    public function toJsonByLang(string $language = Language::FALLBACK): ?string
     {
-        $text = $this->getTextByLanguage($language);
+        $text = $this->toStringByLang($language);
 
         if ($text === null) {
             return null;
