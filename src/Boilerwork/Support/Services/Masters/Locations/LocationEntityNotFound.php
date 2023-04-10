@@ -11,7 +11,7 @@ final readonly class LocationEntityNotFound extends LocationEntity
     {
     }
 
-    public function toArray(): array
+    public function toArray(?string $lang = null): array
     {
         return [];
     }

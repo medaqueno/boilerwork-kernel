@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Boilerwork\Support\Services\Masters\Airports;
 
 use Boilerwork\Support\MultiLingualText;
-use Boilerwork\Support\ValueObjects\Geo\Coordinates;
 use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha2;
 use Boilerwork\Support\ValueObjects\Identity;
 
