@@ -206,6 +206,11 @@ final class DoctrineQueryBuilder
         return $this->queryBuilder->fetchAssociative();
     }
 
+    public function executeQuery(): iterable
+    {
+        $result = $this->queryBuilder->executeQuery();
+    }
+
     /**
      * @deprecated use fetchAssociative()
      */
