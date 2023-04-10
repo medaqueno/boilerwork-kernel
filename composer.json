@@ -17,6 +17,7 @@
     "nikic/fast-route": "^1.3",
     "nikic/iter": "^2.2",
     "openswoole/core": "^22.1",
+    "openzipkin/zipkin": "^3.0",
     "peppeocchi/php-cron-scheduler": "^4.0",
     "php-ds/php-ds": "^1.4",
     "psr/container": "^1.0",
