@@ -28,11 +28,11 @@ readonly class AirportDto
         return [
             'id' => $this->id->toString(),
             'iata' => $this->iata,
-            'name' => $this->nameTranslations->translationsToArray(),
+            'name' => $this->nameTranslations->toArray(),
             'locationId' => $this->locationId->toString(),
-            'locationName' => $this->locationNameTranslations->translationsToArray(),
+            'locationName' => $this->locationNameTranslations->toArray(),
             'isoAlpha2' => $this->isoAlpha2->toString(),
-            'countryName' => $this->countryNameTranslations->translationsToArray(),
+            'countryName' => $this->countryNameTranslations->toArray(),
         ];
     }
 }
