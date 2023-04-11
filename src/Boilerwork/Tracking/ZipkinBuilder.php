@@ -16,6 +16,7 @@ use Zipkin\Tracer;
 use Zipkin\TracingBuilder;
 
 use function env;
+use function var_dump;
 
 
 final class ZipkinBuilder
@@ -44,6 +45,8 @@ final class ZipkinBuilder
         $this->initialSpan = $this->tracer->nextSpan($parentTraceContext);
         $this->initialSpan->setName($this->spanName);
         $this->initialSpan->tag('transactionId', $transactionId->toString());
+
+        $this->initialSpan->start();
     }
 
     private function createZipkinTracer(): Tracer

@@ -8,7 +8,6 @@ namespace Boilerwork\Server;
 use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
 use Boilerwork\Tracking\TrackingContext;
-use Exception;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -16,10 +15,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Throwable;
-
-use function container;
 use function error;
-use function logger;
 use function sprintf;
 
 final class RouterMiddleware implements MiddlewareInterface
@@ -41,7 +37,7 @@ final class RouterMiddleware implements MiddlewareInterface
 
     /**
      *
-     * @param  array  $routes
+     * @param array $routes
      *
      * @return void
      */
@@ -59,7 +55,6 @@ final class RouterMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-
         try {
             $this->dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
                 foreach (self::$routes as $route) {
@@ -71,13 +66,14 @@ final class RouterMiddleware implements MiddlewareInterface
 
             $response = $this->handleRequest($request);
 
-            // End Zipkin global Microservice Span Trace
             if (container()->has(TrackingContext::NAME)) {
+                /**
+                 * @var TrackingContext $trackingContext
+                 */
                 $trackingContext = container()->get(TrackingContext::NAME);
-
-                if ($trackingContext->trazability) {
-                    $trackingContext->trazability->initialSpan->finish();
-                    $trackingContext->trazability->tracer->flush();
+                if ($trackingContext->trazability() !== null) {
+                    $trackingContext->trazability()->initialSpan->finish();
+                    $trackingContext->trazability()->tracer->flush();
                 }
             }
 
@@ -95,9 +91,9 @@ final class RouterMiddleware implements MiddlewareInterface
             return Response::empty(404);
         }
 
-        $code    = $routeInfo[0];
+        $code = $routeInfo[0];
         $handler = $routeInfo[1];
-        $vars    = empty($routeInfo[2]) ? [] : $routeInfo[2];
+        $vars = empty($routeInfo[2]) ? [] : $routeInfo[2];
 
         switch ($code) {
             case \FastRoute\Dispatcher::NOT_FOUND:

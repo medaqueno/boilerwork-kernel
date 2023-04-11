@@ -7,12 +7,15 @@ namespace Boilerwork\Messaging;
 
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Tracking\TrackingContext;
+use Boilerwork\Tracking\ZipkinBuilder;
 use DateTime;
 
 use function container;
+use function env;
 use function json_encode;
 use function sprintf;
 
+use function var_dump;
 use const JSON_PRETTY_PRINT;
 use const PHP_EOL;
 
@@ -62,22 +65,23 @@ final class MessageProcessor
                                 headers: $messageReceived->headers,
                             );
 
+                            /**
+                             * @var TrackingContext $trackingContext
+                             */
+                            $trackingContext = $message->trackingContext();
+
                             // Make it Accesible in local isolated container
-                            container()->instance(TrackingContext::NAME, $message->trackingContext());
+                            container()->instance(TrackingContext::NAME, $trackingContext);
+
 
                             $class = container()->get($item['target']);
                             try {
                                 call_user_func($class, $message);
 
-
                                 // End Zipkin global Microservice Span Trace
-                                if (container()->has(TrackingContext::NAME)) {
-                                    $trackingContext = container()->get(TrackingContext::NAME);
-
-                                    if ($trackingContext->trazability) {
-                                        $trackingContext->trazability->initialSpan->finish();
-                                        $trackingContext->trazability->tracer->flush();
-                                    }
+                                if ($trackingContext->trazability() !== null) {
+                                    $trackingContext->trazability()->initialSpan->finish();
+                                    $trackingContext->trazability()->tracer->flush();
                                 }
                             } catch (\Throwable $th) {
                                 error(
