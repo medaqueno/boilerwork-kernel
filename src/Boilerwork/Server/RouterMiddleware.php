@@ -7,6 +7,7 @@ namespace Boilerwork\Server;
 
 use Boilerwork\Http\Request;
 use Boilerwork\Http\Response;
+use Boilerwork\Tracking\TrackingContext;
 use Exception;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ResponseInterface;
@@ -16,7 +17,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Throwable;
 
+use function container;
 use function error;
+use function logger;
 use function sprintf;
 
 final class RouterMiddleware implements MiddlewareInterface
@@ -66,7 +69,19 @@ final class RouterMiddleware implements MiddlewareInterface
 
             $request = new Request($request);
 
-            return $this->handleRequest($request);
+            $response = $this->handleRequest($request);
+
+            // End Zipkin global Microservice Span Trace
+            if (container()->has(TrackingContext::NAME)) {
+                $trackingContext = container()->get(TrackingContext::NAME);
+
+                if ($trackingContext->trazability) {
+                    $trackingContext->trazability->initialSpan->finish();
+                    $trackingContext->trazability->tracer->flush();
+                }
+            }
+
+            return $response;
         } catch (\Throwable $th) {
             return $this->handleSyncErrors($th, $request);
         }

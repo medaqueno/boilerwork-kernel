@@ -34,13 +34,14 @@ final class Message
             $transactionId =  $this->parsedPayload()->metadata->trackingContext->transactionId;
             $authInfo = (array)$this->parsedPayload()->metadata->trackingContext->authInfo;
         } else {
-            $transactionId = Identity::create()->toPrimitive();
+            $transactionId = Identity::create()->toString();
             $authInfo = [];
         }
 
-        $trackingContext = TrackingContext::fromMessage($transactionId);
+        $trackingContext = TrackingContext::fromMessage($transactionId, $this);
 
         $trackingContext->addAuthInfo(AuthInfo::fromMessage($authInfo));
+
         return $trackingContext;
     }
 }

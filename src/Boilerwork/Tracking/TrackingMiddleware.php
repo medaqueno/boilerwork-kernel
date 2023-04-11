@@ -20,7 +20,8 @@ final class TrackingMiddleware implements MiddlewareInterface
         globalContainer()->setIsolatedContainer(new IsolatedContainer);
 
         $trackingContext = TrackingContext::fromRequest(
-            transactionId: Identity::create()
+            transactionId: Identity::create(),
+            request: $request
         );
 
         // Make it Accesible in local isolated container

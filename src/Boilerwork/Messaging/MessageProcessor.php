@@ -9,6 +9,7 @@ use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Tracking\TrackingContext;
 use DateTime;
 
+use function container;
 use function json_encode;
 use function sprintf;
 
@@ -67,6 +68,17 @@ final class MessageProcessor
                             $class = container()->get($item['target']);
                             try {
                                 call_user_func($class, $message);
+
+
+                                // End Zipkin global Microservice Span Trace
+                                if (container()->has(TrackingContext::NAME)) {
+                                    $trackingContext = container()->get(TrackingContext::NAME);
+
+                                    if ($trackingContext->trazability) {
+                                        $trackingContext->trazability->initialSpan->finish();
+                                        $trackingContext->trazability->tracer->flush();
+                                    }
+                                }
                             } catch (\Throwable $th) {
                                 error(
                                     sprintf(
