@@ -7,6 +7,7 @@ namespace Boilerwork\Support\Services\FeesCalculator\ValueObjects\Money;
 
 use Boilerwork\Support\Services\FeesCalculator\ValueObjects\Currency\Currency;
 use Boilerwork\Foundation\ValueObjects\ValueObject;
+use function sprintf;
 
 final class Money extends ValueObject
 {
@@ -17,14 +18,19 @@ final class Money extends ValueObject
     {
     }
 
-    public static function fromData(float $amount, string $iso3): static
+    public static function fromData(float $amount, string $iso3): self
     {
         $iso3 = Currency::fromIsoCode($iso3);
 
-        return new static ($amount, $iso3);
+        return new self ($amount, $iso3);
     }
 
     public function toPrimitive(): string
+    {
+        return sprintf('%s %s', $this->currency->toPrimitive(), $this->rounded());
+    }
+
+    public function toString(): string
     {
         return sprintf('%s %s', $this->currency->toPrimitive(), $this->rounded());
     }

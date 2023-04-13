@@ -21,14 +21,19 @@ final class DateTime extends ValueObject
             ->verifyNow();
     }
 
-    public static function fromString(string $value, string $timezone = 'UTC'): static
+    public static function now(string $timezone = 'UTC'): self
     {
-        return new static(value: new DateTimeImmutable($value, new DateTimeZone($timezone)));
+        return new self(value: new DateTimeImmutable('now', new DateTimeZone($timezone)));
     }
 
-    public static function fromTimestamp(int $timestamp, string $timezone = 'UTC'): static
+    public static function fromString(string $value, string $timezone = 'UTC'): self
     {
-        return new static(value: (new DateTimeImmutable())->setTimestamp($timestamp)->setTimezone(new DateTimeZone($timezone)));
+        return new self(value: new DateTimeImmutable($value, new DateTimeZone($timezone)));
+    }
+
+    public static function fromTimestamp(int $timestamp, string $timezone = 'UTC'): self
+    {
+        return new self(value: (new DateTimeImmutable())->setTimestamp($timestamp)->setTimezone(new DateTimeZone($timezone)));
     }
 
     public function toAtom(): string
@@ -44,5 +49,10 @@ final class DateTime extends ValueObject
     public function toDateTimeImmutable(): DateTimeImmutable
     {
         return $this->value;
+    }
+
+    public function toDateTime(): \DateTime
+    {
+        return \DateTime::createFromImmutable($this->value);
     }
 }

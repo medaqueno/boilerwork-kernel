@@ -4,7 +4,6 @@
 declare(strict_types=1);
 
 use Boilerwork\Support\ValueObjects\Time\DateTime;
-use Boilerwork\Validation\CustomAssertionFailedException;
 use PHPUnit\Framework\TestCase;
 
 final class DateTimeTest extends TestCase
@@ -61,4 +60,33 @@ final class DateTimeTest extends TestCase
         $invalidTimezone = 'InvalidTimezone';
         DateTime::fromString($dateTimeString, $invalidTimezone);
     }
+
+    public function testNow(): void
+    {
+        $dateTime = DateTime::now();
+
+        $this->assertInstanceOf(DateTime::class, $dateTime);
+
+        $timeDifference = time() - $dateTime->toDateTimeImmutable()->getTimestamp();
+        $this->assertLessThan(2, $timeDifference, 'Time difference should be less than 2 seconds');
+    }
+
+    public function testToDateTimeImmutable(): void
+    {
+        $dateTimeString = '2023-04-08T12:34:56+00:00';
+        $dateTime = DateTime::fromString($dateTimeString);
+
+        $this->assertInstanceOf(DateTimeImmutable::class, $dateTime->toDateTimeImmutable());
+        $this->assertSame($dateTimeString, $dateTime->toDateTimeImmutable()->format(DateTimeImmutable::ATOM));
+    }
+
+    public function testToDateTime(): void
+    {
+        $dateTimeString = '2023-04-08T12:34:56+00:00';
+        $dateTime = DateTime::fromString($dateTimeString);
+
+        $this->assertInstanceOf(\DateTime::class, $dateTime->toDateTime());
+        $this->assertSame($dateTimeString, $dateTime->toDateTime()->format(DateTimeImmutable::ATOM));
+    }
+
 }
