@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 declare(strict_types=1);
@@ -9,9 +8,15 @@ use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Tracking\TrackingContext;
 use DateTime;
 
+use function call_user_func;
+use function container;
+use function error;
+use function explode;
+use function globalContainer;
 use function json_encode;
 use function sprintf;
 
+use function substr;
 use const JSON_PRETTY_PRINT;
 use const PHP_EOL;
 
@@ -21,7 +26,7 @@ final class MessageProcessor
 
     public function __construct(
         private readonly MessagingProviderInterface $subscriptions,
-        private readonly array $topics
+        private readonly array $topics,
     ) {
         $this->messageClient = globalContainer()->get(MessageClientInterface::class);
     }
@@ -31,73 +36,86 @@ final class MessageProcessor
         $consumer = $this->messageClient->subscribe(topics: $this->topics);
 
         if ($consumer === null) {
-            echo "\n\n########\nERROR CONNECTING TO KAFKA BROKER\n########\n\n ";
+            echo "\n\n########\nERROR CONNECTING TO KAFKA BROKER\n########\n\n ";
             unset($consumer);
             throw new \OpenSwoole\Exception("ERROR CONNECTING TO KAFKA BROKER", 500);
-            return;
         }
 
         while (true) {
-            $messageReceived = $consumer->consume($this->messageClient->timeout() * 1000);
+            try {
+                $this->consumeMessage($consumer);
+            } catch (\Throwable $th) {
+                error(sprintf('ERROR HANDLED PROCESSING MESSAGE: %s', $th->getMessage()));
+                echo sprintf('ERROR HANDLED PROCESSING MESSAGE: %s', $th->getMessage());
 
-            // Create an isolated container for each incoming Message
-            globalContainer()->setIsolatedContainer(new IsolatedContainer);
+                continue;
+            }
+        }
+    }
 
-            switch ($messageReceived->err) {
-                case \RD_KAFKA_RESP_ERR_NO_ERROR:
-                    foreach ($this->subscriptions->getSubscriptions() as $item) {
+    private function consumeMessage($consumer): void
+    {
+        $messageReceived = $consumer->consume($this->messageClient->timeout() * 1000);
 
-                        $topicReceived = explode('__', $messageReceived->topic_name)[1];
+        // Create an isolated container for each incoming Message
+        globalContainer()->setIsolatedContainer(new IsolatedContainer());
 
-                        // Empty Payload checks if message is a test or only used to pre-create topic
-                        if ($topicReceived === $item['topic'] && $messageReceived->payload !== '') {
+        switch ($messageReceived->err) {
+            case \RD_KAFKA_RESP_ERR_NO_ERROR:
+                $this->processMessage($messageReceived);
+                break;
+            case \RD_KAFKA_RESP_ERR__PARTITION_EOF:
+                echo "Kafka: No more messages; will wait for more\n";
+                break;
+            case \RD_KAFKA_RESP_ERR__TIMED_OUT:
+                // echo "Kafka: Timed out\n";
+                break;
+            default:
+                error($messageReceived->errstr());
+                throw new \OpenSwoole\Exception($messageReceived->errstr(), $messageReceived->err);
+        }
+    }
 
-                            $message = new Message(
-                                payload: $messageReceived->payload,
-                                topic: $messageReceived->topic_name,
-                                createdAt: (new DateTime())->setTimestamp((int)substr((string)$messageReceived->timestamp, 0, 10)),
-                                error: $messageReceived->err,
-                                key: $messageReceived->key,
-                                headers: $messageReceived->headers,
-                            );
+    private function processMessage($messageReceived): void
+    {
+        foreach ($this->subscriptions->getSubscriptions() as $item) {
+            $topicReceived = explode('__', $messageReceived->topic_name)[1];
 
-                            // Make it Accesible in local isolated container
-                            container()->instance(TrackingContext::NAME, $message->trackingContext());
+            // Empty Payload checks if message is a test or only used to pre-create topic
+            if ($topicReceived === $item['topic'] && $messageReceived->payload !== '') {
+                $message = new Message(
+                    payload  : $messageReceived->payload,
+                    topic    : $messageReceived->topic_name,
+                    createdAt: (new DateTime())->setTimestamp((int)substr((string)$messageReceived->timestamp, 0, 10)),
+                    error    : $messageReceived->err,
+                    key      : $messageReceived->key,
+                    headers  : $messageReceived->headers,
+                );
 
-                            $class = container()->get($item['target']);
-                            try {
-                                call_user_func($class, $message);
-                            } catch (\Throwable $th) {
-                                error(
-                                    sprintf(
-                                        'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
-                                        $th->getMessage(),
-                                        PHP_EOL,
-                                        json_encode($messageReceived, JSON_PRETTY_PRINT)
-                                    ),
-                                );
+                // Make it Accesible in local isolated container
+                container()->instance(TrackingContext::NAME, $message->trackingContext());
 
-                                echo sprintf(
-                                    'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
-                                    $th->getMessage(),
-                                    PHP_EOL,
-                                    json_encode($messageReceived, JSON_PRETTY_PRINT)
-                                );
-                            }
-                        }
-                    }
-                    break;
-                case \RD_KAFKA_RESP_ERR__PARTITION_EOF:
-                    echo "Kafka: No more messages; will wait for more\n";
-                    break;
-                case \RD_KAFKA_RESP_ERR__TIMED_OUT:
-                    // echo "Kafka: Timed out\n";
-                    break;
-                default:
-                    error($messageReceived->errstr());
-                    // var_dump($messageReceived);
-                    throw new \OpenSwoole\Exception($messageReceived->errstr(), $messageReceived->err);
-                    break;
+                $class = container()->get($item['target']);
+                try {
+                    call_user_func($class, $message);
+                } catch (\Throwable $th) {
+                    error(
+                        sprintf(
+                            'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
+                            $th->getMessage(),
+                            PHP_EOL,
+                            json_encode($messageReceived, JSON_PRETTY_PRINT),
+                        ),
+                    );
+                    echo sprintf(
+                        'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
+                        $th->getMessage(),
+                        PHP_EOL,
+                        json_encode($messageReceived, JSON_PRETTY_PRINT),
+                    );
+
+                    continue;
+                }
             }
         }
     }
