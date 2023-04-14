@@ -46,9 +46,9 @@ class Location extends ValueObject
         return $this->name;
     }
 
-    public function name(string $language = Language::FALLBACK): ?string
+    public function name(string $language = Language::FALLBACK): string
     {
-        return $this->name->toStringByLang($language);
+        return $this->name->toStringByLang($language) ?? '';
     }
 
     public function iso31661Alpha2(): Iso31661Alpha2
@@ -70,8 +70,8 @@ class Location extends ValueObject
         ];
     }
 
-    public function toString(string $language = Language::FALLBACK): ?string
+    public function toString(string $language = Language::FALLBACK): string
     {
-        return $this->name($language);
+        return $this->name($language) ?? '';
     }
 }
