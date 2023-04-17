@@ -7,6 +7,16 @@ namespace Boilerwork\Attributes;
 
 use ReflectionAttribute;
 use ReflectionClass;
+use function array_merge;
+use function file_get_contents;
+use function is_array;
+use function is_dir;
+use function pathinfo;
+use function preg_match;
+use function scandir;
+use function token_get_all;
+use const PATHINFO_EXTENSION;
+use const T_CLASS;
 
 final class Attributes
 {
@@ -30,10 +40,20 @@ final class Attributes
                 $namespace = $matches[1];
             }
             // buscar el nombre de la clase
-            if (preg_match('/class ([^\s]+)/', $contents, $matches)) {
-                $className = $matches[1];
+            $tokens = token_get_all($contents);
+            $class_token_index = null;
+
+            foreach ($tokens as $index => $token) {
+                if (is_array($token) && $token[0] === T_CLASS) {
+                    $class_token_index = $index;
+                    break;
+                }
             }
 
+            if ($class_token_index !== null) {
+                $class_name_index = $class_token_index + 2;
+                $className = $tokens[$class_name_index][1];
+            }
 
             if ($namespace !== null && $className !== null) {
 
