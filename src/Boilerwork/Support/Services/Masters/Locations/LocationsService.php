@@ -10,6 +10,7 @@ use Boilerwork\Support\ValueObjects\Geo\Coordinates;
 use Boilerwork\Support\ValueObjects\Geo\Country\Iso31661Alpha2;
 use Boilerwork\Support\ValueObjects\Geo\Location;
 use Boilerwork\Support\ValueObjects\Identity;
+
 use function count;
 use function trim;
 
@@ -19,15 +20,14 @@ final class LocationsService implements LocationsInterface
 
     public function __construct(
         private readonly ElasticSearchAdapter $client,
-    )
-    {
+    ) {
     }
 
     public function getLocationById(string $id): LocationEntity|LocationEntityNotFound
     {
         $params = [
             'index' => self::LOCATIONS_INDEX,
-            'body' => [
+            'body'  => [
                 'query' => [
                     'term' => [
                         'id' => trim($id),
@@ -37,22 +37,26 @@ final class LocationsService implements LocationsInterface
         ];
 
         $response = $this->client->search($params);
+
         return $this->buildLocationEntity($response['hits']['hits']);
     }
 
-    public function searchSimilarLocation(string $locationName, ?Iso31661Alpha2 $iso3166Alpha2, Coordinates $coordinates)
-    {
+    public function searchSimilarLocation(
+        string $locationName,
+        Coordinates $coordinates,
+        ?Iso31661Alpha2 $iso3166Alpha2 = null,
+    ) {
         $params = [
             'index' => self::LOCATIONS_INDEX,
-            'body' => [
+            'body'  => [
                 'query' => [
                     'bool' => [
-                        'must' => [
+                        'must'   => [
                             [
                                 'multi_match' => [
-                                    'query' => $locationName,
+                                    'query'     => $locationName,
                                     'fuzziness' => 'AUTO',
-                                    'fields' => [
+                                    'fields'    => [
                                         'location_es',
                                         'location_en',
                                         'location_local',
@@ -62,7 +66,7 @@ final class LocationsService implements LocationsInterface
                         ],
                         'filter' => [
                             'geo_distance' => [
-                                'distance' => '10km',
+                                'distance'    => '10km',
                                 'coordinates' => [
                                     'lat' => $coordinates->latitude(),
                                     'lon' => $coordinates->longitude(),
@@ -84,6 +88,7 @@ final class LocationsService implements LocationsInterface
         }
 
         $response = $this->client->search($params);
+
         return $this->buildLocationEntity($response['hits']['hits']);
     }
 
@@ -94,15 +99,15 @@ final class LocationsService implements LocationsInterface
             $hit = $hits[0]['_source'];
 
             return new LocationEntity(
-                id: Identity::fromString($hit['id']),
+                id      : Identity::fromString($hit['id']),
                 location: Location::fromScalars(
-                    name: [
+                    name          : [
                         'ES' => $hit['location_es'],
                         'EN' => $hit['location_en'],
                     ],
                     iso31661Alpha2: $hit['iso_alpha_2'],
-                    latitude: $hit['coordinates']['lat'],
-                    longitude: $hit['coordinates']['lon'],
+                    latitude      : $hit['coordinates']['lat'],
+                    longitude     : $hit['coordinates']['lon'],
                 )
             );
         }
