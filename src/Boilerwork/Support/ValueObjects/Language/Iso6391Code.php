@@ -5,12 +5,15 @@ namespace Boilerwork\Support\ValueObjects\Language;
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
 
+use function array_keys;
+use function strtoupper;
+
 final class Iso6391Code extends ValueObject
 {
     public function __construct(
         private string $value
     ) {
-        $this->value = $value = strtolower($value);
+        $this->value = $value = strtoupper($value);
 
         Assert::lazy()->tryAll()
             ->that($value)
