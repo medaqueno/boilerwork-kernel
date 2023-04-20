@@ -7,6 +7,8 @@ namespace Boilerwork\Bus;
 
 use Boilerwork\Foundation\Commands\CommandInterface;
 
+use OpenSwoole\Coroutine;
+
 use function call_user_func;
 use function container;
 use function error;
@@ -30,8 +32,13 @@ final class CommandBus
      */
     public function handle(CommandInterface $command): void
     {
-        go(function () use ($command) {
-            $this->executeHandler($command);
+        Coroutine::create(function () use ($command) {
+            go(function () use ($command) {
+                Coroutine::sleep(1);
+                $this->executeHandler($command);
+            });
+            // Coroutine::sleep(1);
+            // echo "co[1] end\n";
         });
     }
 
