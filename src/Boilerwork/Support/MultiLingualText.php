@@ -17,23 +17,30 @@ use function current;
 use function implode;
 use function json_decode;
 use function json_encode;
+use function var_dump;
+use const JSON_THROW_ON_ERROR;
 
 readonly class MultiLingualText
 {
     private function __construct(private array $texts)
     {
+
+//        $texts = array_filter($texts, function($key) {
+//            return $key === 'ES' || $key === 'EN';
+//        }, ARRAY_FILTER_USE_KEY);
+
         Assert::lazy()
             ->tryAll()
             ->that($texts)
-            ->satisfy(
-                function () use ($texts) {
-                    $diff = array_diff(array_keys($texts), Language::ACCEPTED_LANGUAGES);
-
-                    return empty($diff);
-                },
-                'Language must be: ' . implode(',', Language::ACCEPTED_LANGUAGES),
-                'language.invalidIso3166Alpha2'
-            )
+//            ->satisfy(
+//                function () use ($texts) {
+//                    $diff = array_diff(array_keys($texts), Language::ACCEPTED_LANGUAGES);
+//
+//                    return empty($diff);
+//                },
+//                'Language must be: ' . implode(',', Language::ACCEPTED_LANGUAGES),
+//                'language.invalidIso3166Alpha2'
+//            )
             ->satisfy(
                 function () use ($texts) {
                     $filteredInput = array_filter($texts, function ($value) {
