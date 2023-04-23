@@ -7,35 +7,34 @@ namespace Boilerwork\Persistence\Pools;
 
 use Boilerwork\Support\Singleton;
 use Redis;
-use OpenSwoole\Database\RedisConfig;
-use OpenSwoole\Database\RedisPool as SwooleRedisPool;
+use OpenSwoole\Core\Coroutine\Client\RedisClientFactory;
+use OpenSwoole\Core\Coroutine\Client\RedisConfig;
+use OpenSwoole\Core\Coroutine\Pool\ClientPool;
 
 final class RedisPool
 {
     use Singleton;
 
-    protected readonly SwooleRedisPool $pool;
+    public readonly ClientPool $pool;
 
     /**
      * PostgresqlPool constructor.
      */
     public function __construct()
     {
-        $host = env('REDIS_HOST') ?? 'quadrant-redis';
-        $port = env('REDIS_PORT') ?? 6379;
+        $host     = env('REDIS_HOST') ?? 'quadrant-redis';
+        $port     = env('REDIS_PORT') ?? 6379;
         $password = env('REDIS_PASSWORD') ?? '';
-        $size = env('REDIS_SIZE_CONN') ?? 64;
+        $size     = env('REDIS_SIZE_CONN') ?? 4;
 
-        $this->pool = new SwooleRedisPool(
-            (new RedisConfig())
-                ->withHost($host)
-                ->withPort((int)$port),
-            // ->withAuth('')
-            // ->withDbIndex(0)
-            // ->withTimeout((int)1),
 
-            (int)$size
-        );
+        $config = (new RedisConfig())
+            ->withDbIndex(0)
+            ->withHost($host)
+            ->withPort((int)$port);
+
+        $this->pool = new ClientPool(RedisClientFactory::class, $config, (int)$size);
+        $this->pool->fill();
     }
 
     public function getConn(): Redis

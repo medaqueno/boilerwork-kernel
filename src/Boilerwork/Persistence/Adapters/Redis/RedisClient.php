@@ -18,6 +18,10 @@ use Redis;
         var_dump($redisClient->hGet('SetOneKey', 'hashKey'));
         $redisClient->putConnection();  // Connection must be released
  **/
+/**
+ * 
+ * @deprecated Use RedisAdapter
+ */
 final class RedisClient
 {
     private Redis $conn;
