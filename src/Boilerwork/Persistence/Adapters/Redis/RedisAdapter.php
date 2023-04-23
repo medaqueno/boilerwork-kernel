@@ -17,17 +17,72 @@ use Redis;
  */
 final class RedisAdapter
 {
+    private ?Redis $currentConn = null;
+    private int $connectionUsageCount = 0;
+    private bool $persistentConnection = false;
+    private bool $inTransaction = false;
+
     public function __construct(private RedisPool $pool)
     {
     }
 
     private function execute(callable $callback)
     {
-        $conn = $this->pool->getConn();
+        $conn = $this->getConnection();
         try {
             return $callback($conn);
         } finally {
-            $this->pool->putConn($conn);
+            $this->releaseConnection();
+        }
+    }
+
+    private function getConnection(): Redis
+    {
+        if ($this->currentConn === null) {
+            $this->currentConn = $this->pool->getConn();
+        }
+        $this->connectionUsageCount++;
+        return $this->currentConn;
+    }
+
+    private function releaseConnection(): void
+    {
+        if (!$this->persistentConnection) {
+            $this->connectionUsageCount--;
+            if ($this->connectionUsageCount <= 0) {
+                $this->pool->putConn($this->currentConn);
+                $this->currentConn = null;
+            }
+        }
+    }
+
+    /**
+     * Use the same connection from pool.
+     *
+     *
+     * @example
+     * public function foo1()
+     * {
+     *  $this->redisClient->keepConnection(); // Keep connection
+     *  $this->redisClient->set('example_key', 'example_value', 3600);
+     *  $this->bar();
+     *  $this->redisClient->releasePersistentConnection(); // Release connection
+     * }
+     * public function bar()
+     * {
+     *  $value = $this->redisClient->get('example_key');
+     * }
+     */
+    public function keepConnection(): void
+    {
+        $this->persistentConnection = true;
+    }
+
+    public function releasePersistentConnection(): void
+    {
+        if ($this->persistentConnection) {
+            $this->persistentConnection = false;
+            $this->releaseConnection();
         }
     }
 
@@ -109,18 +164,48 @@ final class RedisAdapter
         });
     }
 
-    public function initTransaction(): Redis
+    /**
+     * Init a transaction that can be used in more than one method
+     *
+     * @example
+     * public function foo1()
+     * {
+     *   $this->redisClient->keepConnection(); // Mantener la conexión
+     *   $this->redisClient->beginTransaction(); // Iniciar la transacción
+     *   $this->redisClient->set('example_key', 'example_value', 3600);
+     *   $this->bar();
+     *   $this->redisClient->commitTransaction(); // Confirmar la transacción
+     *   $this->redisClient->releasePersistentConnection(); // Liberar la conexión
+     * }
+     */
+    public function initTransaction(): void
     {
-        return $this->execute(function (Redis $conn) {
-            return $conn->multi();
-        });
+        if (!$this->inTransaction) {
+            $this->execute(function (Redis $conn) {
+                $conn->multi();
+                $this->inTransaction = true;
+            });
+        }
     }
 
-    public function endTransaction()
+    public function endTransaction(): void
     {
-        return $this->execute(function (Redis $conn) {
-            return $conn->exec();
-        });
+        if ($this->inTransaction) {
+            $this->execute(function (Redis $conn) {
+                $conn->exec();
+                $this->inTransaction = false;
+            });
+        }
+    }
+
+    public function discardTransaction(): void
+    {
+        if ($this->inTransaction) {
+            $this->execute(function (Redis $conn) {
+                $conn->discard();
+                $this->inTransaction = false;
+            });
+        }
     }
 
     /**
@@ -131,6 +216,7 @@ final class RedisAdapter
      * @return mixed The result of the executed command.
      *
      * @example
+     * $redisClient = new RedisClient(new RedisConnectionPool('127.0.0.1', 6379));
      * $result = $redisClient->rawCommand('SET', 'example_key', 'example_value');
      */
     public function rawCommand(string $command, ...$arguments): mixed
@@ -140,16 +226,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Set a key's time to live in seconds.
-     *
-     * @param string $key Redis key
-     * @param int $ttl Time to live in seconds
-     * @return bool
-     *
-     * @example
-     * $redisClient->expire('my_key', 60);
-     */
     public function expire(string $key, int $ttl): bool
     {
         return $this->execute(function (Redis $conn) use ($key, $ttl) {
@@ -157,16 +233,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Add one or more members to a set.
-     *
-     * @param string $key Redis key
-     * @param mixed ...$members Members to add
-     * @return int|bool
-     *
-     * @example
-     * $redisClient->sAdd('my_set', 'member1', 'member2', 'member3');
-     */
     public function sAdd(string $key, ...$members): int|bool
     {
         return $this->execute(function (Redis $conn) use ($key, $members) {
@@ -174,43 +240,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Get all members of a set
-     *
-     * @param string $key
-     * @return array
-     */
-    public function sMembers(string $key): array
-    {
-        return $this->execute(function (Redis $conn) use ($key) {
-            return $conn->sMembers($key);
-        });
-    }
-
-    /**
-     * Remove one or more members from a set
-     *
-     * @param string $key
-     * @param mixed ...$members
-     * @return int|bool
-     */
-    public function sRem(string $key, ...$members): int|bool
-    {
-        return $this->execute(function (Redis $conn) use ($key, $members) {
-            return $conn->sRem($key, ...$members);
-        });
-    }
-
-    /**
-     * Add one or more elements to the end of a list.
-     *
-     * @param string $key Redis key
-     * @param mixed ...$values Values to add
-     * @return int|bool
-     *
-     * @example
-     * $redisClient->rPush('my_list', 'value1', 'value2', 'value3');
-     */
     public function rPush(string $key, ...$values): int|bool
     {
         return $this->execute(function (Redis $conn) use ($key, $values) {
@@ -218,17 +247,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Get a range of elements from a list.
-     *
-     * @param string $key Redis key
-     * @param int $start Start index
-     * @param int $end End index
-     * @return array
-     *
-     * @example
-     * $elements = $redisClient->lRange('my_list', 0, 2);
-     */
     public function lRange(string $key, int $start, int $end): array
     {
         return $this->execute(function (Redis $conn) use ($key, $start, $end) {
@@ -236,12 +254,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Remove and return the first element of a list
-     *
-     * @param string $key
-     * @return mixed
-     */
     public function lPop(string $key): mixed
     {
         return $this->execute(function (Redis $conn) use ($key) {
@@ -249,15 +261,6 @@ final class RedisAdapter
         });
     }
 
-
-    /**
-     * Set the value of an element in a list by its index
-     *
-     * @param string $key
-     * @param int $index
-     * @param mixed $value
-     * @return bool
-     */
     public function lSet(string $key, int $index, $value): bool
     {
         return $this->execute(function (Redis $conn) use ($key, $index, $value) {
@@ -265,17 +268,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Remove elements from a list by value.
-     *
-     * @param string $key Redis key
-     * @param mixed $value Value to remove
-     * @param int $count Number of occurrences to remove
-     * @return int|bool
-     *
-     * @example
-     * $redisClient->lRem('my_list', 'value1', 1);
-     */
     public function lRem(string $key, int $count, $value): int|bool
     {
         return $this->execute(function (Redis $conn) use ($key, $count, $value) {
@@ -346,16 +338,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Get the value of a hash field.
-     *
-     * @param string $key Redis key
-     * @param string $field Hash field
-     * @return string|null
-     *
-     * @example
-     * $value = $redisClient->hGet('my_hash', 'field1');
-     */
     public function hGet(string $key, string $hashKey): string|bool
     {
         return $this->execute(function (Redis $conn) use ($key, $hashKey) {
@@ -363,15 +345,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Get all fields and values of a hash.
-     *
-     * @param string $key Redis key
-     * @return array
-     *
-     * @example
-     * $hash = $redisClient->hGetAll('my_hash');
-     */
     public function hGetAll(string $key): array
     {
         return $this->execute(function (Redis $conn) use ($key) {
@@ -379,18 +352,6 @@ final class RedisAdapter
         });
     }
 
-    // hSet
-    /**
-     * Set the string value of a hash field.
-     *
-     * @param string $key Redis key
-     * @param string $field Hash field
-     * @param string $value Value to set
-     * @return bool
-     *
-     * @example
-     * $redisClient->hSet('my_hash', 'field1', 'value1');
-     */
     public function hSet(string $key, string $hashKey, $value): int|bool
     {
         return $this->execute(function (Redis $conn) use ($key, $hashKey, $value) {
@@ -406,36 +367,7 @@ final class RedisAdapter
     }
 
 
-    /**
-     * Delete one or more hash fields.
-     *
-     * @param string $key Redis key
-     * @param mixed ...$fields Fields to delete
-     * @return int|bool
-     *
-     * @example
-     * $redisClient->hDel('my_hash', 'field1', 'field2');
-     */
-    public function hDel(string $key, ...$fields): int|bool
-    {
-        return $this->execute(function (Redis $conn) use ($key, $fields) {
-            return $conn->hDel($key, ...$fields);
-        });
-    }
-
-
     // JSON Helpers
-
-    /**
-     * Set the JSON value at the specified key.
-     *
-     * @param string $key Redis key
-     * @param string $payload JSON string
-     * @return mixed
-     *
-     * @example
-     * $redisClient->jsonSet('my_key', '{"name": "John", "age": 30}');
-     */
 
     public function jsonSet(string $key, string $payload): mixed
     {
@@ -444,18 +376,6 @@ final class RedisAdapter
         });
     }
 
-    // jsonSetRaw
-    /**
-     * Set the JSON value at the specified key and path.
-     *
-     * @param string $key Redis key
-     * @param string $payload JSON string
-     * @param string $path JSON path
-     * @return mixed
-     *
-     * @example
-     * $redisClient->jsonSetRaw('my_key', '{"name": "John", "age": 30}', '$.user');
-     */
     public function jsonSetRaw(string $key, string $payload, string $path): mixed
     {
         return $this->execute(function (Redis $conn) use ($key, $payload, $path) {
@@ -468,16 +388,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Get the JSON value at the specified key and conditions.
-     *
-     * @param string $key Redis key
-     * @param array ...$conditions Conditions for filtering the JSON value
-     * @return array|null
-     *
-     * @example
-     * $redisClient->jsonGet('my_key', ['age', '>', '25'], ['city', '==', 'New York']);
-     */
     public function jsonGet(string $key, array ...$conditions): array|null
     {
         return $this->execute(function (Redis $conn) use ($key, $conditions) {
@@ -511,12 +421,12 @@ final class RedisAdapter
 
     /**
      * @param string $key
-     * @param array<attribute,operator,value> ...$conditions Conditions for filtering the JSON value
+     * @param array<attribute,operator,value> $conditions
      *
      * @desc Build from variadic a string like: '$..[?(@.attr1=="foo" || @.attr2=="bar")]'
      *      Possible Operators: ==, >, <, >=, <=, !=
      *
-     * $redisClient->jsonGetOr('my_key', ['age', '>', '25'], ['city', '==', 'New York']);
+     * @example -> jsonGet('keyName', ['attr1', '==', 'foo'], ['attr2', '==', 'bar']);
      *
      * @return array
      */
@@ -550,16 +460,6 @@ final class RedisAdapter
         });
     }
 
-    /**
-     * Get the JSON value at the specified key and path.
-     *
-     * @param string $key Redis key
-     * @param string $path JSON path
-     * @return array|null
-     *
-     * @example
-     * $redisClient->jsonGetRaw('my_key', '$.user.name');
-     */
     public function jsonGetRaw(string $key, string $path): array|null
     {
         return $this->execute(function (Redis $conn) use ($key, $path) {
