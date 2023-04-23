@@ -44,48 +44,95 @@ final class LocationsService implements LocationsInterface
     public function searchSimilarLocation(
         string $locationName,
         Coordinates $coordinates,
-        ?Iso31661Alpha2 $iso3166Alpha2 = null,
+        ?Iso31661Alpha2 $iso3166Alpha2,
     ) {
         $params = [
             'index' => self::LOCATIONS_INDEX,
             'body'  => [
                 'query' => [
-                    'bool' => [
-                        'must'   => [
-                            [
-                                'multi_match' => [
-                                    'query'     => $locationName,
-                                    'fuzziness' => 'AUTO',
-                                    'fields'    => [
-                                        'location_es',
-                                        'location_en',
-                                        'location_local',
+                    'function_score' => [
+                        'query'      => [
+                            'bool' => [
+                                'must'   => [
+                                    [
+                                        'multi_match' => [
+                                            'query'                => $locationName,
+                                            'fuzziness'            => 'AUTO',
+                                            'fields'               => [
+                                                'location_es',
+                                                'location_en',
+                                            ],
+                                            'type'                 => 'best_fields',
+                                            'minimum_should_match' => '2<2', // Two words coincidence has priority
+                                        ],
+                                    ],
+                                ],
+                                'filter' => [
+                                    [
+                                        'geo_distance' => [
+                                            'distance'    => '40km',
+                                            'coordinates' => [
+                                                'lat' => $coordinates->latitude(),
+                                                'lon' => $coordinates->longitude(),
+                                            ],
+                                        ],
                                     ],
                                 ],
                             ],
                         ],
-                        'filter' => [
-                            'geo_distance' => [
-                                'distance'    => '10km',
-                                'coordinates' => [
-                                    'lat' => $coordinates->latitude(),
-                                    'lon' => $coordinates->longitude(),
+                        'functions'  => [
+                            [
+                                'exp'    => [
+                                    'coordinates' => [
+                                        'origin' => [
+                                            'lat' => $coordinates->latitude(),
+                                            'lon' => $coordinates->longitude(),
+                                        ],
+                                        'scale'  => '20km',
+                                        'offset' => '20km',
+                                        'decay'  => 0.5,
+                                    ],
                                 ],
+                                'weight' => 2,
                             ],
                         ],
+                        'score_mode' => 'sum',
+                        'boost_mode' => 'multiply',
                     ],
-
+                ],
+                'sort'  => [
+                    [
+                        '_geo_distance' => [
+                            'coordinates' => [
+                                'lat' => $coordinates->latitude(),
+                                'lon' => $coordinates->longitude(),
+                            ],
+                            'order'       => 'asc',
+                            'unit'        => 'km',
+                        ],
+                    ],
+                    [
+                        '_score' => [
+                            'order' => 'desc',
+                        ],
+                    ],
                 ],
             ],
+            'size'  => 1,
+
         ];
 
         if ($iso3166Alpha2) {
-            $params['body']['query']['bool']['must'][] = [
+            $params['body']['query']['function_score']['query']['bool']['must'][] = [
                 'match' => [
-                    'iso_alpha_2' => $iso3166Alpha2->toString(),
+                    'iso_alpha_2' => [
+                        'query' => $iso3166Alpha2->toString(),
+                        'boost' => 3,
+                    ],
                 ],
             ];
         }
+
 
         $response = $this->client->search($params);
 
@@ -99,15 +146,15 @@ final class LocationsService implements LocationsInterface
             $hit = $hits[0]['_source'];
 
             return new LocationEntity(
-                id      : Identity::fromString($hit['id']),
+                id: Identity::fromString($hit['id']),
                 location: Location::fromScalars(
-                    name          : [
+                    name: [
                         'ES' => $hit['location_es'],
                         'EN' => $hit['location_en'],
                     ],
                     iso31661Alpha2: $hit['iso_alpha_2'],
-                    latitude      : $hit['coordinates']['lat'],
-                    longitude     : $hit['coordinates']['lon'],
+                    latitude: $hit['coordinates']['lat'],
+                    longitude: $hit['coordinates']['lon'],
                 )
             );
         }
