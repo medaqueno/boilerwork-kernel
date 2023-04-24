@@ -143,7 +143,7 @@ final class RedisAdapter
      * @return mixed[] The results of the executed commands in the transaction.
      *
      * @example
-     * $results = $redisClient->multi(function (Redis $conn) {
+     * $results = $redisClient->multi(function () {
      *     $conn->set('key1', 'value1');
      *     $conn->set('key2', 'value2');
      *     $conn->get('key1');
@@ -216,7 +216,6 @@ final class RedisAdapter
      * @return mixed The result of the executed command.
      *
      * @example
-     * $redisClient = new RedisClient(new RedisConnectionPool('127.0.0.1', 6379));
      * $result = $redisClient->rawCommand('SET', 'example_key', 'example_value');
      */
     public function rawCommand(string $command, ...$arguments): mixed
