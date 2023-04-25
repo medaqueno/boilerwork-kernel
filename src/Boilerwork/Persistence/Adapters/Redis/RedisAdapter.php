@@ -267,7 +267,7 @@ final class RedisAdapter
         });
     }
 
-    public function lRem(string $key, int $count, $value): int|bool
+    public function lRem(string $key, int $count, $value): int|false
     {
         return $this->execute(function (Redis $conn) use ($key, $count, $value) {
             return $conn->lRem($key, $count, $value);
@@ -337,7 +337,7 @@ final class RedisAdapter
         });
     }
 
-    public function hGet(string $key, string $hashKey): string|bool
+    public function hGet(string $key, string $hashKey): string|false
     {
         return $this->execute(function (Redis $conn) use ($key, $hashKey) {
             return $conn->hGet($key, $hashKey);
@@ -351,7 +351,7 @@ final class RedisAdapter
         });
     }
 
-    public function hSet(string $key, string $hashKey, $value): int|bool
+    public function hSet(string $key, string $hashKey, $value): int|false
     {
         return $this->execute(function (Redis $conn) use ($key, $hashKey, $value) {
             return $conn->hSet($key, $hashKey, $value);
