@@ -22,7 +22,7 @@ final class RedisPool
      */
     public function __construct()
     {
-        $host     = env('REDIS_HOST') ?? 'quadrant-redis';
+        $host     = env('REDIS_HOST');
         $port     = env('REDIS_PORT') ?? 6379;
         $password = env('REDIS_PASSWORD') ?? '';
         $size     = env('REDIS_SIZE_CONN') ?? 4;
@@ -33,13 +33,17 @@ final class RedisPool
             ->withHost($host)
             ->withPort((int)$port);
 
+        if ($password !== '') {
+            $config->withAuth($password);
+        }
+
         $this->pool = new ClientPool(RedisClientFactory::class, $config, (int)$size);
         $this->pool->fill();
     }
 
-    public function getConn(): Redis
+    public function getConn(float $timeOut = -1): Redis
     {
-        return $this->pool->get();
+        return $this->pool->get($timeOut);
     }
 
     public function putConn(Redis $redis): void
