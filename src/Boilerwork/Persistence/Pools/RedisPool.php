@@ -25,7 +25,7 @@ final class RedisPool
         $host     = env('REDIS_HOST');
         $port     = env('REDIS_PORT') ?? 6379;
         $password = env('REDIS_PASSWORD') ?? '';
-        $size     = env('REDIS_SIZE_CONN') ?? 4;
+        $size     = env('REDIS_SIZE_CONN', 2) ?? 2;
 
 
         $config = (new RedisConfig())
@@ -41,9 +41,9 @@ final class RedisPool
         $this->pool->fill();
     }
 
-    public function getConn(float $timeOut = -1): Redis
+    public function getConn(): Redis
     {
-        return $this->pool->get($timeOut);
+        return $this->pool->get();
     }
 
     public function putConn(Redis $redis): void
