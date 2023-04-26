@@ -19,31 +19,24 @@ use Redis;
         $redisClient->putConnection();  // Connection must be released
  **/
 /**
- * 
+ *
  * @deprecated Use RedisAdapter
  */
 final class RedisClient
 {
-    private Redis $conn;
+    private ?Redis $conn = null;
+    private RedisPool $pool;
 
     // private readonly RedisPool $pool;
 
     public function __construct()
     {
-        // $this->pool = globalContainer()->get(RedisPool::class);
-        // $this->pool = new Redis();
-        // $this->pool->connect('127.0.0.1', 6379);
-        //     var_dump($redis->get('key'));
+        $this->pool = new RedisPool();
     }
 
     public function getConnection(): void
     {
-        // $this->conn = $this->pool->getConn();
-        $this->conn = new Redis();
-
-        $host = env('REDIS_HOST') ?? 'quadrant-redis';
-        $port = env('REDIS_PORT') ?? 6379;
-        $this->conn->connect($host, (int)$port);
+        $this->conn = $this->pool->getConn();
     }
 
     /**
@@ -51,8 +44,7 @@ final class RedisClient
      **/
     public function putConnection(): void
     {
-        $this->conn->close();
-        // $this->pool->putConn($this->conn);
+        $this->pool->putConn($this->conn);
     }
 
     public function hGet($key, $hashKey): string|bool
