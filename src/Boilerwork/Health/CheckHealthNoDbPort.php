@@ -23,44 +23,47 @@ final class CheckHealthNoDbPort
 
     public function __invoke(Request $request, array $vars): ResponseInterface
     {
-        try {
+        $checks = [
+            'check_redis' => fn() => $this->checkRedis(),
+            'check_elastic' => fn() => $this->checkElastic(),
+        ];
 
-            $checkRedis = $this->redis->rawCommand('ping');
-            if ($checkRedis !== true) {
-                throw new \Exception('Error connecting Redis', 500);
-            }
+        $status = [];
+        $overallStatus = 'OK';
 
-            $checkElastic = $this->elastic->raw()->ping()->asBool();
-            if ($checkElastic !== true) {
-                throw new \Exception('Error connecting Elastic', 500);
+        foreach ($checks as $checkName => $checkFunction) {
+            $result = $this->executeCheck($checkFunction);
+            $status[$checkName] = $result ? 'ok' : 'ko';
+            if ($result instanceof \Exception) {
+                $status['error'][$checkName] = $result->getMessage();
+                $overallStatus = 'KO';
             }
-        } catch (\Exception $exception) {
-            return Response::json([
-                'appName' => env('APP_NAME'),
-                'data'    => [
-                    'check_writes_db' => 'NO DB NEEDED',
-                    'check_reads_db'  => 'NO DB NEEDED',
-                    'check_redis'  => $checkRedis ? 'ok' : 'ko',
-                    'check_elastic'  => $checkElastic ? 'ok' : 'ko',
-                ],
-                'error'   => [
-                    'exception' => $exception->getMessage(),
-                ],
-                'status'  => 'KO',
-            ], 500);
         }
 
         return Response::json([
             'appName' => env('APP_NAME'),
-            'data'    => [
-                'data' => [
-                    'check_writes_db' => 'NO DB NEEDED',
-                    'check_reads_db'  => 'NO DB NEEDED',
-                    'check_redis'  => $checkRedis ? 'ok' : 'ko',
-                    'check_elastic'  => $checkElastic ? 'ok' : 'ko',
-                ],
-            ],
-            'status'  => 'OK',
-        ], 200);
+            'data'    => $status,
+            'status'  => $overallStatus,
+        ], $overallStatus === 'OK' ? 200 : 500);
+    }
+
+    private function executeCheck(callable $checkFunction): bool|\Exception
+    {
+        try {
+            return $checkFunction();
+        } catch (\Exception $exception) {
+            logger($exception->getMessage());
+            return $exception;
+        }
+    }
+
+    private function checkRedis(): bool
+    {
+        return $this->redis->rawCommand('ping');
+    }
+
+    private function checkElastic(): bool
+    {
+        return $this->elastic->raw()->ping()->asBool();
     }
 }

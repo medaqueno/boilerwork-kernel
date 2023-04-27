@@ -14,8 +14,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Autocomplete;
+use Exception;
 use Generator;
 
 final class DoctrineQueryBuilder
@@ -182,21 +182,19 @@ final class DoctrineQueryBuilder
     {
         try {
             return $this->conn->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->conn->rollBack();
             throw $e;
         }
     }
 
     /**
-     * Return all rows
      * @deprecated use fetchAllAssociative()
      */
     public function fetchAll(): array
     {
         return $this->fetchAllAssociative();
     }
-
 
     /**
      * Return all rows
@@ -213,36 +211,27 @@ final class DoctrineQueryBuilder
             $this->queryBuilder->setMaxResults(self::DEFAULT_LIMIT);
         }
 
-        return $this->queryBuilder->fetchAllAssociative();
+        $result = $this->queryBuilder->fetchAllAssociative();
+        $this->conn->close();
+
+        return $result;
     }
 
     /**
      * Return the first row
      */
-    public function fetchAssociative(): mixed
+    public function fetchAssociative(): array|false
     {
-        return $this->queryBuilder->fetchAssociative();
-    }
+        $result = $this->queryBuilder->fetchAssociative();
+        $this->conn->close();
 
-    public function iterateAssociative(): Generator
-    {
-        return $this->queryBuilder->executeQuery()->iterateAssociative();
-    }
-
-    public function iterateColumn(): Generator
-    {
-        return $this->queryBuilder->executeQuery()->iterateColumn();
-    }
-
-    public function iterateKeyValue(): Generator
-    {
-        return $this->queryBuilder->executeQuery()->iterateKeyValue();
+        return $result;
     }
 
     /**
      * @deprecated use fetchAssociative()
      */
-    public function fetchOne(): mixed
+    public function fetchOne(): array|false
     {
         return $this->fetchAssociative();
     }
@@ -252,7 +241,46 @@ final class DoctrineQueryBuilder
      */
     public function fetchValue(): mixed
     {
-        return $this->queryBuilder->fetchOne();
+        $result = $this->queryBuilder->fetchOne();
+        $this->conn->close();
+
+        return $result;
+    }
+
+    public function iterateAssociative(): Generator
+    {
+        $stmt = $this->queryBuilder->executeQuery();
+        try {
+            foreach ($stmt->iterateAssociative() as $row) {
+                yield $row;
+            }
+        } finally {
+            $this->conn->close();
+        }
+    }
+
+    public function iterateColumn(): Generator
+    {
+        $stmt = $this->queryBuilder->executeQuery();
+        try {
+            foreach ($stmt->iterateColumn() as $row) {
+                yield $row;
+            }
+        } finally {
+            $this->conn->close();
+        }
+    }
+
+    public function iterateKeyValue(): Generator
+    {
+        $stmt = $this->queryBuilder->executeQuery();
+        try {
+            foreach ($stmt->iterateKeyValue() as $row) {
+                yield $row;
+            }
+        } finally {
+            $this->conn->close();
+        }
     }
 
     /**
@@ -502,11 +530,11 @@ final class DoctrineQueryBuilder
 
     public function addPaging(): self
     {
-        if (!container()->has('Paging')) {
+        if (! container()->has('Paging')) {
             return $this;
         }
 
-        /** @var \Boilerwork\Persistence\QueryBuilder\PagingDto */
+        /** @var \Boilerwork\Persistence\QueryBuilder\PagingDto $pagingDto */
         $pagingDto = container()->get('Paging');
 
         $from = $this->queryBuilder->getQueryPart('from');

@@ -25,37 +25,22 @@ final class CheckHealthPort
 
     public function __invoke(Request $request, array $vars): ResponseInterface
     {
-
-        return Response::json([
-            'appName' => env('APP_NAME'),
-            'data'    => [],
-            'status'  => 'OK',
-        ], 200);
-        /*
-        $status = [
-            'check_writes_db' => 'ko',
-            'check_reads_db'  => 'ko',
-            'check_redis'     => 'ko',
-            'check_elastic'   => 'ko',
-            'error'           => '',
+        $checks = [
+            'check_reads_db' => fn() => $this->checkReadsDB(),
+            'check_writes_db' => fn() => $this->checkWritesDB(),
+            'check_redis' => fn() => $this->checkRedis(),
+            'check_elastic' => fn() => $this->checkElastic(),
         ];
 
-        try {
-            $status['check_reads_db'] = $this->checkReadsDB() ? 'ok' : 'ko';
-            $status['check_writes_db'] = $this->checkWritesDB() ? 'ok' : 'ko';
-            $status['check_redis'] = $this->checkRedis() ? 'ok' : 'ko';
-            $status['check_elastic'] = $this->checkElastic() ? 'ok' : 'ko';
-        } catch (\Exception $exception) {
-            // Log the exception if necessary
-            $status['error'] = $exception->getMessage();
-            logger($exception->getMessage());
-        }
-
+        $status = [];
         $overallStatus = 'OK';
-        foreach ($status as $check) {
-            if ($check === 'ko') {
+
+        foreach ($checks as $checkName => $checkFunction) {
+            $result = $this->executeCheck($checkFunction);
+            $status[$checkName] = $result ? 'ok' : 'ko';
+            if ($result instanceof \Exception) {
+                $status['error'][$checkName] = $result->getMessage();
                 $overallStatus = 'KO';
-                break;
             }
         }
 
@@ -63,7 +48,17 @@ final class CheckHealthPort
             'appName' => env('APP_NAME'),
             'data'    => $status,
             'status'  => $overallStatus,
-        ], $overallStatus === 'OK' ? 200 : 500);*/
+        ], $overallStatus === 'OK' ? 200 : 500);
+    }
+
+    private function executeCheck(callable $checkFunction): bool|\Exception
+    {
+        try {
+            return $checkFunction();
+        } catch (\Exception $exception) {
+            logger($exception->getMessage());
+            return $exception;
+        }
     }
 
     private function checkReadsDB(): bool
