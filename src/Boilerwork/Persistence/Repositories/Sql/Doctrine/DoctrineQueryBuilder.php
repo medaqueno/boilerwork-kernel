@@ -16,6 +16,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Autocomplete;
+use Generator;
 
 final class DoctrineQueryBuilder
 {
@@ -32,10 +33,10 @@ final class DoctrineQueryBuilder
     /**
      * Injected configuration from Container
      *
-     * @param array{host: string, dbname: string, user: string, password: string, driver: string} $connectionParams
+     * @param  array{host: string, dbname: string, user: string, password: string, driver: string}  $connectionParams
      */
     public function __construct(
-        private array $connectionParams
+        private array $connectionParams,
     ) {
         $this->conn = DriverManager::getConnection($connectionParams);
     }
@@ -49,6 +50,7 @@ final class DoctrineQueryBuilder
     {
         $this->queryBuilder = $this->conn->createQueryBuilder()
             ->select(...$columns);
+
         return $this;
     }
 
@@ -57,6 +59,7 @@ final class DoctrineQueryBuilder
     {
         $this->queryBuilder = $this->conn->createQueryBuilder()
             ->update($table, $alias);
+
         return $this;
     }
 
@@ -64,6 +67,7 @@ final class DoctrineQueryBuilder
     {
         $this->queryBuilder = $this->conn->createQueryBuilder()
             ->insert($table);
+
         return $this;
     }
 
@@ -71,6 +75,7 @@ final class DoctrineQueryBuilder
     {
         $this->queryBuilder = $this->conn->createQueryBuilder()
             ->delete($table, $alias);
+
         return $this;
     }
 
@@ -96,30 +101,34 @@ final class DoctrineQueryBuilder
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $params Parameters to set
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types ParamsType
+     * @param  list<mixed>|array<string, mixed>  $params  Parameters to set
+     * @param  array<int, int|string|Type|null>|array<string, int|string|Type|null>  $types  ParamsType
      */
     public function setParameters(array $params = [], array $types = []): self
     {
         $this->queryBuilder = $this->queryBuilder->setParameters($params, $types);
+
         return $this;
     }
 
     public function setParameter(int|string $param, mixed $value, mixed $type = null): self
     {
         $this->queryBuilder = $this->queryBuilder->setParameter($param, $value, $type);
+
         return $this;
     }
 
     public function values(array $values = []): self
     {
         $this->queryBuilder = $this->queryBuilder->values($values);
+
         return $this;
     }
 
     public function expr(): self
     {
         $this->queryBuilder = $this->queryBuilder->expr();
+
         return $this;
     }
 
@@ -129,6 +138,7 @@ final class DoctrineQueryBuilder
     public function in(string $x, string|array $y): self
     {
         $this->queryBuilder = $this->queryBuilder->expr()->in($x, $y);
+
         return $this;
     }
 
@@ -140,6 +150,7 @@ final class DoctrineQueryBuilder
     public function set(string $column, ?string $value): self
     {
         $this->queryBuilder = $this->queryBuilder->set($column, $value);
+
         return $this;
     }
 
@@ -150,6 +161,7 @@ final class DoctrineQueryBuilder
     {
         $this->queryBuilder = $this->queryBuilder
             ->set($column, sprintf('%s || :%s', $column, $column));
+
         return $this;
     }
 
@@ -185,13 +197,19 @@ final class DoctrineQueryBuilder
         return $this->fetchAllAssociative();
     }
 
+
     /**
      * Return all rows
-     * If not LIMIT present, a default value is added: @see self::DEFAULT_LIMIT
+     * If not LIMIT present, a default value is added (except in event sourcing db):
+     * @see self::DEFAULT_LIMIT
+     *
      */
     public function fetchAllAssociative(): array
     {
-        if (stripos($this->queryBuilder->getSQL(), 'LIMIT') === false) {
+        if (
+            stripos($this->queryBuilder->getSQL(), 'LIMIT') === false
+            && stripos($this->conn->getDatabase(), '_read') !== false
+        ) {
             $this->queryBuilder->setMaxResults(self::DEFAULT_LIMIT);
         }
 
@@ -206,9 +224,19 @@ final class DoctrineQueryBuilder
         return $this->queryBuilder->fetchAssociative();
     }
 
-    public function executeQuery(): iterable
+    public function iterateAssociative(): Generator
     {
-        $result = $this->queryBuilder->executeQuery();
+        return $this->queryBuilder->executeQuery()->iterateAssociative();
+    }
+
+    public function iterateColumn(): Generator
+    {
+        return $this->queryBuilder->executeQuery()->iterateColumn();
+    }
+
+    public function iterateKeyValue(): Generator
+    {
+        return $this->queryBuilder->executeQuery()->iterateKeyValue();
     }
 
     /**
@@ -281,6 +309,7 @@ final class DoctrineQueryBuilder
     public function from(string $table, string $alias = null): self
     {
         $this->queryBuilder = $this->queryBuilder->from($table, $alias);
+
         return $this;
     }
 
@@ -292,6 +321,7 @@ final class DoctrineQueryBuilder
     public function where(string $condition): self
     {
         $this->queryBuilder = $this->queryBuilder->where($condition);
+
         return $this;
     }
 
@@ -303,6 +333,7 @@ final class DoctrineQueryBuilder
     public function andWhere(string $condition): self
     {
         $this->queryBuilder = $this->queryBuilder->andWhere($condition);
+
         return $this;
     }
 
@@ -312,6 +343,7 @@ final class DoctrineQueryBuilder
     public function orWhere(string $condition): self
     {
         $this->queryBuilder = $this->queryBuilder->orWhere($condition);
+
         return $this;
     }
 
@@ -321,6 +353,7 @@ final class DoctrineQueryBuilder
     public function having(string $cond): self
     {
         $this->queryBuilder->having($cond);
+
         return $this;
     }
 
@@ -330,6 +363,7 @@ final class DoctrineQueryBuilder
     public function orHaving(string $cond): self
     {
         $this->queryBuilder->orHaving($cond);
+
         return $this;
     }
 
@@ -339,6 +373,7 @@ final class DoctrineQueryBuilder
     public function andHaving(string $cond): self
     {
         $this->queryBuilder->andHaving($cond);
+
         return $this;
     }
 
@@ -348,6 +383,7 @@ final class DoctrineQueryBuilder
     public function groupBy(string $groupBy): self
     {
         $this->queryBuilder->groupBy($groupBy);
+
         return $this;
     }
 
@@ -357,6 +393,7 @@ final class DoctrineQueryBuilder
     public function addGroupBy(string $groupBy): self
     {
         $this->queryBuilder->addGroupBy($groupBy);
+
         return $this;
     }
 
@@ -369,6 +406,7 @@ final class DoctrineQueryBuilder
     public function join(string $joinType, string $joinToTable, string $cond): self
     {
         $this->queryBuilder->innerJoin($joinType, $joinToTable, $cond);
+
         return $this;
     }
 
@@ -381,6 +419,7 @@ final class DoctrineQueryBuilder
     public function innerJoin(string $joinType, string $joinToTable, string $cond): self
     {
         $this->queryBuilder->innerJoin($joinType, $joinToTable, $cond);
+
         return $this;
     }
 
@@ -393,6 +432,7 @@ final class DoctrineQueryBuilder
     public function leftJoin(string $joinType, string $joinToTable, string $cond): self
     {
         $this->queryBuilder->leftJoin($joinType, $joinToTable, $cond);
+
         return $this;
     }
 
@@ -405,6 +445,7 @@ final class DoctrineQueryBuilder
     public function rightJoin(string $joinType, string $joinToTable, string $cond): self
     {
         $this->queryBuilder->rightJoin($joinType, $joinToTable, $cond);
+
         return $this;
     }
 
@@ -414,6 +455,7 @@ final class DoctrineQueryBuilder
     public function orderBy(string $sort, string $order = null): self
     {
         $this->queryBuilder->orderBy($sort, $order);
+
         return $this;
     }
 
@@ -423,6 +465,7 @@ final class DoctrineQueryBuilder
     public function addOrderBy(string $sort, string $order = null): self
     {
         $this->queryBuilder->addOrderBy($sort, $order);
+
         return $this;
     }
 
@@ -432,6 +475,7 @@ final class DoctrineQueryBuilder
     public function limit(?int $limit): self
     {
         $this->queryBuilder->setMaxResults($limit);
+
         return $this;
     }
 
@@ -441,14 +485,17 @@ final class DoctrineQueryBuilder
     public function offset(int $offset): self
     {
         $this->queryBuilder->setFirstResult($offset);
+
         return $this;
     }
 
     public function distinct(): self
     {
         $this->queryBuilder->distinct();
+
         return $this;
     }
+
     // END QUERY
 
     private string $primaryColumn = 'id_primary';
@@ -466,6 +513,7 @@ final class DoctrineQueryBuilder
 
         if (count($from) > 1) {
             var_dump("MUCHAS TABLAS");
+
             return $this;
         } else {
             $this->addPagingForOneTable(table: $from[0]['table'], pagingDto: $pagingDto);
@@ -479,12 +527,14 @@ final class DoctrineQueryBuilder
         $countQuery = clone $this->queryBuilder;
         $countQuery->resetQueryParts(['select', 'orderBy']);
         $pagingDto->setTotalCount(
-            $countQuery->addSelect('COUNT(id_primary)')->setMaxResults(1)->fetchOne()
+            $countQuery->addSelect('COUNT(id_primary)')->setMaxResults(1)->fetchOne(),
         );
 
         // We have no results, so we return empty data set as fast as possible
         if ($pagingDto->totalCount() === 0) {
-            $this->queryBuilder->resetQueryParts(['select', 'distinct', 'where', 'join', 'groupBy', 'having', 'orderBy'])
+            $this->queryBuilder->resetQueryParts(
+                ['select', 'distinct', 'where', 'join', 'groupBy', 'having', 'orderBy'],
+            )
                 ->select('1')
                 ->setMaxResults(0);
 
@@ -494,7 +544,11 @@ final class DoctrineQueryBuilder
         if ($pagingDto->page() - 1 >= $pagingDto->totalPages()) {
             throw new PagingException(
                 'pagination.invalidPageRequest',
-                sprintf('Page requested: %u is not valid. Total pages: %u', $pagingDto->page(), $pagingDto->totalPages()),
+                sprintf(
+                    'Page requested: %u is not valid. Total pages: %u',
+                    $pagingDto->page(),
+                    $pagingDto->totalPages(),
+                ),
                 400
             );
         }
@@ -527,6 +581,7 @@ final class DoctrineQueryBuilder
     public function scopePublish(): self
     {
         $this->queryBuilder->andWhere('deleted_at is null');
+
         return $this;
     }
 }
