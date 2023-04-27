@@ -24,34 +24,33 @@ readonly class MultiLingualText
 {
     private function __construct(private array $texts)
     {
-
-        //        $texts = array_filter($texts, function($key) {
-        //            return $key === 'ES' || $key === 'EN';
-        //        }, ARRAY_FILTER_USE_KEY);
+        $texts = array_filter($texts, function ($key) {
+            return $key === 'ES' || $key === 'EN';
+        }, ARRAY_FILTER_USE_KEY);
 
         Assert::lazy()
             ->tryAll()
             ->that($texts)
-            //            ->satisfy(
-            //                function () use ($texts) {
-            //                    $diff = array_diff(array_keys($texts), Language::ACCEPTED_LANGUAGES);
-            //
-            //                    return empty($diff);
-            //                },
-            //                'Language must be: ' . implode(',', Language::ACCEPTED_LANGUAGES),
-            //                'language.invalidIso3166Alpha2'
-            //            )
             ->satisfy(
                 function () use ($texts) {
-                    $filteredInput = array_filter($texts, function ($value) {
-                        return !empty($value);
-                    });
+                    $diff = array_diff(array_keys($texts), Language::ACCEPTED_LANGUAGES);
 
-                    return count($texts) === count($filteredInput);
+                    return empty($diff);
                 },
-                'Text must not be empty',
-                'text.notEmpty'
+                'Language must be: ' . implode(',', Language::ACCEPTED_LANGUAGES),
+                'language.invalidIso3166Alpha2'
             )
+            // ->satisfy(
+            //     function () use ($texts) {
+            //         $filteredInput = array_filter($texts, function ($value) {
+            //             return !empty($value);
+            //         });
+
+            //         return count($texts) === count($filteredInput);
+            //     },
+            //     'Text must not be empty',
+            //     'text.notEmpty'
+            // )
             ->verifyNow();
     }
 
@@ -63,12 +62,11 @@ readonly class MultiLingualText
      */
     public static function fromSingleLanguageString(?string $text, string $language = Language::FALLBACK): self
     {
-        $text = $text ?? '-';
-        Assert::lazy()
-            ->tryAll()
-            ->that($text)
-            ->notEmpty('Text must not be empty', 'text.notEmpty')
-            ->verifyNow();
+        // Assert::lazy()
+        //     ->tryAll()
+        //     ->that($text)
+        //     ->notEmpty('Text must not be empty', 'text.notEmpty')
+        //     ->verifyNow();
 
         return new self([$language => $text]);
     }
