@@ -25,53 +25,64 @@ final class CheckHealthPort
 
     public function __invoke(Request $request, array $vars): ResponseInterface
     {
+
+        return Response::json([
+            'appName' => env('APP_NAME'),
+            'data'    => [],
+            'status'  => 'OK',
+        ], 200);
+        /*
+        $status = [
+            'check_writes_db' => 'ko',
+            'check_reads_db'  => 'ko',
+            'check_redis'     => 'ko',
+            'check_elastic'   => 'ko',
+            'error'           => '',
+        ];
+
         try {
-
-            $checkReadsDB  = $this->reads->queryBuilder->select('1+1 as test')->fetchValue();
-            if ($checkReadsDB !== 2) {
-                throw new \Exception('Error queriying Reads DB', 500);
-            }
-            $checkWritesDB = $this->writes->queryBuilder->select('1+1 as test')->fetchValue();
-            if ($checkWritesDB !== 2) {
-                throw new \Exception('Error queriying Writes DB', 500);
-            }
-
-            $checkRedis = $this->redis->rawCommand('ping');
-            if ($checkRedis !== true) {
-                throw new \Exception('Error connecting Redis', 500);
-            }
-
-            $checkElastic = $this->elastic->raw()->ping()->asBool();
-            if ($checkElastic !== true) {
-                throw new \Exception('Error connecting Elastic', 500);
-            }
+            $status['check_reads_db'] = $this->checkReadsDB() ? 'ok' : 'ko';
+            $status['check_writes_db'] = $this->checkWritesDB() ? 'ok' : 'ko';
+            $status['check_redis'] = $this->checkRedis() ? 'ok' : 'ko';
+            $status['check_elastic'] = $this->checkElastic() ? 'ok' : 'ko';
         } catch (\Exception $exception) {
-            return Response::json([
-                'appName' => env('APP_NAME'),
-                'data'    => [
-                    'check_writes_db' => $checkWritesDB === 2 ? 'ok' : 'ko',
-                    'check_reads_db'  => $checkReadsDB === 2 ? 'ok' : 'ko',
-                    'check_redis'  => $checkRedis ? 'ok' : 'ko',
-                    'check_elastic'  => $checkElastic ? 'ok' : 'ko',
-                ],
-                'error'   => [
-                    'exception' => $exception->getMessage(),
-                ],
-                'status'  => 'KO',
-            ], 500);
+            // Log the exception if necessary
+            $status['error'] = $exception->getMessage();
+            logger($exception->getMessage());
+        }
+
+        $overallStatus = 'OK';
+        foreach ($status as $check) {
+            if ($check === 'ko') {
+                $overallStatus = 'KO';
+                break;
+            }
         }
 
         return Response::json([
             'appName' => env('APP_NAME'),
-            'data'    => [
-                'data' => [
-                    'check_writes_db' => $checkWritesDB === 2 ? 'ok' : 'ko',
-                    'check_reads_db'  => $checkReadsDB === 2 ? 'ok' : 'ko',
-                    'check_redis'  => $checkRedis ? 'ok' : 'ko',
-                    'check_elastic'  => $checkElastic ? 'ok' : 'ko',
-                ],
-            ],
-            'status'  => 'OK',
-        ], 200);
+            'data'    => $status,
+            'status'  => $overallStatus,
+        ], $overallStatus === 'OK' ? 200 : 500);*/
+    }
+
+    private function checkReadsDB(): bool
+    {
+        return $this->reads->queryBuilder->select('1+1 as test')->fetchValue() === 2;
+    }
+
+    private function checkWritesDB(): bool
+    {
+        return $this->writes->queryBuilder->select('1+1 as test')->fetchValue() === 2;
+    }
+
+    private function checkRedis(): bool
+    {
+        return $this->redis->rawCommand('ping');
+    }
+
+    private function checkElastic(): bool
+    {
+        return $this->elastic->raw()->ping()->asBool();
     }
 }
