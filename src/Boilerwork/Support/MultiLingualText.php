@@ -60,7 +60,7 @@ readonly class MultiLingualText
      *
      * @throws LazyAssertionException
      */
-    public static function fromSingleLanguageString(?string $text, string $language = Language::FALLBACK): self
+    public static function fromSingleLanguageString(string $text, string $language = Language::FALLBACK): self
     {
         // Assert::lazy()
         //     ->tryAll()
