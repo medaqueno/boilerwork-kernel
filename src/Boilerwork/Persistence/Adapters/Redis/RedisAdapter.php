@@ -42,18 +42,24 @@ final class RedisAdapter
             $this->currentConn = $this->pool->getConn();
         }
         $this->connectionUsageCount++;
+
         return $this->currentConn;
     }
 
     private function releaseConnection(): void
     {
-        if (!$this->persistentConnection) {
+        if (! $this->persistentConnection) {
             $this->connectionUsageCount--;
             if ($this->connectionUsageCount <= 0) {
                 $this->pool->putConn($this->currentConn);
                 $this->currentConn = null;
             }
         }
+    }
+
+    public function currentConnection(): ?Redis
+    {
+        return $this->currentConn;
     }
 
     /**
@@ -86,10 +92,18 @@ final class RedisAdapter
         }
     }
 
+    public function scan(&$iterator, string $pattern, int $count = 0): mixed
+    {
+        return $this->execute(function (Redis $conn) use (&$iterator, $pattern, $count) {
+            return $conn->scan($iterator, $pattern, $count);
+        });
+    }
+
     /**
      * Get the value of a key.
      *
-     * @param string $key The key to retrieve the value for.
+     * @param  string  $key  The key to retrieve the value for.
+     *
      * @return mixed The value associated with the key, or false if the key does not exist.
      *
      * @example
@@ -105,9 +119,10 @@ final class RedisAdapter
     /**
      * Set the value of a key with an optional timeout.
      *
-     * @param string $key The key to set the value for.
-     * @param string $value The value to set for the key.
-     * @param int|null $timeout The optional timeout in seconds. If not provided, the key will not expire.
+     * @param  string  $key  The key to set the value for.
+     * @param  string  $value  The value to set for the key.
+     * @param  int|null  $timeout  The optional timeout in seconds. If not provided, the key will not expire.
+     *
      * @return bool True if the operation was successful, false otherwise.
      *
      * @example
@@ -123,7 +138,8 @@ final class RedisAdapter
     /**
      * Delete a key.
      *
-     * @param string $key The key to delete.
+     * @param  string  $key  The key to delete.
+     *
      * @return int The number of keys that were removed.
      *
      * @example
@@ -137,9 +153,27 @@ final class RedisAdapter
     }
 
     /**
+     * Check if a key exists
+     *
+     * @param  string  $key  The key to delete.
+     *
+     * @return bool true if exists
+     *
+     * @example
+     * $redisClient->exists('example_key');
+     */
+    public function exists(string $key): bool
+    {
+        return $this->execute(function (Redis $conn) use ($key) {
+            return $conn->exists($key);
+        });
+    }
+
+    /**
      * Execute a series of commands in a transaction.
      *
-     * @param callable $callback A function that takes a Redis connection as a parameter and performs the desired operations.
+     * @param  callable  $callback  A function that takes a Redis connection as a parameter and performs the desired operations.
+     *
      * @return mixed[] The results of the executed commands in the transaction.
      *
      * @example
@@ -156,6 +190,7 @@ final class RedisAdapter
             $conn->multi();
             try {
                 $callback($conn);
+
                 return $conn->exec();
             } catch (\Exception $e) {
                 $conn->discard();
@@ -180,7 +215,7 @@ final class RedisAdapter
      */
     public function initTransaction(): void
     {
-        if (!$this->inTransaction) {
+        if (! $this->inTransaction) {
             $this->execute(function (Redis $conn) {
                 $conn->multi();
                 $this->inTransaction = true;
@@ -211,8 +246,9 @@ final class RedisAdapter
     /**
      * Execute a raw Redis command.
      *
-     * @param string $command The Redis command to execute.
-     * @param mixed ...$arguments The arguments to pass to the command.
+     * @param  string  $command  The Redis command to execute.
+     * @param  mixed  ...$arguments  The arguments to pass to the command.
+     *
      * @return mixed The result of the executed command.
      *
      * @example
@@ -267,10 +303,10 @@ final class RedisAdapter
         });
     }
 
-    public function lRem(string $key, int $count, $value): int|false
+    public function lRem(string $key, $value, int $count): int|false
     {
         return $this->execute(function (Redis $conn) use ($key, $count, $value) {
-            return $conn->lRem($key, $count, $value);
+            return $conn->lRem($key, $value, $count);
         });
     }
 
@@ -382,7 +418,7 @@ final class RedisAdapter
                 'JSON.SET',
                 $key,
                 $path,
-                $payload
+                $payload,
             );
         });
     }
@@ -402,14 +438,14 @@ final class RedisAdapter
                 $res = $conn->rawCommand(
                     'JSON.GET',
                     $key,
-                    $conds
+                    $conds,
                 );
 
                 return is_string($res) ? json_decode($res, true) : null;
             } else {
                 $res = $conn->rawCommand(
                     'JSON.GET',
-                    $key
+                    $key,
                 );
 
                 return is_string($res) ? json_decode($res, true) : null;
@@ -419,15 +455,15 @@ final class RedisAdapter
 
 
     /**
-     * @param string $key
-     * @param array<attribute,operator,value> $conditions
+     * @param  string  $key
+     * @param  array<attribute,operator,value>  $conditions
      *
      * @desc Build from variadic a string like: '$..[?(@.attr1=="foo" || @.attr2=="bar")]'
      *      Possible Operators: ==, >, <, >=, <=, !=
      *
+     * @return array
      * @example -> jsonGet('keyName', ['attr1', '==', 'foo'], ['attr2', '==', 'bar']);
      *
-     * @return array
      */
     public function jsonGetOr(string $key, array ...$conditions): array|null
     {
@@ -444,14 +480,14 @@ final class RedisAdapter
                 $res = $conn->rawCommand(
                     'JSON.GET',
                     $key,
-                    $conds
+                    $conds,
                 );
 
                 return is_string($res) ? json_decode($res, true) : null;
             } else {
                 $res = $conn->rawCommand(
                     'JSON.GET',
-                    $key
+                    $key,
                 );
 
                 return is_string($res) ? json_decode($res, true) : null;
@@ -465,7 +501,7 @@ final class RedisAdapter
             $res = $conn->rawCommand(
                 'JSON.GET',
                 $key,
-                $path
+                $path,
             );
 
             return is_string($res) ? json_decode($res, true) : null;
