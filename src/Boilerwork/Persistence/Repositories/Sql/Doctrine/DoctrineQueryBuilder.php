@@ -7,14 +7,17 @@ namespace Boilerwork\Persistence\Repositories\Sql\Doctrine;
 
 use Boilerwork\Persistence\Exceptions\PagingException;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
+use Boilerwork\Persistence\Repositories\Sql\Doctrine\SwooleDriver\Driver;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\CriteriaExtended;
 use Boilerwork\Support\ValueObjects\Language\Language;
+
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Autocomplete;
+use Doctrine\DBAL\Types\Type;
 use Exception;
 use Generator;
 
@@ -30,17 +33,15 @@ final class DoctrineQueryBuilder
 
     private const DEFAULT_LIMIT = 25;
 
-    /**
-     * Injected configuration from Container
-     *
-     * @param  array{host: string, dbname: string, user: string, password: string, driver: string}  $connectionParams
-     */
     public function __construct(
-        private array $connectionParams,
+        array $connectionParams,
     ) {
-        $this->conn = DriverManager::getConnection($connectionParams);
-    }
 
+        $this->conn = DriverManager::getConnection([
+            ...$connectionParams,
+            'driverClass' => Driver::class,
+        ]);
+    }
     /**
      * @example: ->select('id','title')                      // column name
      * @example: ->select('name AS namecol')          // one way of aliasing
@@ -125,23 +126,6 @@ final class DoctrineQueryBuilder
         return $this;
     }
 
-    public function expr(): self
-    {
-        $this->queryBuilder = $this->queryBuilder->expr();
-
-        return $this;
-    }
-
-    /**
-     * NOT TESTED YET
-     */
-    public function in(string $x, string|array $y): self
-    {
-        $this->queryBuilder = $this->queryBuilder->expr()->in($x, $y);
-
-        return $this;
-    }
-
     /**
      *
      * @example: ->set('u.logins', 'u.logins + 1')
@@ -212,7 +196,7 @@ final class DoctrineQueryBuilder
         }
 
         $result = $this->queryBuilder->fetchAllAssociative();
-        $this->conn->close();
+//        $this->conn->close();
 
         return $result;
     }
@@ -223,7 +207,7 @@ final class DoctrineQueryBuilder
     public function fetchAssociative(): array|false
     {
         $result = $this->queryBuilder->fetchAssociative();
-        $this->conn->close();
+//        $this->conn->close();
 
         return $result;
     }
@@ -242,7 +226,7 @@ final class DoctrineQueryBuilder
     public function fetchValue(): mixed
     {
         $result = $this->queryBuilder->fetchOne();
-        $this->conn->close();
+//        $this->conn->close();
 
         return $result;
     }
@@ -255,7 +239,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            $this->conn->close();
+//            $this->conn->close();
         }
     }
 
@@ -267,7 +251,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            $this->conn->close();
+//            $this->conn->close();
         }
     }
 
@@ -279,7 +263,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            $this->conn->close();
+//            $this->conn->close();
         }
     }
 
