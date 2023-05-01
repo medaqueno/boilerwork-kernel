@@ -14,7 +14,7 @@ final class ReadsRepository
     /**
      * Injected configuration from Container
      *
-     * @param array{host: string, dbname: string, user: string, password: string, driver: string} $connectionParams
+     * @param array{host: string, port: int, dbname: string, user: string, password: string, poolsize: int} $connectionParams
      */
     public function __construct(
         private array $connectionParams,

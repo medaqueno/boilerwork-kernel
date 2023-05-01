@@ -11,7 +11,6 @@ use Boilerwork\Persistence\Repositories\Sql\Doctrine\SwooleDriver\Driver;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\CriteriaExtended;
 use Boilerwork\Support\ValueObjects\Language\Language;
-
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Connection;
@@ -36,12 +35,12 @@ final class DoctrineQueryBuilder
     public function __construct(
         array $connectionParams,
     ) {
-
         $this->conn = DriverManager::getConnection([
             ...$connectionParams,
             'driverClass' => Driver::class,
         ]);
     }
+
     /**
      * @example: ->select('id','title')                      // column name
      * @example: ->select('name AS namecol')          // one way of aliasing
@@ -188,6 +187,7 @@ final class DoctrineQueryBuilder
      */
     public function fetchAllAssociative(): array
     {
+        print_r($this->conn);
         if (
             stripos($this->queryBuilder->getSQL(), 'LIMIT') === false
             && stripos($this->conn->getDatabase(), '_read') !== false
@@ -196,7 +196,7 @@ final class DoctrineQueryBuilder
         }
 
         $result = $this->queryBuilder->fetchAllAssociative();
-//        $this->conn->close();
+        //$this->conn->close();
 
         return $result;
     }
@@ -207,7 +207,7 @@ final class DoctrineQueryBuilder
     public function fetchAssociative(): array|false
     {
         $result = $this->queryBuilder->fetchAssociative();
-//        $this->conn->close();
+        //$this->conn->close();
 
         return $result;
     }
@@ -226,7 +226,7 @@ final class DoctrineQueryBuilder
     public function fetchValue(): mixed
     {
         $result = $this->queryBuilder->fetchOne();
-//        $this->conn->close();
+        //$this->conn->close();
 
         return $result;
     }
@@ -239,7 +239,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-//            $this->conn->close();
+            //$this->conn->close();
         }
     }
 
@@ -251,7 +251,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-//            $this->conn->close();
+            //$this->conn->close();
         }
     }
 
@@ -263,7 +263,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-//            $this->conn->close();
+            //$this->conn->close();
         }
     }
 

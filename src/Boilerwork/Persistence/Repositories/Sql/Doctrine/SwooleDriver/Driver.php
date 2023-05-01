@@ -19,25 +19,47 @@ final class Driver extends AbstractPostgreSQLDriver
     private static ClientPool $pool;
 
     /**
-     * @param array{host: string, port: int, dbname: string, user: string, password: string, poolsize: int} $params
+     * @param array{host: string, port: int, dbname: string, user: string, password: string, poolsize: int} $connectionParams
      */
-    public function connect(array $params): ConnectionInterface
+    public function connect(array $connectionParams): ConnectionInterface
     {
+        /*
         if (! isset(self::$pool)) {
-            $config = (new PostgresConfig())
-                ->withHost($params['host'])
-                ->withPort($params['port'])
-                ->withDbname($params['dbname'])
-                ->withUsername($params['user'])
-                ->withPassword($params['password']);
+             $config = (new PostgresConfig())
+                 ->withHost($connectionParams['host'])
+                 ->withPort($connectionParams['port'])
+                 ->withDbname($connectionParams['dbname'])
+                 ->withUsername($connectionParams['user'])
+                 ->withPassword($connectionParams['password']);
 
-            self::$pool = new ClientPool(PostgresClientFactory::class, $config, $params['poolsize']);
-            self::$pool->fill();
-        }
+             self::$pool = new ClientPool(PostgresClientFactory::class, $config, $connectionParams['poolsize']);
+             self::$pool->fill();
+         }
 
-        $connection = self::$pool->get();
+         $connection = self::$pool->get();
+         defer(static fn() => self::$pool->put($connection));
+        */
 
-        defer(static fn() => self::$pool->put($connection));
+        $connection = $this->createNewConnection($connectionParams);
+        // Free connection
+        defer(static fn() => $connection->reset());
+
         return new Connection($connection);
+    }
+
+    private function createNewConnection(array $connectionParams): PostgreSQL
+    {
+        echo "ENTROOOOO\n\n\n\n";
+        $config = (new PostgresConfig())
+            ->withHost($connectionParams['host'])
+            ->withPort($connectionParams['port'])
+            ->withDbname($connectionParams['dbname'])
+            ->withUsername($connectionParams['user'])
+            ->withPassword($connectionParams['password'] . ';application_name=' . env('APP_NAME'));
+
+        $newConnection = new PostgreSQL();
+        $newConnection->connect($config->getConnectionString());
+
+        return $newConnection;
     }
 }
