@@ -24,6 +24,8 @@ final class Driver extends AbstractPostgreSQLDriver
     public function connect(array $connectionParams): ConnectionInterface
     {
         /*
+         $poolsize = $connectionParams['poolsize'] ?? self::DEFAULT_POOL_SIZE;
+
         if (! isset(self::$pool)) {
              $config = (new PostgresConfig())
                  ->withHost($connectionParams['host'])
@@ -49,7 +51,6 @@ final class Driver extends AbstractPostgreSQLDriver
 
     private function createNewConnection(array $connectionParams): PostgreSQL
     {
-        echo "ENTROOOOO\n\n\n\n";
         $config = (new PostgresConfig())
             ->withHost($connectionParams['host'])
             ->withPort($connectionParams['port'])

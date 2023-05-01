@@ -187,7 +187,6 @@ final class DoctrineQueryBuilder
      */
     public function fetchAllAssociative(): array
     {
-        print_r($this->conn);
         if (
             stripos($this->queryBuilder->getSQL(), 'LIMIT') === false
             && stripos($this->conn->getDatabase(), '_read') !== false

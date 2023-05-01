@@ -14,12 +14,12 @@ final class MastersRepository
     public function __construct()
     {
         $connectionParams = [
-            'host' => env('POSTGRESQL_MASTERS_READS_HOST'),
-            'dbname' => env('POSTGRESQL_MASTERS_READS_DBNAME'),
-            'user' => env('POSTGRESQL_MASTERS_READS_USERNAME'),
-            'password' => env('POSTGRESQL_MASTERS_READS_PASSWORD'),
-            'driver' => 'pdo_pgsql',
-            'maxConnections' => env('POSTGRESQL_MASTERS_SIZE_CONN'),
+            'host'     => (string)env('POSTGRESQL_MASTERS_READS_HOST'),
+            'port'     => (int)env('POSTGRESQL_MASTERS_READS_PORT'),
+            'dbname'   => (string)env('POSTGRESQL_MASTERS_READS_DBNAME'),
+            'user'     => (string)env('POSTGRESQL_MASTERS_READS_USERNAME'),
+            'password' => (string)env('POSTGRESQL_MASTERS_READS_PASSWORD'),
+            'poolsize' => 1,
         ];
         $this->queryBuilder = new DoctrineQueryBuilder($connectionParams);
     }
