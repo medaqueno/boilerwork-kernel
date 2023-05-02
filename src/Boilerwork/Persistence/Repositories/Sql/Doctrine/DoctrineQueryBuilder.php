@@ -7,7 +7,6 @@ namespace Boilerwork\Persistence\Repositories\Sql\Doctrine;
 
 use Boilerwork\Persistence\Exceptions\PagingException;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
-use Boilerwork\Persistence\Repositories\Sql\Doctrine\SwooleDriver\Driver;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\Criteria;
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\Traits\CriteriaExtended;
 use Boilerwork\Support\ValueObjects\Language\Language;
@@ -37,7 +36,8 @@ final class DoctrineQueryBuilder
     ) {
         $this->conn = DriverManager::getConnection([
             ...$connectionParams,
-            'driverClass' => Driver::class,
+            'driver' => 'pdo_pgsql',
+//            'driverClass' => Driver::class,
         ]);
     }
 
@@ -53,7 +53,6 @@ final class DoctrineQueryBuilder
 
         return $this;
     }
-
 
     public function update(string $table, string $alias = null): self
     {
@@ -195,7 +194,8 @@ final class DoctrineQueryBuilder
         }
 
         $result = $this->queryBuilder->fetchAllAssociative();
-        //$this->conn->close();
+
+        $this->conn->close();
 
         return $result;
     }
@@ -206,7 +206,8 @@ final class DoctrineQueryBuilder
     public function fetchAssociative(): array|false
     {
         $result = $this->queryBuilder->fetchAssociative();
-        //$this->conn->close();
+
+        $this->conn->close();
 
         return $result;
     }
@@ -225,7 +226,8 @@ final class DoctrineQueryBuilder
     public function fetchValue(): mixed
     {
         $result = $this->queryBuilder->fetchOne();
-        //$this->conn->close();
+
+        $this->conn->close();
 
         return $result;
     }
@@ -238,7 +240,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            //$this->conn->close();
+            $this->conn->close();
         }
     }
 
@@ -250,7 +252,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            //$this->conn->close();
+            $this->conn->close();
         }
     }
 
@@ -262,7 +264,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            //$this->conn->close();
+            $this->conn->close();
         }
     }
 
@@ -271,7 +273,9 @@ final class DoctrineQueryBuilder
      */
     public function execute(): int
     {
-        return $this->queryBuilder->executeStatement();
+        $result = $this->queryBuilder->executeStatement();
+        $this->conn->close();
+        return $result;
     }
 
     /**
@@ -567,7 +571,6 @@ final class DoctrineQueryBuilder
         $offset = $pagingDto->perPage() * ($pagingDto->page() - 1);
         $this->queryBuilder->setFirstResult($offset)->setMaxResults($pagingDto->perPage());
     }
-
 
     /**
      * @example: ->selectMultiLang('id', 'es', 'identity')

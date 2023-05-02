@@ -25,21 +25,17 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
      **/
     public function __construct(ServerRequestInterface $request)
     {
-
-        $server = $request->getServerParams();
-        $headers = $request->getHeaders();
-
         parent::__construct(
-            serverParams: $request->getServerParams() ?? [],
-            uploadedFiles: $request->getUploadedFiles() ?? [],
-            uri: $server['request_uri'],
-            method: $server['request_method'],
-            body: 'php://input',
-            headers: $headers ?? [],
-            cookies: $request->getCookieParams() ?? [],
-            queryParams: $request->getQueryParams() ?? [],
-            parsedBody: $this->parseBody($request),
-            protocolVersion: '1.1'
+            serverParams   : $request->getServerParams() ?? [],
+            uploadedFiles  : $request->getUploadedFiles() ?? [],
+            uri            : $request->getUri(),
+            method         : $request->getMethod(),
+            body           : 'php://input',
+            headers        : $request->getHeaders() ?? [],
+            cookies        : $request->getCookieParams() ?? [],
+            queryParams    : $request->getQueryParams() ?? [],
+            parsedBody     : $this->parseBody($request),
+            protocolVersion: '1.1',
         );
 
         $this->authInfo = $request->getAttribute('AuthInfo');
@@ -49,13 +45,38 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
 
     public function acceptLanguage(): string
     {
-        $headers = $this->getHeaders();
-
-        $langRequest = isset($headers['x-content-language']) ? mb_strtoupper(implode(',', (array)$headers['x-content-language'])) : null;
+        $langRequest = $this->getHeaderLine('x-content-language');
 
         return ($langRequest != null && in_array($langRequest, Language::ACCEPTED_LANGUAGES) === true) ?
             mb_strtoupper(Language::fromIso6391Code(new Iso6391Code($langRequest))->toString())
             : Language::FALLBACK;
+    }
+
+    private function parseBody(ServerRequestInterface $request): array|null|object
+    {
+        $contentType = $request->getHeaderLine('content-type');
+        $method      = $request->getMethod();
+
+        if (in_array($method, ['POST', 'PATCH', 'PUT']) && $contentType === 'application/json') {
+            $bodyContents = $request->getBody()->getContents();
+            $decodedJson  = json_decode($bodyContents);
+
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return (array)$decodedJson;
+            }
+        }
+
+        return $request->getParsedBody() ?? [];
+    }
+
+    public function input(string|int $key): mixed
+    {
+        return $this->getParsedBody()[$key] ?? null;
+    }
+
+    public function query(string|int $param): mixed
+    {
+        return $this->getQueryParams()[$param] ?? null;
     }
 
     private function paging(): void
@@ -70,42 +91,6 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
         );
     }
 
-    private function parseBody(ServerRequestInterface $request): array
-    {
-        $server = $request->getServerParams();
-        $headers = $request->getHeaders();
-        $body = [];
-        if (
-            ($server['request_method'] === 'POST'
-                || $server['request_method'] === 'PATCH'
-                || $server['request_method'] === 'PUT'
-            )
-            && $headers['content-type'] === 'application/json'
-        ) {
-            $body = $request->getBody()->getContents();
-            $body = empty($body) ? [] : json_decode($body);
-        } else {
-            $body = $request->getParsedBody() ?? [];
-        }
-
-        return (array)$body;
-    }
-
-    /**
-     * Return specific input received in body or post
-     **/
-    public function input(string|int $key): mixed
-    {
-        return $this->getParsedBody()[$key] ?? null;
-    }
-
-    /**
-     * Return specific query param
-     **/
-    public function query(string|int $param): mixed
-    {
-        return $this->getQueryParams()[$param] ?? null;
-    }
 
     /**
      * Return specific query param

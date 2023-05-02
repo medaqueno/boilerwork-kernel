@@ -54,4 +54,23 @@ final class Statement implements StatementInterface
 
         return $value;
     }
+
+    /*  private const PARAM_TYPE_MAP = [
+          ParameterType::NULL => PDO::PARAM_NULL,
+          ParameterType::INTEGER => PDO::PARAM_INT,
+          ParameterType::STRING => PDO::PARAM_STR,
+          ParameterType::ASCII => PDO::PARAM_STR,
+          ParameterType::BINARY => PDO::PARAM_LOB,
+          ParameterType::LARGE_OBJECT => PDO::PARAM_LOB,
+          ParameterType::BOOLEAN => PDO::PARAM_BOOL,
+      ];
+
+      private function convertParamType(int $type): int
+      {
+          if (! isset(self::PARAM_TYPE_MAP[$type])) {
+              throw UnknownParameterTypeException::new($type);
+          }
+
+          return self::PARAM_TYPE_MAP[$type];
+      }*/
 }
