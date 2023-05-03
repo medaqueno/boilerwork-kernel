@@ -18,8 +18,8 @@ final class ExceptionHandler
 {
     public function handle(Exception $exception, ServerRequestInterface $request = null): ResponseInterface
     {
-        error('ExceptionHandler: ' . $exception->getMessage());
-        echo sprintf('ExceptionHandler: %s %s', $exception->getMessage(), PHP_EOL);
+        error('ExceptionHandler: ' . $exception);
+        echo sprintf('ExceptionHandler: %s %s', $exception, PHP_EOL);
 
         [$status, $code, $message, $errors] = $this->getErrorDetails($exception, $request);
 
