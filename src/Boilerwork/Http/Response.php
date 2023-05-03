@@ -19,8 +19,6 @@ use Throwable;
  **/
 final class Response
 {
-    use HandleErrorTypesTrait;
-
     private array $customMetadata = [];
 
     private function __construct(
@@ -246,32 +244,10 @@ final class Response
         return $pagingContainer->serialize();
     }
 
-    public static function error(Throwable $th, ?ServerRequestInterface $request = null): ResponseInterface
+    public static function error(array $payload, int $status = 500): ResponseInterface
     {
-        // Determina el tipo de error y configura los datos relacionados
-        [$status, $code, $message, $errors] = self::getErrorDetails($th);
-
-        $result = [
-            "error" => [
-                "code"    => $code,
-                "message" => $message,
-                "errors"  => $errors,
-            ],
-        ];
-
-        // Añade información adicional si estamos en modo de depuración
-        if (env('APP_DEBUG') === 'true') {
-            $result['error']['dev'] = [
-                "message" => $th->getMessage(),
-                "file"    => $th->getFile(),
-                "line"    => $th->getLine(),
-                "request" => $request,
-                "trace"   => env('TRACE_ERRORS') === "true" ? $th->getTrace() : null,
-            ];
-        }
-
         return new JsonResponse(
-            data: $result,
+            data: $payload,
             status: $status,
         );
     }

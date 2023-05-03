@@ -21,7 +21,7 @@ final class AuthorizationsMiddleware implements MiddlewareInterface
 
     public static function getInstance($args = []): self
     {
-        if (!isset(self::$instance)) {
+        if ( ! isset(self::$instance)) {
             self::$instance = new static($args);
         }
 
@@ -29,16 +29,25 @@ final class AuthorizationsMiddleware implements MiddlewareInterface
     }
 
     public function __construct(
-        array $routes
+        array $routes,
     ) {
         foreach ($routes as $route) {
-            self::addRoute($route);
+            self::addRoute(
+                $route[0],
+                $route[1],
+                $route[3],
+            );
         }
     }
 
-    public static function addRoute(array $route)
+    public static function addRoute(string $method, string $route, array $authorizations): void
     {
-        self::$routes[] = $route;
+        self::$routes[] = [
+            $method,
+            $route,
+            null,
+            $authorizations,
+        ];
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -46,7 +55,9 @@ final class AuthorizationsMiddleware implements MiddlewareInterface
         /**
          * @var TrackingContext $trackingContext
          */
-        $trackingContext = container()->has(TrackingContext::NAME) ? container()->get(TrackingContext::NAME) : throw new TrackContextNotFoundException();
+        $trackingContext = container()->has(TrackingContext::NAME) ? container()->get(
+            TrackingContext::NAME,
+        ) : throw new TrackContextNotFoundException();
 
         $authInfo = AuthInfo::fromRequest($request);
 
@@ -54,19 +65,20 @@ final class AuthorizationsMiddleware implements MiddlewareInterface
 
         $hasAuthorization = $this->hasAuthorization(
             authInfo: $authInfo,
-            method: $request->getMethod(),
-            uri: $request->getUri()->getPath()
+            method  : $request->getMethod(),
+            uri     : $request->getUri()->getPath(),
         );
 
         // Inject to the request the Authorization info or response error
-        return $hasAuthorization === true ? $handler->handle($request->withAttribute('AuthInfo', $authInfo)) : Response::error(new AuthorizationException());
+        return $hasAuthorization === true ? $handler->handle(
+            $request->withAttribute('AuthInfo', $authInfo),
+        ) : Response::error(new AuthorizationException());
     }
 
     private function hasAuthorization(AuthInfo $authInfo, string $method, string $uri): bool
     {
         $response = false;
         foreach (self::$routes as $item) {
-
             if (isset($item[3]) && $item[0] === $method && $this->matchUrl(pattern: $item[1], url: $uri)) {
                 $response = $authInfo->hasAuthorization($item[3]);
                 break;

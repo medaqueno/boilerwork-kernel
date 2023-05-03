@@ -3,9 +3,11 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Container;
+namespace Boilerwork\Attributes\DI;
 
+use App\Shared\Providers\MessagingProvider;
 use Attribute;
+use Boilerwork\Validation\Assert;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 final class Bind

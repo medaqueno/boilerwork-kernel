@@ -7,9 +7,9 @@ namespace Boilerwork\Persistence\Repositories;
 
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\DoctrineQueryBuilder;
 
-final readonly class WritesRepository
+final class WritesRepository
 {
-    public DoctrineQueryBuilder $queryBuilder;
+    public readonly DoctrineQueryBuilder $queryBuilder;
 
     /**
      * Injected configuration from Container
@@ -17,7 +17,7 @@ final readonly class WritesRepository
      * @param array{host: string, port: int, dbname: string, user: string, password: string, poolsize: int} $connectionParams
      */
     public function __construct(
-        array $connectionParams,
+        private array $connectionParams,
     ) {
         $this->queryBuilder = new DoctrineQueryBuilder($connectionParams);
     }

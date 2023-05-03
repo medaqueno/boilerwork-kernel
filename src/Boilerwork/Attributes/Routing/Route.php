@@ -3,11 +3,12 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Server;
+namespace Boilerwork\Attributes\Routing;
 
 use Attribute;
 use Boilerwork\Authorization\AuthorizationsMiddleware;
 use Boilerwork\Validation\Assert;
+use Boilerwork\Router\Adapter\FastRoute;
 
 #[Attribute(Attribute::TARGET_ALL)]
 final readonly class Route
@@ -26,11 +27,10 @@ final readonly class Route
         private array $authorizations = [],
         private ?string $target = null,
     ) {
-
         Assert::that($method)->choice(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTION', 'TRACE', 'HEAD'], 'Method parameter value in Attribute Route is not valid');
         Assert::that($route)->notEmpty('Route parameter value in Attribute Route must not be empty');
 
-        RouterMiddleware::addRoute([$method, $route, $target, $authorizations]);
-        AuthorizationsMiddleware::addRoute([$method, $route, null, $authorizations]);
+        FastRoute::addRoute($method, $route, $target, $authorizations);
+        AuthorizationsMiddleware::addRoute($method, $route, $authorizations);
     }
 }

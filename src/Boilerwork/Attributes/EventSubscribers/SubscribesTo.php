@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Boilerwork\Messaging;
+namespace Boilerwork\Attributes\EventSubscribers;
 
 use App\Shared\Providers\MessagingProvider;
 use Attribute;

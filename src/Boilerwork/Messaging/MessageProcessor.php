@@ -6,6 +6,7 @@ namespace Boilerwork\Messaging;
 
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Tracking\TrackingContext;
+use Boilerwork\Server\ExceptionHandler;
 use DateTime;
 
 use function call_user_func;
@@ -15,20 +16,23 @@ use function explode;
 use function globalContainer;
 use function json_encode;
 use function sprintf;
-
 use function substr;
+
 use const JSON_PRETTY_PRINT;
 use const PHP_EOL;
 
 final class MessageProcessor
 {
     private MessageClientInterface $messageClient;
+    private ExceptionHandler $exceptionHandler;
 
     public function __construct(
         private readonly MessagingProviderInterface $subscriptions,
         private readonly array $topics,
     ) {
         $this->messageClient = globalContainer()->get(MessageClientInterface::class);
+
+        $this->exceptionHandler = new ExceptionHandler();
     }
 
     public function process(): void
@@ -45,8 +49,14 @@ final class MessageProcessor
             try {
                 $this->consumeMessage($consumer);
             } catch (\Throwable $th) {
-                error(sprintf('ERROR HANDLED PROCESSING MESSAGE: %s', $th->getMessage()));
-                echo sprintf('ERROR HANDLED PROCESSING MESSAGE: %s', $th->getMessage());
+                $errorMessage = sprintf(
+                    'ERROR HANDLED CONSUMING MESSAGE: %s',
+                    $th->getMessage(),
+                );
+
+                $exception = new \Exception($errorMessage, 500, $th);
+
+                $this->exceptionHandler->handle($exception);
 
                 continue;
             }
@@ -99,21 +109,16 @@ final class MessageProcessor
                 try {
                     call_user_func($class, $message);
                 } catch (\Throwable $th) {
-                    error(
-                        sprintf(
-                            'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
-                            $th->getMessage(),
-                            PHP_EOL,
-                            json_encode($messageReceived, JSON_PRETTY_PRINT),
-                        ),
-                    );
-                    echo sprintf(
+                    $errorMessage = sprintf(
                         'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
                         $th->getMessage(),
                         PHP_EOL,
                         json_encode($messageReceived, JSON_PRETTY_PRINT),
                     );
 
+                    $exception = new \Exception($errorMessage, 500, $th);
+
+                    $this->exceptionHandler->handle($exception);
                     continue;
                 }
             }

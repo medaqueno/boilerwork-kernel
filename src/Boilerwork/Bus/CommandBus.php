@@ -7,6 +7,7 @@ namespace Boilerwork\Bus;
 
 use Boilerwork\Foundation\Commands\CommandInterface;
 
+use Boilerwork\Server\ExceptionHandler;
 use OpenSwoole\Coroutine;
 
 use function call_user_func;
@@ -17,6 +18,11 @@ use function sprintf;
 
 final class CommandBus
 {
+    public function __construct(
+        private readonly ExceptionHandler $exceptionHandler,
+    ) {
+
+    }
     /**
      * Dispatch the command synchronously
      */
@@ -52,10 +58,8 @@ final class CommandBus
             // $commandHandler = new $class;
 
             call_user_func([$commandHandler, 'handle'], $command);
-        } catch (\Throwable $th) {
-            error($th);
-
-            echo sprintf("\n ERROR HANDLED IN COMMAND BUS:: %s \n", $th->getMessage() ?: "No error message found");
+        } catch (\Exception $th) {
+            $this->exceptionHandler->handle($th);
         }
     }
 }

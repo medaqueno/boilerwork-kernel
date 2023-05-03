@@ -62,11 +62,6 @@ readonly class MultiLingualText
      */
     public static function fromSingleLanguageString(string $text, string $language = Language::FALLBACK): self
     {
-        // Assert::lazy()
-        //     ->tryAll()
-        //     ->that($text)
-        //     ->notEmpty('Text must not be empty', 'text.notEmpty')
-        //     ->verifyNow();
 
         return new self([$language => $text]);
     }

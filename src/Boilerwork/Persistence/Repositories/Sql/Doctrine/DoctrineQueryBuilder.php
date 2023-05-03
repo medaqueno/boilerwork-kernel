@@ -155,6 +155,12 @@ final class DoctrineQueryBuilder
         return $this->conn;
     }
 
+    private function closeIfNoTransaction(){
+        if($this->conn->isTransactionActive() === false){
+            $this->connection()->close();
+        }
+    }
+
     public function initTransaction(): bool
     {
         return $this->conn->beginTransaction();
@@ -167,6 +173,8 @@ final class DoctrineQueryBuilder
         } catch (Exception $e) {
             $this->conn->rollBack();
             throw $e;
+        } finally {
+            $this->connection()->close();
         }
     }
 
@@ -195,7 +203,7 @@ final class DoctrineQueryBuilder
 
         $result = $this->queryBuilder->fetchAllAssociative();
 
-        $this->conn->close();
+        $this->closeIfNoTransaction();
 
         return $result;
     }
@@ -207,7 +215,7 @@ final class DoctrineQueryBuilder
     {
         $result = $this->queryBuilder->fetchAssociative();
 
-        $this->conn->close();
+        $this->closeIfNoTransaction();
 
         return $result;
     }
@@ -227,7 +235,7 @@ final class DoctrineQueryBuilder
     {
         $result = $this->queryBuilder->fetchOne();
 
-        $this->conn->close();
+        $this->closeIfNoTransaction();
 
         return $result;
     }
@@ -240,7 +248,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            $this->conn->close();
+            $this->closeIfNoTransaction();
         }
     }
 
@@ -252,7 +260,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            $this->conn->close();
+            $this->closeIfNoTransaction();
         }
     }
 
@@ -264,7 +272,7 @@ final class DoctrineQueryBuilder
                 yield $row;
             }
         } finally {
-            $this->conn->close();
+            $this->closeIfNoTransaction();
         }
     }
 
@@ -274,7 +282,7 @@ final class DoctrineQueryBuilder
     public function execute(): int
     {
         $result = $this->queryBuilder->executeStatement();
-        $this->conn->close();
+        $this->closeIfNoTransaction();
         return $result;
     }
 

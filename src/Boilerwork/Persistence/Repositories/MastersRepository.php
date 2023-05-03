@@ -7,9 +7,9 @@ namespace Boilerwork\Persistence\Repositories;
 
 use Boilerwork\Persistence\Repositories\Sql\Doctrine\DoctrineQueryBuilder;
 
-final readonly class MastersRepository
+final class MastersRepository
 {
-    public DoctrineQueryBuilder $queryBuilder;
+    public readonly DoctrineQueryBuilder $queryBuilder;
 
     public function __construct()
     {
