@@ -23,7 +23,6 @@ abstract class AbstractScanner
 {
     public function scan(string $directory): void
     {
-        var_dump($directory);
         $iterator      = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
         $regexIterator = new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
 
