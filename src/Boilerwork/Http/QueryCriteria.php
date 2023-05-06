@@ -32,7 +32,20 @@ final class QueryCriteria
         }
 
         if (isset($rawQueryParams['order_by'])) {
-            $queryParams['order_by'] = $rawQueryParams['order_by'];
+            $orderByParts = explode(',', $rawQueryParams['order_by']);
+            $externalOrderByField = $orderByParts[0];
+            $order = isset($orderByParts[1]) ? $orderByParts[1] : null;
+
+            if (array_key_exists($externalOrderByField, $params)) {
+                $internalOrderByField = $params[$externalOrderByField];
+                $queryParams['order_by'] = $internalOrderByField . ',' . $order;
+            } else {
+                $queryParams['order_by'] = null;
+                Assert::lazy()
+                    ->that($queryParams['order_by'])
+                    ->notNull(sprintf('Order by is only allowed for the fields: %s', implode(', ', array_keys($params))), 'criteriaSortingParam.invalidSortValue')
+                    ->verifyNow();
+            }
         }
 
         if (isset($rawQueryParams['page']) && isset($rawQueryParams['per_page'])) {
@@ -42,6 +55,7 @@ final class QueryCriteria
 
         return new self($queryParams, $language);
     }
+
 
     private function __construct(array $queryParams, $language = null)
     {
@@ -66,12 +80,15 @@ final class QueryCriteria
 
     private function validate(): void
     {
-        Assert::lazy()
-            ->that($this->orderBy)
-            ->nullOr()
-            // Only allow <string>,<ASC DESC asc desc> format
-            ->regex('/\A([A-Za-z0-9_-])+[,]+((ASC|DESC|asc|desc))\z/', 'OrderBy clause accepts alphabetical, numeric and - _ characters and must include sort and operator', 'criteriaOrderBy.invalidValue')
-            ->verifyNow();
+        $sortingParam = $this->getSortingParam();
+        if ($sortingParam) {
+            Assert::lazy()
+                ->that($sortingParam['sort'])
+                ->regex('/\A[A-Za-z0-9_.-]+\z/', 'Sort field accepts alphabetical, numeric, . - _ characters', 'criteriaSortingParam.invalidSortValue')
+                ->that($sortingParam['operator'])
+                ->regex('/\A(ASC|DESC|asc|desc)\z/', 'Operator accepts only ASC, DESC, asc or desc', 'criteriaSortingParam.invalidOperatorValue')
+                ->verifyNow();
+        }
     }
 
     public function getAllParams(): array

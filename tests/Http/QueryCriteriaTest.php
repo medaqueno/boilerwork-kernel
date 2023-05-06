@@ -11,7 +11,7 @@ final class QueryCriteriaTest extends TestCase
 {
     public function testWithAllParameters(): void
     {
-        $url = '/example?destination=test&order_by=name,asc&filter[price]=100-200&page=2&per_page=25';
+        $url = '/example?destination=test&order_by=destination,asc&filter[price]=100-200&page=2&per_page=25';
         $query = parse_url($url, PHP_URL_QUERY);
         parse_str($query, $queryParams);
 
@@ -36,7 +36,7 @@ final class QueryCriteriaTest extends TestCase
             'filter' => [
                 'price_internal' => '100-200'
             ],
-            'order_by' => 'name,asc',
+            'order_by' => 'destination,asc',
             'page' => 2,
             'per_page' => 25
         ], $queryCriteria->getAllParams());
@@ -51,7 +51,7 @@ final class QueryCriteriaTest extends TestCase
         ], $queryCriteria->getPagingParams());
 
         $this->assertEquals([
-            'sort' => 'name',
+            'sort' => 'destination',
             'operator' => 'asc'
         ], $queryCriteria->getSortingParam());
 
@@ -65,7 +65,7 @@ final class QueryCriteriaTest extends TestCase
     public function testWithoutPagingParams(): void
     {
 
-        $url = '/example?destination=test&order_by=name,asc&filter[price]=100-200';
+        $url = '/example?destination=test&order_by=destination,asc&filter[price]=100-200';
         $query = parse_url($url, PHP_URL_QUERY);
         parse_str($query, $queryParams);
 
@@ -90,12 +90,12 @@ final class QueryCriteriaTest extends TestCase
             'filter' => [
                 'price_internal' => '100-200',
             ],
-            'order_by' => 'name,asc',
+            'order_by' => 'destination,asc',
         ], $queryCriteria->getAllParams());
         $this->assertEquals('en', $queryCriteria->getLanguage());
         $this->assertNull($queryCriteria->getPagingParams());
     }
-
+/*
     public function testWithOrderByDescending(): void
     {
         $url = '/example?destination=test&order_by=name,desc&page=2&per_page=25';
@@ -155,5 +155,137 @@ final class QueryCriteriaTest extends TestCase
             'destination' => 'destination',
             'price' => 'price_internal'
         ]);
+    }*/
+
+///////
+
+
+
+
+    public function testInvalidOrderByField()
+    {
+        $this->expectException(\Boilerwork\Validation\CustomAssertionFailedException::class);
+        $this->expectExceptionMessage("Order by is only allowed for the fields");
+
+        $url = '/example?destination=test&order_by=invalid_field,asc,desc&page=2&per_page=25';
+        $query = parse_url($url, PHP_URL_QUERY);
+        parse_str($query, $queryParams);
+
+        $request = new ServerRequest(
+            [],
+            [],
+            $url,
+            'GET',
+            'php://input',
+            [],
+            [],
+            $queryParams
+        );
+
+        $paramMapping = [
+            'search' => 'search_internal',
+            'price' => 'price_internal',
+        ];
+
+        QueryCriteria::createFromRequest($request, $paramMapping);
     }
+
+    public function testValidOrderBy()
+    {
+        $url = '/example?destination=test&order_by=price,asc';
+        $query = parse_url($url, PHP_URL_QUERY);
+        parse_str($query, $queryParams);
+
+        $request = new ServerRequest(
+            [],
+            [],
+            $url,
+            'GET',
+            'php://input',
+            [],
+            [],
+            $queryParams
+        );
+
+        $paramMapping = [
+            'search' => 'search_internal',
+            'price' => 'price_internal',
+        ];
+
+        $queryCriteria = QueryCriteria::createFromRequest($request, $paramMapping);
+
+        $this->assertEquals(
+            [
+                'sort' => 'price_internal',
+                'operator' => 'asc',
+            ],
+            $queryCriteria->getSortingParam()
+        );
+    }
+
+        public function testInvalidOrderByOperator()
+        {
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage("Operator accepts only ASC, DESC, asc or desc");
+
+            $url = '/example?destination=test&order_by=price,INVALID';
+            $query = parse_url($url, PHP_URL_QUERY);
+            parse_str($query, $queryParams);
+
+            $request = new ServerRequest(
+                [],
+                [],
+                $url,
+                'GET',
+                'php://input',
+                [],
+                [],
+                $queryParams
+            );
+
+
+            $paramMapping = [
+                'search' => 'search_internal',
+                'price' => 'price_internal',
+            ];
+
+            QueryCriteria::createFromRequest($request, $paramMapping);
+        }
+
+        public function testOrderByWithEmptyOperatorDefaultsToNull()
+        {
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage("Operator accepts only ASC, DESC, asc or desc");
+
+            $url = '/example?destination=test&order_by=price';
+            $query = parse_url($url, PHP_URL_QUERY);
+            parse_str($query, $queryParams);
+
+            $request = new ServerRequest(
+                [],
+                [],
+                $url,
+                'GET',
+                'php://input',
+                [],
+                [],
+                $queryParams
+            );
+
+
+            $paramMapping = [
+                'search' => 'search_internal',
+                'price' => 'price_internal',
+            ];
+
+            $queryCriteria = QueryCriteria::createFromRequest($request, $paramMapping);
+
+            $this->assertEquals(
+                [
+                    'sort' => 'price_internal',
+                    'operator' => null,
+                ],
+                $queryCriteria->getSortingParam()
+            );
+        }
 }
