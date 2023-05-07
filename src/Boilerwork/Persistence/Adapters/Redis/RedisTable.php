@@ -19,7 +19,8 @@ final class RedisTable
         private readonly RedisAdapter $redis,
     ) {
     }
-    
+
+
     private function setTableName(string $tableName): void
     {
         $this->tableName = $tableName;
@@ -109,9 +110,9 @@ final class RedisTable
      *  [
      *      'id' => 2,
      *      'name' => 'Michael Smith',
-     *      'age' => 34,
-     *  ]
-     * ], true);
+     *     'age' => 34,
+     * ]
+     * }, true);
      */
     public function insertMultiple(iterable $data, bool $overwriteById = false): bool
     {
@@ -378,5 +379,67 @@ final class RedisTable
         $placeholder = "DELETED-" . uniqid();
         $this->redis->lSet($this->tableName, $index, $placeholder);
         $this->redis->lRem($this->tableName, $placeholder, 1);
+    }
+
+    public function postFilter(array $results, array $postFilter): array
+    {
+        foreach ($postFilter as $attribute => $conditions) {
+            $results = array_filter($results, function ($item) use ($attribute, $conditions) {
+                if (is_array($conditions)) {
+                    $conditionMet = false;
+                    foreach ($conditions as $condition) {
+                        if ($this->evaluateCondition($item, $attribute, '=', $condition)) {
+                            $conditionMet = true;
+                            break;
+                        }
+                    }
+                    if (!$conditionMet) {
+                        return false;
+                    }
+                } elseif (is_bool($conditions)) {
+                    if (!$this->evaluateCondition($item, $attribute, '===', $conditions)) {
+                        return false;
+                    }
+                } else {
+                    if (is_string($conditions) && !str_contains($conditions, "-") && !str_contains($conditions, "≥") && !str_contains($conditions, "≤")) {
+                        if (!$this->evaluateCondition($item, $attribute, '=', $conditions)) {
+                            return false;
+                        }
+                    } else {
+                        list($min, $operator, $max) = $this->parseRangeCondition($conditions);
+                        if ($operator !== null) {
+                            if ($operator === '-') {
+                                if ($item[$attribute] < $min || $item[$attribute] > $max) {
+                                    return false;
+                                }
+                            } elseif ($operator === '≥') {
+                                if ($item[$attribute] < $min) {
+                                    return false;
+                                }
+                            } elseif ($operator === '≤') {
+                                if ($item[$attribute] > $max) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+                return true;
+            });
+        }
+        return $results;
+    }
+
+    protected function parseRangeCondition(string $condition): array
+    {
+        if (preg_match('/^(\d+)(-|≥|≤)(\d+)?$/', $condition, $matches)) {
+            $min      = (int)$matches[1];
+            $operator = $matches[2];
+            $max      = isset($matches[3]) ? (int)$matches[3] : null;
+
+            return [$min, $operator, $max];
+        }
+
+        return [null, null, null];
     }
 }
