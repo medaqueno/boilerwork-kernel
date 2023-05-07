@@ -17,11 +17,9 @@ final class RedisTable
 
     public function __construct(
         private readonly RedisAdapter $redis,
-    )
-    {
+    ) {
     }
-
-
+    
     private function setTableName(string $tableName): void
     {
         $this->tableName = $tableName;
@@ -54,8 +52,8 @@ final class RedisTable
     /**
      * Inserts a record into the specified "table".
      *
-     * @param array $data Data to be inserted.
-     * @param bool $overwriteById Whether to overwrite the existing record with the same 'id'.
+     * @param  array  $data  Data to be inserted.
+     * @param  bool  $overwriteById  Whether to overwrite the existing record with the same 'id'.
      *
      * @return bool True if the record was inserted or overwritten, false otherwise.
      *
@@ -67,9 +65,15 @@ final class RedisTable
      *     'age' => 30,
      * ], true);
      */
-    public function insert(array $data, bool $overwriteById = false): bool
+    public function insert(array|object $data, bool $overwriteById = false): bool
     {
         $existingRecordIndex = null;
+
+        $data = json_decode(json_encode($data), true);
+
+        if (isset($data['id'])) {
+            $data['id'] = (string)$data['id'];
+        }
 
         if ($overwriteById && isset($data['id'])) {
             $existingRecordIndex = $this->getRecordIndexById($data['id']);
@@ -84,6 +88,45 @@ final class RedisTable
         }
 
         return true;
+    }
+
+    /**
+     * Insert an array or any iterable of data
+     *
+     * @param  iterable  $data
+     * @param  bool  $overwriteById
+     *
+     * @return bool False if any insert failed. Insertions are aborted in case of any error.
+     *
+     * Usage example:
+     *
+     * $this->redisTable->fromTable('users')->insert([
+     *  [
+     *      'id' => 1,
+     *      'name' => 'John Doe',
+     *      'age' => 30,
+     *  ],
+     *  [
+     *      'id' => 2,
+     *      'name' => 'Michael Smith',
+     *      'age' => 34,
+     *  ]
+     * ], true);
+     */
+    public function insertMultiple(iterable $data, bool $overwriteById = false): bool
+    {
+        $this->redis->keepConnection();
+
+        $result = true;
+        foreach ($data as $item) {
+            $result = $this->insert($item, $overwriteById);
+            if ($result === false) {
+                break;
+            }
+        }
+        $this->redis->releasePersistentConnection();
+
+        return $result;
     }
 
     private function getRecordIndexById(string $id): int|null
@@ -103,9 +146,9 @@ final class RedisTable
     /**
      * Adds a condition to filter results when selecting records.
      *
-     * @param string $column Column name or nested path (e.g. 'address.city').
-     * @param string $operator Comparison operator (e.g. '=', '!=', '>', '>=', '<', '<=').
-     * @param mixed $value Value to compare against.
+     * @param  string  $column  Column name or nested path (e.g. 'address.city').
+     * @param  string  $operator  Comparison operator (e.g. '=', '!=', '>', '>=', '<', '<=').
+     * @param  mixed  $value  Value to compare against.
      *
      * @return RedisTable Instance of this class, allowing for method chaining.
      *
@@ -116,9 +159,9 @@ final class RedisTable
     public function where(string $column, string $operator, mixed $value): self
     {
         $this->conditions[] = [
-            'column' => $column,
+            'column'   => $column,
             'operator' => $operator,
-            'value' => $value,
+            'value'    => $value,
         ];
 
         return $this;
@@ -137,18 +180,18 @@ final class RedisTable
      */
     public function selectAll(): array
     {
-        $tableData = $this->redis->lrange($this->tableName, 0, -1);
+        $tableData   = $this->redis->lrange($this->tableName, 0, -1);
         $decodedData = array_map(function ($json) {
             return json_decode($json, true);
         }, $tableData);
 
-        if (!empty($this->conditions)) {
+        if (! empty($this->conditions)) {
             $decodedData = array_filter($decodedData, function ($row) {
                 foreach ($this->conditions as $condition) {
-                    $column = $condition['column'];
+                    $column   = $condition['column'];
                     $operator = $condition['operator'];
-                    $value = $condition['value'];
-                    if (!$this->evaluateCondition($row, $column, $operator, $value)) {
+                    $value    = $condition['value'];
+                    if (! $this->evaluateCondition($row, $column, $operator, $value)) {
                         return false;
                     }
                 }
@@ -167,7 +210,7 @@ final class RedisTable
      * This method allows for efficient memory usage when processing large datasets, as it doesn't load all the data into memory at once.
      * It fetches and processes the data page by page, according to the specified page size.
      *
-     * @param int $pageSize The number of records to fetch at a time (defaults to 100).
+     * @param  int  $pageSize  The number of records to fetch at a time (defaults to 100).
      *
      * @return \Generator Yields an associative array representing a single record that matches the specified conditions (if any).
      *
@@ -201,14 +244,14 @@ final class RedisTable
             foreach ($tableData as $json) {
                 $row = json_decode($json, true);
 
-                if (!empty($this->conditions)) {
+                if (! empty($this->conditions)) {
                     $passesConditions = true;
                     foreach ($this->conditions as $condition) {
-                        $column = $condition['column'];
+                        $column   = $condition['column'];
                         $operator = $condition['operator'];
-                        $value = $condition['value'];
+                        $value    = $condition['value'];
 
-                        if (!$this->evaluateCondition($row, $column, $operator, $value)) {
+                        if (! $this->evaluateCondition($row, $column, $operator, $value)) {
                             $passesConditions = false;
                             break;
                         }
@@ -264,14 +307,14 @@ final class RedisTable
     /**
      * Retrieves a value from a nested array using a key or a dot-separated path.
      *
-     * @param array $array Array to search for the value.
-     * @param string $key Key or dot-separated path (e.g. 'address.city').
+     * @param  array  $array  Array to search for the value.
+     * @param  string  $key  Key or dot-separated path (e.g. 'address.city').
      *
      * @return mixed|null The value if found, null otherwise.
      */
     private function getNestedValue(array $array, string $key): mixed
     {
-        $keys = explode('.', $key);
+        $keys         = explode('.', $key);
         $currentValue = $array;
 
         foreach ($keys as $key) {
@@ -288,7 +331,7 @@ final class RedisTable
                     }
                 }
 
-                if (!empty($tempArray)) {
+                if (! empty($tempArray)) {
                     $currentValue = $tempArray;
                 } else {
                     return null;
@@ -302,7 +345,7 @@ final class RedisTable
     /**
      * Deletes a record by the specified id from the "table".
      *
-     * @param string $id Index of the record to delete.
+     * @param  string  $id  Index of the record to delete.
      *
      * Usage example:
      *
@@ -324,7 +367,7 @@ final class RedisTable
     /**
      * Deletes a record at the specified index from the "table".
      *
-     * @param int $index Index of the record to delete.
+     * @param  int  $index  Index of the record to delete.
      *
      * Usage example:
      *
