@@ -85,7 +85,7 @@ class FilterCriteria
                                     return false;
                                 }
                             } elseif ($operator === '≤') {
-                                if ($item[$attribute] > $min) { // Aquí está el cambio: de $max a $min
+                                if ($item[$attribute] > $min) {
                                     return false;
                                 }
                             }
@@ -196,6 +196,12 @@ class FilterCriteria
             } elseif (is_array($currentValue) && array_key_exists($key, $currentValue)) {
                 $currentValue = array_column($currentValue, $key);
             } else {
+                if (!is_array($currentValue)) {
+                    throw new \InvalidArgumentException(
+                        "Invalid path provided: '$key' not found in the nested structure."
+                    );
+                }
+
                 $tempArray = [];
 
                 foreach ($currentValue as $item) {
