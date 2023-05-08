@@ -242,6 +242,7 @@ final class Response
         $pagingContainer = container()->get('Paging');
 
         return $pagingContainer->serialize();
+//        return ['pagination' => $pagingContainer->serialize()];
     }
 
     public static function error(array $payload, int $status = 500): ResponseInterface

@@ -5,6 +5,9 @@ declare(strict_types=1);
 
 namespace Boilerwork\Persistence\Adapters\Redis;
 
+
+use Boilerwork\Persistence\QueryBuilder\FilterCriteria;
+
 /**
  * Class RedisTable
  *
@@ -17,9 +20,9 @@ final class RedisTable
 
     public function __construct(
         private readonly RedisAdapter $redis,
+        private readonly FilterCriteria $filterCriteria,
     ) {
     }
-
 
     private function setTableName(string $tableName): void
     {
@@ -192,7 +195,7 @@ final class RedisTable
                     $column   = $condition['column'];
                     $operator = $condition['operator'];
                     $value    = $condition['value'];
-                    if (! $this->evaluateCondition($row, $column, $operator, $value)) {
+                    if (! $this->filterCriteria->evaluateCondition($row, $column, $operator, $value)) {
                         return false;
                     }
                 }
@@ -203,7 +206,7 @@ final class RedisTable
 
         $this->conditions = [];
 
-        return $decodedData;
+        return array_values($decodedData);
     }
 
     /**
@@ -252,7 +255,7 @@ final class RedisTable
                         $operator = $condition['operator'];
                         $value    = $condition['value'];
 
-                        if (! $this->evaluateCondition($row, $column, $operator, $value)) {
+                        if (! $this->filterCriteria->evaluateCondition($row, $column, $operator, $value)) {
                             $passesConditions = false;
                             break;
                         }
@@ -270,77 +273,6 @@ final class RedisTable
         }
 
         $this->conditions = [];
-    }
-
-    private function evaluateCondition($row, $column, $operator, $value): bool
-    {
-        $columnValue = $this->getNestedValue($row, $column);
-
-        if (is_array($columnValue)) {
-            $results = [];
-
-            foreach ($columnValue as $item) {
-                $results[] = $this->compareValues($item, $operator, $value);
-            }
-
-            return in_array(true, $results, true);
-        }
-
-        return $this->compareValues($columnValue, $operator, $value);
-    }
-
-
-    private function compareValues($columnValue, $operator, $value): bool
-    {
-        return match ($operator) {
-            '=' => $columnValue == $value,
-            '===' => $columnValue === $value,
-            '!==' => $columnValue !== $value,
-            '!=' => $columnValue != $value,
-            '>' => $columnValue > $value,
-            '>=' => $columnValue >= $value,
-            '<' => $columnValue < $value,
-            '<=' => $columnValue <= $value,
-            default => throw new \InvalidArgumentException("Unsupported operator: $operator"),
-        };
-    }
-
-    /**
-     * Retrieves a value from a nested array using a key or a dot-separated path.
-     *
-     * @param  array  $array  Array to search for the value.
-     * @param  string  $key  Key or dot-separated path (e.g. 'address.city').
-     *
-     * @return mixed|null The value if found, null otherwise.
-     */
-    private function getNestedValue(array $array, string $key): mixed
-    {
-        $keys         = explode('.', $key);
-        $currentValue = $array;
-
-        foreach ($keys as $key) {
-            if (is_array($currentValue) && isset($currentValue[$key])) {
-                $currentValue = $currentValue[$key];
-            } elseif (is_array($currentValue) && array_key_exists($key, $currentValue)) {
-                $currentValue = array_column($currentValue, $key);
-            } else {
-                $tempArray = [];
-
-                foreach ($currentValue as $item) {
-                    if (is_array($item) && isset($item[$key])) {
-                        $tempArray[] = $item[$key];
-                    }
-                }
-
-                if (! empty($tempArray)) {
-                    $currentValue = $tempArray;
-                } else {
-                    return null;
-                }
-            }
-        }
-
-        return $currentValue;
     }
 
     /**
@@ -381,65 +313,5 @@ final class RedisTable
         $this->redis->lRem($this->tableName, $placeholder, 1);
     }
 
-    public function postFilter(array $results, array $postFilter): array
-    {
-        foreach ($postFilter as $attribute => $conditions) {
-            $results = array_filter($results, function ($item) use ($attribute, $conditions) {
-                if (is_array($conditions)) {
-                    $conditionMet = false;
-                    foreach ($conditions as $condition) {
-                        if ($this->evaluateCondition($item, $attribute, '=', $condition)) {
-                            $conditionMet = true;
-                            break;
-                        }
-                    }
-                    if (!$conditionMet) {
-                        return false;
-                    }
-                } elseif (is_bool($conditions)) {
-                    if (!$this->evaluateCondition($item, $attribute, '===', $conditions)) {
-                        return false;
-                    }
-                } else {
-                    if (is_string($conditions) && !str_contains($conditions, "-") && !str_contains($conditions, "≥") && !str_contains($conditions, "≤")) {
-                        if (!$this->evaluateCondition($item, $attribute, '=', $conditions)) {
-                            return false;
-                        }
-                    } else {
-                        list($min, $operator, $max) = $this->parseRangeCondition($conditions);
-                        if ($operator !== null) {
-                            if ($operator === '-') {
-                                if ($item[$attribute] < $min || $item[$attribute] > $max) {
-                                    return false;
-                                }
-                            } elseif ($operator === '≥') {
-                                if ($item[$attribute] < $min) {
-                                    return false;
-                                }
-                            } elseif ($operator === '≤') {
-                                if ($item[$attribute] > $max) {
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                }
-                return true;
-            });
-        }
-        return $results;
-    }
 
-    protected function parseRangeCondition(string $condition): array
-    {
-        if (preg_match('/^(\d+)(-|≥|≤)(\d+)?$/', $condition, $matches)) {
-            $min      = (int)$matches[1];
-            $operator = $matches[2];
-            $max      = isset($matches[3]) ? (int)$matches[3] : null;
-
-            return [$min, $operator, $max];
-        }
-
-        return [null, null, null];
-    }
 }
