@@ -90,10 +90,20 @@ abstract class PersonName extends ValueObject
 
     /**
      * Second Last name of a person.
-     * (Segundo Apellido: In Spain and other Spanish spaking countries, as well as in Portugal)
+     * (Segundo Apellido: In Spain and other Spanish speaking countries, as well as in Portugal)
      */
     public function lastName2(): string
     {
         return $this->lastName2;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'firstName' => $this->firstName(),
+            'middleName' => $this->middleName(),
+            'lastName' => $this->lastName(),
+            'lastName2' => $this->lastName2(),
+        ];
     }
 }

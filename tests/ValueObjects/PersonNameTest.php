@@ -116,4 +116,29 @@ final class PersonNameTest extends TestCase
             lastName2: '',
         );
     }
+
+    /**
+     * @test
+     * @dataProvider providerPersonName
+     * @covers \App\Core\Authentication\Domain\Model\User\ValueObjects\PersonName::toArray
+     **/
+    public function testToArray(array $personName): void
+    {
+        $personNameObject = $this->testedClass(
+            firstName: $personName['firstName'],
+            middleName: $personName['middleName'],
+            lastName: $personName['lastName'],
+            lastName2: $personName['lastName2'],
+        );
+
+        $expectedArray = [
+            'firstName' => $personName['firstName'],
+            'middleName' => $personName['middleName'],
+            'lastName' => $personName['lastName'],
+            'lastName2' => $personName['lastName2'],
+        ];
+
+        $this->assertSame($expectedArray, $personNameObject->toArray());
+    }
+
 }
