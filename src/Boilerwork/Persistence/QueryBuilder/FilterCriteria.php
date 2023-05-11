@@ -122,11 +122,17 @@ class FilterCriteria
 
     private function applyPaginate(array $results, int $page, int $perPage): array
     {
+
         $totalResults = count($results);
         $totalPages   = ceil($totalResults / $perPage);
 
         $pagingDto = new PagingDto(perPage: $perPage, page: $page);
         $pagingDto->setTotalCount($totalResults);
+
+        if($totalResults === 0)
+        {
+            return [];
+        }
 
         if ($page < 1 || $page > $totalPages) {
             throw new PagingException(
@@ -141,6 +147,8 @@ class FilterCriteria
         }
 
         $start = ($page - 1) * $perPage;
+
+        var_dump(array_slice($results, $start, $perPage));
 
         return array_slice($results, $start, $perPage);
     }
