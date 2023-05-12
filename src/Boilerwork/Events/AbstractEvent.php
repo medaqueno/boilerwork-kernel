@@ -36,7 +36,8 @@ abstract class AbstractEvent
             'id' => $this->id(),
             // 'aggregateVersion' => $this->getAggregateVersion(),
             'type' => static::class,
-            'ocurredOn' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
+            'ocurredOn' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM), // Will be removed
+            'occurredOn' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
             'data' => $data,
             'metadata' => [
                 'trackingContext' => $trackingContext->toArray()

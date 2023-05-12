@@ -10,6 +10,7 @@ use Boilerwork\Persistence\Exceptions\PagingException;
 class FilterCriteria
 {
     private array $filteredData = [];
+    private array $postFilter = [];
 
     public function setData(array $data): self
     {
@@ -20,21 +21,46 @@ class FilterCriteria
 
     public function postFilter(array $postFilter): self
     {
-        $this->filteredData = $this->applyPostFilter($this->filteredData, $postFilter);
+        $this->postFilter  = $postFilter;
+        $transformedFilter = $this->transformFilter($postFilter);
+
+        $this->filteredData = $this->applyPostFilter($this->filteredData, $transformedFilter);
 
         return $this;
     }
 
-    public function orderBy(string $attribute, string $order = 'asc'): self
+    private function transformFilter(array $filterData): array
     {
-        $this->filteredData = $this->applyOrderBy($this->filteredData, $attribute, $order);
+        $transformedFilter = [];
+
+        foreach ($filterData as $key => $data) {
+            if (isset($data['value'])) {
+                $transformedFilter[$key] = $data['value'];
+            }
+        }
+
+        return $transformedFilter;
+    }
+
+    public function orderBy(?array $sorting): self
+    {
+        if ($sorting) {
+            $internalSortParam = $this->resolveInternalParameterName($sorting['sort']);
+
+            if ($internalSortParam) {
+                $order = $sorting['operator'] ?? 'asc';
+                $this->filteredData = $this->applyOrderBy($this->filteredData, $internalSortParam, $order);
+            }
+        }
 
         return $this;
     }
-
-    public function paginate(int $page = 1, int $perPage = 25): self
+    
+    public function paginate(?array $paging): self
     {
-        $this->filteredData = $this->applyPaginate($this->filteredData, $page, $perPage);
+        if ($paging) {
+            $this->filteredData = $this->applyPaginate($this->filteredData, $paging['page'], $paging['per_page']);
+        }
 
         return $this;
     }
@@ -56,11 +82,11 @@ class FilterCriteria
                             break;
                         }
                     }
-                    if (! $conditionMet) {
+                    if ( ! $conditionMet) {
                         return false;
                     }
                 } elseif (is_bool($conditions) || is_int($conditions) || is_float($conditions)) {
-                    if (! $this->evaluateCondition($item, $attribute, '===', $conditions)) {
+                    if ( ! $this->evaluateCondition($item, $attribute, '===', $conditions)) {
                         return false;
                     }
                 } else {
@@ -70,7 +96,7 @@ class FilterCriteria
                             "≥",
                         ) && ! str_contains($conditions, "≤")
                     ) {
-                        if (! $this->evaluateCondition($item, $attribute, '=', $conditions)) {
+                        if ( ! $this->evaluateCondition($item, $attribute, '=', $conditions)) {
                             return false;
                         }
                     } else {
@@ -122,15 +148,13 @@ class FilterCriteria
 
     private function applyPaginate(array $results, int $page, int $perPage): array
     {
-
         $totalResults = count($results);
         $totalPages   = ceil($totalResults / $perPage);
 
         $pagingDto = new PagingDto(perPage: $perPage, page: $page);
         $pagingDto->setTotalCount($totalResults);
 
-        if($totalResults === 0)
-        {
+        if ($totalResults === 0) {
             return [];
         }
 
@@ -147,8 +171,6 @@ class FilterCriteria
         }
 
         $start = ($page - 1) * $perPage;
-
-        var_dump(array_slice($results, $start, $perPage));
 
         return array_slice($results, $start, $perPage);
     }
@@ -185,17 +207,9 @@ class FilterCriteria
         };
     }
 
-    /**
-     * Retrieves a value from a nested array using a key or a dot-separated path.
-     *
-     * @param  array  $array  Array to search for the value.
-     * @param  string  $key  Key or dot-separated path (e.g. 'address.city').
-     *
-     * @return mixed|null The value if found, null otherwise.
-     */
     private function getNestedValue(array $array, string $key): mixed
     {
-        $keys = explode('.', $key);
+        $keys         = explode('.', $key);
         $currentValue = $array;
 
         foreach ($keys as $key) {
@@ -204,7 +218,7 @@ class FilterCriteria
             } elseif (is_array($currentValue) && array_key_exists($key, $currentValue)) {
                 $currentValue = array_column($currentValue, $key);
             } else {
-                if (!is_array($currentValue)) {
+                if ( ! is_array($currentValue)) {
                     throw new \InvalidArgumentException(
                         "Invalid path provided: '$key' not found in the nested structure."
                     );
@@ -218,7 +232,7 @@ class FilterCriteria
                     }
                 }
 
-                if (! empty($tempArray)) {
+                if ( ! empty($tempArray)) {
                     $currentValue = $tempArray;
                 } else {
                     return null;
@@ -240,5 +254,51 @@ class FilterCriteria
         }
 
         return [null, null, null];
+    }
+
+    public function getMetaFilters(array $originalData): array
+    {
+        $metaFilters = [];
+
+        foreach ($this->postFilter as $attribute => $conditions) {
+            $externalAttribute               = $conditions['external'];
+            $metaFilters[$externalAttribute] = $this->getUniqueValues($originalData, $attribute, $conditions);
+        }
+
+        return $metaFilters;
+    }
+
+    private function getUniqueValues(array $data, string $attribute, array $conditions): array
+    {
+        $values          = [];
+        $displayValueKey = $conditions['displayValue'] ?? null;
+
+        foreach ($data as $item) {
+            $value = $this->getNestedValue($item, $attribute);
+
+            if ($displayValueKey) {
+                $displayValue = $this->getNestedValue($item, $displayValueKey);
+            }
+
+            if (is_array($value)) {
+                foreach ($value as $subValue) {
+                    $values[] = $displayValueKey ? ['id' => $subValue, 'name' => $displayValue] : $subValue;
+                }
+            } else {
+                $values[] = $displayValueKey ? ['id' => $value, 'name' => $displayValue] : $value;
+            }
+        }
+
+        // Remove duplicate arrays in values
+        $values = array_map("unserialize", array_unique(array_map("serialize", $values)));
+        sort($values);
+        return array_values($values);
+    }
+
+    private function resolveInternalParameterName($externalParameter): ?string
+    {
+        return array_keys( array_filter($this->postFilter,
+            fn ($filterParam) => $filterParam['external'] === $externalParameter
+        ), )[0] ?? null;
     }
 }
