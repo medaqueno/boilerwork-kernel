@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * Builds query criteria objects from a HTTP request. Allows mapping external parameters
  * to internal names, storing filtering, sorting, pagination and hashing params.
+ *
  */
 final class QueryCriteria
 {
@@ -23,6 +24,29 @@ final class QueryCriteria
     private string $language = Language::FALLBACK;
     private ServerRequestInterface $request;
 
+    /**
+     * Create QueryCriteria from a request.
+     *
+     * Parses and normalizes query string parameters to build query criteria.
+     *
+     * Accepted parameters include:
+     *
+     * - <search field name> - Search values
+     * - filter[<field name>] - Filter values
+     * - filter[<field name>][] - Multi-value filters
+     * - order_by - Sorting (field,direction)
+     * - page - Pagination page
+     * - per_page - Pagination per page
+     *
+     * - lang - must be added manually
+     *
+     * For example:
+     *
+     * search?page=1&per_page=25&order_by=iso2,asc&name=Vibra Monterrey Aparthotel&
+     *      filter[categories]=1-3&filter[active][]=true&filter[active][]=false&
+     *      id=0187b3e1-f74a-78a7-9f30-397e2055dadb&filter[iso2]=FR
+     *
+     */
     public static function createFromRequest(ServerRequestInterface $request): self
     {
         $instance          = new self();
