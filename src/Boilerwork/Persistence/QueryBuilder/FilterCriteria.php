@@ -45,17 +45,13 @@ class FilterCriteria
     public function orderBy(?array $sorting): self
     {
         if ($sorting) {
-            $internalSortParam = $this->resolveInternalParameterName($sorting['sort']);
-
-            if ($internalSortParam) {
-                $order = $sorting['operator'] ?? 'asc';
-                $this->filteredData = $this->applyOrderBy($this->filteredData, $internalSortParam, $order);
-            }
+            $order              = $sorting['operator'] ?? 'asc';
+            $this->filteredData = $this->applyOrderBy($this->filteredData, $sorting['sort'], $order);
         }
 
         return $this;
     }
-    
+
     public function paginate(?array $paging): self
     {
         if ($paging) {
@@ -82,11 +78,11 @@ class FilterCriteria
                             break;
                         }
                     }
-                    if ( ! $conditionMet) {
+                    if (! $conditionMet) {
                         return false;
                     }
                 } elseif (is_bool($conditions) || is_int($conditions) || is_float($conditions)) {
-                    if ( ! $this->evaluateCondition($item, $attribute, '===', $conditions)) {
+                    if (! $this->evaluateCondition($item, $attribute, '===', $conditions)) {
                         return false;
                     }
                 } else {
@@ -96,7 +92,7 @@ class FilterCriteria
                             "≥",
                         ) && ! str_contains($conditions, "≤")
                     ) {
-                        if ( ! $this->evaluateCondition($item, $attribute, '=', $conditions)) {
+                        if (! $this->evaluateCondition($item, $attribute, '=', $conditions)) {
                             return false;
                         }
                     } else {
@@ -218,7 +214,7 @@ class FilterCriteria
             } elseif (is_array($currentValue) && array_key_exists($key, $currentValue)) {
                 $currentValue = array_column($currentValue, $key);
             } else {
-                if ( ! is_array($currentValue)) {
+                if (! is_array($currentValue)) {
                     throw new \InvalidArgumentException(
                         "Invalid path provided: '$key' not found in the nested structure."
                     );
@@ -232,7 +228,7 @@ class FilterCriteria
                     }
                 }
 
-                if ( ! empty($tempArray)) {
+                if (! empty($tempArray)) {
                     $currentValue = $tempArray;
                 } else {
                     return null;
@@ -292,13 +288,17 @@ class FilterCriteria
         // Remove duplicate arrays in values
         $values = array_map("unserialize", array_unique(array_map("serialize", $values)));
         sort($values);
+
         return array_values($values);
     }
 
     private function resolveInternalParameterName($externalParameter): ?string
     {
-        return array_keys( array_filter($this->postFilter,
-            fn ($filterParam) => $filterParam['external'] === $externalParameter
-        ), )[0] ?? null;
+        return array_keys(
+            array_filter(
+                $this->postFilter,
+                fn($filterParam) => $filterParam['external'] === $externalParameter,
+            ),
+        )[0] ?? null;
     }
 }

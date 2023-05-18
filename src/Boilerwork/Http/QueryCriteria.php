@@ -19,10 +19,17 @@ use Psr\Http\Message\ServerRequestInterface;
 final class QueryCriteria
 {
     private array $params = [];
-    private array $originalParams = [];
+    private array $originalFilterParams = [];
+    private array $sortableFields = [];
     private ?string $orderBy;
     private string $language = Language::FALLBACK;
     private ServerRequestInterface $request;
+
+    const CAST_STRING = 'string';
+    const CAST_INT = 'int';
+    const CAST_FLOAT = 'float';
+    const CAST_BOOL = 'bool';
+    const CAST_NULL = 'null';
 
     /**
      * Create QueryCriteria from a request.
@@ -61,17 +68,27 @@ final class QueryCriteria
      * Searches for the given external parameter in the request and stores it under
      * the internal name.
      *
-     * @param string $external External parameter name.
-     * @param string $internal Internal parameter name.
+     * @param  string  $external  External parameter name.
+     * @param  string  $internal  Internal parameter name.
+     * @param  string  $castTo  Optional value type casting. Defaults to string
+     *
      * @return self
      */
-    public function addSearch(string $external, string $internal): self
+    public function addSearch(string $external, string $internal, string $castTo = QueryCriteria::CAST_STRING): self
     {
         $rawQueryParams = $this->request->getQueryParams();
 
         if (isset($rawQueryParams[$external])) {
-            $this->params[$internal] = $rawQueryParams[$external];
+            $this->params['search'][$internal] = [
+                'external' => $external,
+                'value'    => is_array($rawQueryParams[$external]) ? $rawQueryParams[$external] : $this->castString(
+                    $rawQueryParams[$external],
+                    $castTo,
+                ),
+            ];
         }
+
+        $this->sortableFields[$external] = $internal;
 
         return $this;
     }
@@ -81,27 +98,42 @@ final class QueryCriteria
      *
      * Searches for filter[$external] in the request. Can also accept an optional $displayValue.
      *
-     * @param string $external   External parameter name.
-     * @param string $internal   Internal parameter name.
-     * @param string $displayValue Optional displayed value for the filter.
+     * @param  string  $external  External parameter name.
+     * @param  string  $internal  Internal parameter name.
+     * @param  string  $displayValue  Optional displayed value for the filter.
+     * @param  string  $castTo  Optional value type casting. Defaults to string
+     *
      * @return self
      */
-    public function addFilter(string $external, string $internal, $displayValue = null): self
-    {
+    public function addFilter(
+        string $external,
+        string $internal,
+        string $displayValue = null,
+        string $castTo = QueryCriteria::CAST_STRING,
+    ): self {
         $rawQueryParams = $this->request->getQueryParams();
 
-        $this->originalParams[$internal] = [
-            'external'      => $external,
-            'value'         => isset($rawQueryParams['filter'][$external]) ? $rawQueryParams['filter'][$external] : null,
+        $filterValue = isset($rawQueryParams['filter'][$external])
+            ? (is_array($rawQueryParams['filter'][$external])
+                ? $rawQueryParams['filter'][$external]
+                : $this->castString($rawQueryParams['filter'][$external], $castTo)
+            )
+            : null;
+
+        $this->originalFilterParams[$internal] = [
+            'external'     => $external,
+            'value'        => $filterValue,
             'displayValue' => $displayValue,
         ];
 
         if (isset($rawQueryParams['filter'][$external])) {
             $this->params['filter'][$internal] = [
                 'external' => $external,
-                'value'    => $rawQueryParams['filter'][$external],
+                'value'    => $filterValue,
             ];
         }
+
+        $this->sortableFields[$external] = $internal;
 
         return $this;
     }
@@ -109,7 +141,8 @@ final class QueryCriteria
     /**
      * Sets the language.
      *
-     * @param string $language Language code. Defaults to platform fallback
+     * @param  string  $language  Language code. Defaults to platform fallback
+     *
      * @return self
      */
     public function addLanguage(string $language): self
@@ -131,31 +164,41 @@ final class QueryCriteria
         $rawQueryParams = $this->request->getQueryParams();
 
         if (isset($rawQueryParams['order_by'])) {
-            $this->params['order_by'] = $rawQueryParams['order_by'];
+            $orderParams    = explode(',', $rawQueryParams['order_by']);
+            $orderField     = $orderParams[0];
+            $orderDirection = $orderParams[1];
+
+            foreach ($this->sortableFields as $internal => $external) {
+                if ($external === $orderField) {
+                    $orderField = $internal;
+                    break;
+                }
+            }
+
+            $this->params['order_by'] = $orderField . ',' . $orderDirection;
         }
+
+        $this->orderBy = isset($this->params['order_by']) ? $this->params['order_by'] : null;
 
         if (isset($rawQueryParams['page']) && isset($rawQueryParams['per_page'])) {
             $this->params['page']     = (int)$rawQueryParams['page'];
             $this->params['per_page'] = (int)$rawQueryParams['per_page'];
         }
 
-        $this->convertStringToBoolean($this->params);
-        $this->orderBy = isset($this->params['order_by']) ? $this->params['order_by'] : null;
-
         $this->validate();
 
         return $this;
     }
 
-    private function convertStringToBoolean(&$params)
+    private function castString(string $value, string $castTo): mixed
     {
-        array_walk_recursive($params, function (&$value) {
-            if ($value === "true") {
-                $value = true;
-            } elseif ($value === "false") {
-                $value = false;
-            }
-        });
+        return match ($castTo) {
+            QueryCriteria::CAST_NULL => null,
+            QueryCriteria::CAST_INT => (int)$value,
+            QueryCriteria::CAST_FLOAT => (float)$value,
+            QueryCriteria::CAST_BOOL => (bool)$value,
+            default => (string)$value,
+        };
     }
 
     private function validate(): void
@@ -163,16 +206,21 @@ final class QueryCriteria
         $sortingParam = $this->getSortingParam();
 
         if ($sortingParam) {
-            $sort = $this->getSortingParam()['sort'];
+            $sort = $sortingParam['sort'];
             Assert::lazy()
-                ->that($sort)
-                ->satisfy(function () use ($sort) {
-                    $searchParam = $sort;
-                    $result      = array_filter($this->originalParams, function ($item) use ($searchParam) {
-                        return $item['external'] === $searchParam;
-                    });
+                ->that($sortingParam['sort'])
+                ->satisfy(function ($item) use ($sortingParam) {
 
-                    return array_keys($result)[0] ?? false;
+                    $sortExternal = explode(',', $this->orderBy)[0];
+
+                    return array_reduce(
+                        array_merge($this->getSearchParams(), $this->getAllFilterParams()),
+                        function ($carry, $item) use ($sortExternal) {
+                            return $carry || $item['external'] == $sortExternal;
+                        },
+                        false
+                    );
+
                 },
                     sprintf('Sorting is not allowed for: %s', $sort),
                     'sortingParam.invalidSortValue')
@@ -199,7 +247,7 @@ final class QueryCriteria
 
     public function getSearchParams(): array
     {
-        return array_diff_key($this->params, array_flip(['page', 'per_page', 'order_by', 'filter']));
+        return $this->params['search'] ?? [];
     }
 
     public function getPagingParams(): ?array
@@ -215,11 +263,13 @@ final class QueryCriteria
             return null;
         }
 
-        $orderBy = explode(',', $this->orderBy);
+        $orderBy           = explode(',', $this->orderBy);
+
+        $sortFieldInternal = $this->sortableFields[$orderBy[0]] ?? $orderBy[0];
 
         return [
-            'sort'     => $orderBy[0],
-            'operator' => $orderBy[1],
+            'sort'     => $sortFieldInternal,
+            'operator' => $orderBy[1] ?? null,
         ];
     }
 
@@ -236,7 +286,7 @@ final class QueryCriteria
      */
     public function getAllFilterParams(): array
     {
-        return $this->originalParams;
+        return $this->originalFilterParams;
     }
 
     public function getLanguage(): string
@@ -288,6 +338,7 @@ final class QueryCriteria
                 }
             }
         }
+
         return ksort($array);
     }
 }

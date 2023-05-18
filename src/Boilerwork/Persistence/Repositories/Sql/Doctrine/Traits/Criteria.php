@@ -32,7 +32,9 @@ trait Criteria
 
     private function addQueryCriteriaFilter(array $whereParams): QueryBuilder
     {
+
         foreach ($whereParams as $key => $value) {
+            $value = $value['value'];
             $valueType = gettype($value);
 
             match (gettype($value)) {
@@ -55,7 +57,6 @@ trait Criteria
                     ->setParameter('criteria_' . $key, (string)$value, ParameterType::STRING)
             };
         }
-
         return $this->queryBuilder;
     }
 
@@ -253,7 +254,7 @@ trait Criteria
 
 
 
-    
+
 
     /*
      * @deprecated

@@ -71,7 +71,7 @@ final class FilterCriteriaTest extends TestCase
 
         // Filtrar por tags
         $postFilter = [
-            'tags' => ['sports'],
+            'tags' => ['external' => 'tags', 'value' => 'sports']
         ];
 
         $filteredResults = $this->filterCriteria->setData($results)
@@ -85,7 +85,7 @@ final class FilterCriteriaTest extends TestCase
 
         // Filtrar por detalles anidados (por ejemplo, country)
         $postFilter = [
-            'details.address.country' => 'USA',
+            'details.address.country' => ['external' => 'details.address.country', 'value' => 'USA']
         ];
 
         $filteredResults = $this->filterCriteria->setData($results)
@@ -107,7 +107,7 @@ final class FilterCriteriaTest extends TestCase
         ];
 
         $filteredData = $this->filterCriteria->setData($data)
-            ->postFilter(['value' => 10])
+            ->postFilter(['value' => ['external' => 'value', 'value' => 10]])
             ->getResults();
 
         $this->assertCount(1, $filteredData);
@@ -123,7 +123,7 @@ final class FilterCriteriaTest extends TestCase
         ];
 
         $filteredData = $this->filterCriteria->setData($data)
-            ->postFilter(['value' => '≥10'])
+            ->postFilter(['value' => ['external' => 'value', 'value' => '≥10']])
             ->getResults();
 
         $this->assertCount(2, $filteredData);
@@ -140,7 +140,7 @@ final class FilterCriteriaTest extends TestCase
         ];
 
         $filteredData = $this->filterCriteria->setData($data)
-            ->postFilter(['value' => '≤10'])
+            ->postFilter(['value' => ['external' => 'value', 'value' => '≤10']])
             ->getResults();
 
         $this->assertCount(2, $filteredData);
@@ -157,7 +157,7 @@ final class FilterCriteriaTest extends TestCase
         ];
 
         $filteredData = $this->filterCriteria->setData($data)
-            ->postFilter(['value' => [5, 15]])
+            ->postFilter(['value' => ['external' => 'value', 'value' => [5, 15]]])
             ->getResults();
 
         $this->assertCount(2, $filteredData);
@@ -177,7 +177,7 @@ final class FilterCriteriaTest extends TestCase
 
         // Test descending order
         $sortedResults = $filterCriteria->setData($data)
-            ->orderBy('age', 'desc')
+            ->orderBy(['sort' => 'age', 'operator' => 'desc'])
             ->getResults();
 
         $expectedResults = [
@@ -188,6 +188,7 @@ final class FilterCriteriaTest extends TestCase
 
         $this->assertEquals($expectedResults, $sortedResults);
     }
+
     public function testOrderByAsc()
     {
         $filterCriteria = new FilterCriteria();
@@ -200,7 +201,7 @@ final class FilterCriteriaTest extends TestCase
 
         // Test ascending order
         $sortedResults = $filterCriteria->setData($data)
-            ->orderBy('age', 'asc')
+            ->orderBy(['sort' => 'age', 'operator' => 'asc'])
             ->getResults();
 
         $expectedResults = [
@@ -232,7 +233,7 @@ final class FilterCriteriaTest extends TestCase
         $page = 2;
 
         $paginatedResults = $this->filterCriteria->setData($data)
-            ->paginate($page, $limit)
+            ->paginate(['page' => $page, 'per_page' => $limit])
             ->getResults();
 
         // Debería devolver 3 elementos en la página 2
@@ -246,7 +247,7 @@ final class FilterCriteriaTest extends TestCase
         $page = 1;
 
         $paginatedResults = $this->filterCriteria->setData($data)
-            ->paginate($page, $limit)
+            ->paginate(['page' => $page, 'per_page' => $limit])
             ->getResults();
 
         // Debería devolver 5 elementos en la página 1
