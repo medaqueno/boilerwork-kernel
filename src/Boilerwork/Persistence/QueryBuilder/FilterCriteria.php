@@ -21,7 +21,7 @@ class FilterCriteria
 
     public function postFilter(array $postFilter): self
     {
-        $this->postFilter  = $postFilter;
+        $this->postFilter = $postFilter;
         $transformedFilter = $this->transformFilter($postFilter);
 
         $this->filteredData = $this->applyPostFilter($this->filteredData, $transformedFilter);
@@ -45,7 +45,7 @@ class FilterCriteria
     public function orderBy(?array $sorting): self
     {
         if ($sorting) {
-            $order              = $sorting['operator'] ?? 'asc';
+            $order = $sorting['operator'] ?? 'asc';
             $this->filteredData = $this->applyOrderBy($this->filteredData, $sorting['sort'], $order);
         }
 
@@ -78,21 +78,21 @@ class FilterCriteria
                             break;
                         }
                     }
-                    if (! $conditionMet) {
+                    if (!$conditionMet) {
                         return false;
                     }
                 } elseif (is_bool($conditions) || is_int($conditions) || is_float($conditions)) {
-                    if (! $this->evaluateCondition($item, $attribute, '===', $conditions)) {
+                    if (!$this->evaluateCondition($item, $attribute, '===', $conditions)) {
                         return false;
                     }
                 } else {
                     if (
-                        is_string($conditions) && ! str_contains($conditions, "-") && ! str_contains(
+                        is_string($conditions) && !str_contains($conditions, "-") && !str_contains(
                             $conditions,
                             "≥",
-                        ) && ! str_contains($conditions, "≤")
+                        ) && !str_contains($conditions, "≤")
                     ) {
-                        if (! $this->evaluateCondition($item, $attribute, '=', $conditions)) {
+                        if (!$this->evaluateCondition($item, $attribute, '=', $conditions)) {
                             return false;
                         }
                     } else {
@@ -107,7 +107,7 @@ class FilterCriteria
                                     return false;
                                 }
                             } elseif ($operator === '≤') {
-                                if ($item[$attribute] > $min) {
+                                if ($item[$attribute] > $max) {
                                     return false;
                                 }
                             }
@@ -144,8 +144,17 @@ class FilterCriteria
 
     private function applyPaginate(array $results, int $page, int $perPage): array
     {
+        if ($perPage < 1) {
+            throw new PagingException(
+                'pagination.invalidPageRequestPerPage',
+                sprintf(
+                    'PerPage must an integer greater than 0'),
+                400
+            );
+        }
+
         $totalResults = count($results);
-        $totalPages   = ceil($totalResults / $perPage);
+        $totalPages = ceil($totalResults / $perPage);
 
         $pagingDto = new PagingDto(perPage: $perPage, page: $page);
         $pagingDto->setTotalCount($totalResults);
@@ -205,7 +214,7 @@ class FilterCriteria
 
     private function getNestedValue(array $array, string $key): mixed
     {
-        $keys         = explode('.', $key);
+        $keys = explode('.', $key);
         $currentValue = $array;
 
         foreach ($keys as $key) {
@@ -214,7 +223,7 @@ class FilterCriteria
             } elseif (is_array($currentValue) && array_key_exists($key, $currentValue)) {
                 $currentValue = array_column($currentValue, $key);
             } else {
-                if (! is_array($currentValue)) {
+                if (!is_array($currentValue)) {
                     throw new \InvalidArgumentException(
                         "Invalid path provided: '$key' not found in the nested structure."
                     );
@@ -228,7 +237,7 @@ class FilterCriteria
                     }
                 }
 
-                if (! empty($tempArray)) {
+                if (!empty($tempArray)) {
                     $currentValue = $tempArray;
                 } else {
                     return null;
@@ -243,8 +252,14 @@ class FilterCriteria
     {
         if (preg_match('/^(≥|≤)?(\d+)(-)?(\d+)?$/', $condition, $matches)) {
             $operator = $matches[1] ?: $matches[3];
-            $min      = (int)$matches[2];
-            $max      = isset($matches[4]) ? (int)$matches[4] : null;
+            $min = $matches[2];
+            $max = $matches[4] ?? null;
+
+            // Cuando el operador es '≤', estamos estableciendo un máximo, no un mínimo.
+            if ($operator === '≤') {
+                $max = $min;
+                $min = null;
+            }
 
             return [$min, $operator, $max];
         }
@@ -257,7 +272,7 @@ class FilterCriteria
         $metaFilters = [];
 
         foreach ($this->postFilter as $attribute => $conditions) {
-            $externalAttribute               = $conditions['external'];
+            $externalAttribute = $conditions['external'];
             $metaFilters[$externalAttribute] = $this->getUniqueValues($originalData, $attribute, $conditions);
         }
 
@@ -266,7 +281,7 @@ class FilterCriteria
 
     private function getUniqueValues(array $data, string $attribute, array $conditions): array
     {
-        $values          = [];
+        $values = [];
         $displayValueKey = $conditions['displayValue'] ?? null;
 
         foreach ($data as $item) {
@@ -287,8 +302,15 @@ class FilterCriteria
 
         // Remove duplicate arrays in values
         $values = array_map("unserialize", array_unique(array_map("serialize", $values)));
-        sort($values);
 
+        // Check if condition is a range
+        if (!is_array($conditions['value']) && str_contains($conditions['value'], '-')) {
+            $minValue = min($values);
+            $maxValue = max($values);
+            return ['min' => $minValue, 'max' => $maxValue];
+        }
+
+        sort($values);
         return array_values($values);
     }
 
