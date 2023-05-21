@@ -44,38 +44,112 @@ trait Criteria
         return $this->queryBuilder;
     }
 
-    private function addUnifiedCriteriaSorting(array $sorting): QueryBuilder
+    // Filtering
+
+    private function handleJsonKey(string $key, mixed $value): QueryBuilder
     {
-        // Determina si es una clave JSON (contiene '.') o no.
-        if (str_contains($sorting['sort'], '.')) {
-            $this->addJsonQueryCriteriaOrderBy($sorting);
+        $jsonPath = explode('.', $key);
+        $placeholderKey = preg_replace('/\W/', '_', $key);
+        $columnName = $jsonPath[0];
+
+        if (is_array($value)) {
+            $this->queryBuilder->andWhere(
+                $this->queryBuilder->expr()->orX(
+                    ...array_map(
+                        fn($val, $i) => $this->createJsonComparisonExpression($key, $val, $columnName, $jsonPath, $placeholderKey, $i),
+                        $value,
+                        array_keys($value)
+                    )
+                )
+            );
         } else {
-            $this->addCriteriaOrderBy($sorting);
+            $this->queryBuilder->andWhere($this->createJsonComparisonExpression($key, $value, $columnName, $jsonPath, $placeholderKey));
         }
 
         return $this->queryBuilder;
     }
 
-    private function handleJsonKey(string $key, mixed $value): QueryBuilder
+    private function createJsonComparisonExpression(string $key, mixed $value, string $columnName, array $jsonPath, string $placeholderKey, ?int $index = null): string
     {
-        $jsonPath         = explode('.', $key);
-        $placeholderKey   = preg_replace('/\W/', '_', $key);
-        $valuePlaceholder = ":value$placeholderKey";
+        $valuePlaceholder = ":value{$placeholderKey}" . (isset($index) ? "_$index" : '');
 
         if (is_bool($value)) {
             $valuePlaceholder = $value ? 'true' : 'false';
         } elseif (is_int($value) || is_float($value)) {
             $valuePlaceholder = $value;
         } elseif (is_null($value) || $value === 'null') {
-            $value            = null;
+            $value = null;
             $valuePlaceholder = 'NULL';
         }
 
+        if (count($jsonPath) > 2) {
+            array_shift($jsonPath);
+            $lastPathPart = array_pop($jsonPath);
+            $jsonPathExpression = implode(
+                '->',
+                array_map(
+                    function ($pathPart) {
+                        return sprintf("'%s'", $pathPart);
+                    },
+                    $jsonPath
+                )
+            );
+
+            $comparisonExpression = sprintf(
+                    "%s %s %s",
+                    is_string($value) ? "lower(immutable_unaccent(" : "",
+                    "$columnName -> $jsonPathExpression ->> '$lastPathPart'",
+                    is_string($value) ? "))" : "",
+                )
+                . ($value === null ? 'IS' : '=')
+                . sprintf(
+                    " %s%s%s",
+                    is_string($value) ? "lower(immutable_unaccent(" : "",
+                    $valuePlaceholder,
+                    is_string($value) ? "))" : "",
+                );
+
+        } else {
+            $comparisonExpression = sprintf(
+                    "%s %s %s",
+                    is_string($value) ? "lower(immutable_unaccent(" : "",
+                    "$columnName ->> '{$jsonPath[1]}'",
+                    is_string($value) ? "))" : "",
+                )
+                . ($value === null ? 'IS' : '=')
+                . sprintf(
+                    " %s%s%s",
+                    is_string($value) ? "lower(immutable_unaccent(" : "",
+                    $valuePlaceholder,
+                    is_string($value) ? "))" : "",
+                );
+        }
+
+        if (is_string($value)) {
+            $this->queryBuilder->setParameter("value{$placeholderKey}" . (isset($index) ? "_$index" : ""), $value);
+        }
+
+        return $comparisonExpression;
+    }
+
+
+    private function handleJsonKeyValue(string $key, mixed $value, string $placeholderKey, array $jsonPath, bool $isOrWhere): void
+    {
+        $valuePlaceholder = ":value$placeholderKey";
         $columnName = $jsonPath[0];
+
+        if (is_bool($value)) {
+            $valuePlaceholder = $value ? 'true' : 'false';
+        } elseif (is_int($value) || is_float($value)) {
+            $valuePlaceholder = $value;
+        } elseif (is_null($value) || $value === 'null') {
+            $value = null;
+            $valuePlaceholder = 'NULL';
+        }
 
         if (count($jsonPath) > 2) {
             array_shift($jsonPath);
-            $lastPathPart       = array_pop($jsonPath);
+            $lastPathPart = array_pop($jsonPath);
             $jsonPathExpression = implode(
                 '->',
                 array_map(function ($pathPart) {
@@ -84,7 +158,7 @@ trait Criteria
             );
 
             $this->queryBuilder
-                ->andWhere(
+                ->{$isOrWhere ? 'orWhere' : 'andWhere'}(
                     sprintf(
                         "%s %s %s",
                         is_string($value) ? "lower(immutable_unaccent(" : "",
@@ -105,7 +179,7 @@ trait Criteria
             }
         } else {
             $this->queryBuilder
-                ->andWhere(
+                ->{$isOrWhere ? 'orWhere' : 'andWhere'}(
                     sprintf(
                         "%s %s %s",
                         is_string($value) ? "lower(immutable_unaccent(" : "",
@@ -125,33 +199,87 @@ trait Criteria
                 $this->queryBuilder->setParameter("value$placeholderKey", $value);
             }
         }
-
-        return $this->queryBuilder;
     }
 
     private function handleNormalKey(string $key, mixed $value): QueryBuilder
     {
+        if (is_array($value)) {
+            $this->queryBuilder->andWhere(
+                $this->queryBuilder->expr()->orX(
+                    ...array_map(
+                        fn($val, $i) => $this->createComparisonExpression($key, $val, $i),
+                        $value,
+                        array_keys($value)
+                    )
+                )
+            );
+        } else {
+            $this->queryBuilder->andWhere($this->createComparisonExpression($key, $value));
+        }
+
+        return $this->queryBuilder;
+    }
+
+
+    private function createComparisonExpression(string $key, mixed $value, ?int $index = null): string
+    {
+        $parameterKey = 'criteria_' . $key . (isset($index) ? "_$index" : '');
+
+        switch (gettype($value)) {
+            case 'boolean':
+                $this->queryBuilder->setParameter($parameterKey, $value, ParameterType::BOOLEAN);
+                return $key . ' = :' . $parameterKey;
+            case 'integer':
+                $this->queryBuilder->setParameter($parameterKey, $value, ParameterType::INTEGER);
+                return $key . ' = :' . $parameterKey;
+            case 'NULL':
+                return $key . ' IS NULL';
+            default:
+                $this->queryBuilder->setParameter($parameterKey, (string)$value, ParameterType::STRING);
+                return sprintf(
+                    'lower(immutable_unaccent(%s::TEXT)) = lower(immutable_unaccent(:%s))',
+                    $key,
+                    $parameterKey,
+                );
+        }
+    }
+
+    private function handleNormalKeyValue(string $key, mixed $value, ?int $index, bool $isOrWhere): void
+    {
         $valueType = gettype($value);
+        $parameterKey = 'criteria_' . $key . (isset($index) ? "_$index" : '');
 
         match ($valueType) {
             'boolean' => $this->queryBuilder
-                ->andWhere($key . ' = :criteria_' . $key)
-                ->setParameter('criteria_' . $key, $value, ParameterType::BOOLEAN),
+                ->{$isOrWhere ? 'orWhere' : 'andWhere'}($key . ' = :' . $parameterKey)
+                ->setParameter($parameterKey, $value, ParameterType::BOOLEAN),
             'integer' => $this->queryBuilder
-                ->andWhere($key . ' = :criteria_' . $key)
-                ->setParameter('criteria_' . $key, $value, ParameterType::INTEGER),
+                ->{$isOrWhere ? 'orWhere' : 'andWhere'}($key . ' = :' . $parameterKey)
+                ->setParameter($parameterKey, $value, ParameterType::INTEGER),
             'NULL' => $this->queryBuilder
-                ->andWhere($key . ' IS NULL'),
+                ->{$isOrWhere ? 'orWhere' : 'andWhere'}($key . ' IS NULL'),
             default => $this->queryBuilder
-                ->andWhere(
+                ->{$isOrWhere ? 'orWhere' : 'andWhere'}(
                     sprintf(
-                        'lower(immutable_unaccent(%s::TEXT)) = lower(immutable_unaccent(:criteria_%s))',
+                        'lower(immutable_unaccent(%s::TEXT)) = lower(immutable_unaccent(:%s))',
                         $key,
-                        $key,
+                        $parameterKey,
                     ),
                 )
-                ->setParameter('criteria_' . $key, (string)$value,ParameterType::STRING)
+                ->setParameter($parameterKey, (string)$value, ParameterType::STRING)
         };
+    }
+
+    // Sorting
+
+    private function addUnifiedCriteriaSorting(array $sorting): QueryBuilder
+    {
+        // Determina si es una clave JSON (contiene '.') o no.
+        if (str_contains($sorting['sort'], '.')) {
+            $this->addJsonQueryCriteriaOrderBy($sorting);
+        } else {
+            $this->addCriteriaOrderBy($sorting);
+        }
 
         return $this->queryBuilder;
     }
