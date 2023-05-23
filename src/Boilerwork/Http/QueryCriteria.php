@@ -208,22 +208,22 @@ final class QueryCriteria
         if ($sortingParam) {
             $sort = $sortingParam['sort'];
             Assert::lazy()
-                ->that($sortingParam['sort'])
-                ->satisfy(function ($item) use ($sortingParam) {
-
-                    $sortExternal = explode(',', $this->orderBy)[0];
-
-                    return array_reduce(
-                        array_merge($this->getSearchParams(), $this->getAllFilterParams()),
-                        function ($carry, $item) use ($sortExternal) {
-                            return $carry || $item['external'] == $sortExternal;
-                        },
-                        false
-                    );
-
-                },
-                    sprintf('Sorting is not allowed for: %s', $sort),
-                    'sortingParam.invalidSortValue')
+//                ->that($sortingParam['sort'])
+//                ->satisfy(function ($item) use ($sortingParam) {
+//
+//                    $sortExternal = explode(',', $this->orderBy)[0];
+//
+//                    return array_reduce(
+//                        array_merge($this->getSearchParams(), $this->getAllFilterParams()),
+//                        function ($carry, $item) use ($sortExternal) {
+//                            return $carry || $item['external'] == $sortExternal;
+//                        },
+//                        false
+//                    );
+//
+//                },
+//                    sprintf('Sorting is not allowed for: %s', $sort),
+//                    'sortingParam.invalidSortValue')
                 ->that($sortingParam['sort'])
                 ->regex(
                     '/\A[A-Za-z0-9_.-]+\z/',
