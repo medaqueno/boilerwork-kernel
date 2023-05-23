@@ -304,7 +304,7 @@ class FilterCriteria
         $values = array_map("unserialize", array_unique(array_map("serialize", $values)));
 
         // Check if condition is a range
-        if (!is_array($conditions['value']) && str_contains($conditions['value'], '-')) {
+        if (is_string($conditions['value']) && str_contains($conditions['value'], '-')) {
             $minValue = min($values);
             $maxValue = max($values);
             return ['min' => $minValue, 'max' => $maxValue];
