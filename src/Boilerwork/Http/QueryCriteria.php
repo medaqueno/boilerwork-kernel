@@ -139,6 +139,35 @@ final class QueryCriteria
     }
 
     /**
+     * Add a search parameter from any source such as a dynamic URI.
+     *
+     * This method can be used to add dynamic search parameters to your query criteria.
+     * Example usage for a URI: /item/detail/{id} -> /item/detail/2f3433fd-7c83-4b52-98bc-06d75bf0cf2a
+     *
+     * @param string $external External parameter name.
+     * @param string $internal Internal parameter name.
+     * @param mixed $value Value assigned to this parameter.
+     * @param string $castTo Optional value type casting. Defaults to QueryCriteria::CAST_STRING.
+     *
+     * @return self
+     * @throws \InvalidArgumentException if the $castTo value is not a valid type.
+     */
+    public function addParamToSearch(string $external, string $internal, mixed $value, string $castTo = QueryCriteria::CAST_STRING): self
+    {
+        $this->params['search'][$internal] = [
+            'external' => $external,
+            'value'    => $this->castString(
+                $value,
+                $castTo,
+            ),
+        ];
+
+        $this->sortableFields[$external] = $external;
+
+        return $this;
+    }
+
+    /**
      * Sets the language.
      *
      * @param  string  $language  Language code. Defaults to platform fallback

@@ -150,4 +150,23 @@ final class QueryCriteriaTest extends TestCase
             ->addLanguage('en')
             ->build();
     }
+
+
+    public function testAddParamToSearch(): void
+    {
+        $queryCriteria = new QueryCriteria();
+
+        $external = 'id';
+        $internal = 'id';
+        $value = '2f3433fd-7c83-4b52-98bc-06d75bf0cf2a';
+        $castTo = QueryCriteria::CAST_STRING;
+
+        $queryCriteria->addParamToSearch($external, $internal, $value, $castTo);
+
+        $searchParams = $queryCriteria->getSearchParams();
+
+        $this->assertArrayHasKey($internal, $searchParams);
+        $this->assertEquals($external, $searchParams[$internal]['external']);
+        $this->assertEquals($value, $searchParams[$internal]['value']);
+    }
 }
