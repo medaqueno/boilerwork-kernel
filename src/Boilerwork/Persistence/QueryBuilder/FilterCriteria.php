@@ -307,7 +307,7 @@ class FilterCriteria
         if (is_string($conditions['value']) && str_contains($conditions['value'], '-')) {
             $minValue = min($values);
             $maxValue = max($values);
-            return ['min' => $minValue, 'max' => $maxValue];
+            return [$minValue, $maxValue];
         }
 
         sort($values);
