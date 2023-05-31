@@ -58,7 +58,6 @@ readonly class MultiLingualText
      * Creates an empty ValueObject from a text and a language.
      * If the text does not exist, the character '-' is returned.
      *
-     * @throws LazyAssertionException
      */
     public static function fromSingleLanguageString(string $text, string $language = Language::FALLBACK): self
     {
@@ -77,7 +76,6 @@ readonly class MultiLingualText
     /**
      * Creates a ValueObject from a JSON string.
      *
-     * @throws LazyAssertionException
      */
     public static function fromJson(string $json): self
     {
@@ -94,7 +92,6 @@ readonly class MultiLingualText
     /**
      * Adds a text in a specific language.
      *
-     * @throws LazyAssertionException
      */
     public function addText(string $text, string $language = Language::FALLBACK): self
     {
@@ -113,7 +110,6 @@ readonly class MultiLingualText
     /**
      * Adds or replaces values from an array.
      *
-     * @throws LazyAssertionException
      */
     public function addOrReplaceFromArray(array $texts): self
     {
@@ -182,7 +178,6 @@ readonly class MultiLingualText
     /**
      * Returns the text in the required language
      *
-     * @throws LazyAssertionException
      */
     public function toStringByLang(string $language = Language::FALLBACK): string
     {
@@ -221,7 +216,6 @@ readonly class MultiLingualText
 
     /**
      * Returns the text and the required language in JSON format.
-     * @throws LazyAssertionException
      * @example: { 'ES': 'Text Localised' }
      *
      */

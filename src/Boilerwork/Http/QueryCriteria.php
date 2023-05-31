@@ -144,16 +144,20 @@ final class QueryCriteria
      * This method can be used to add dynamic search parameters to your query criteria.
      * Example usage for a URI: /item/detail/{id} -> /item/detail/2f3433fd-7c83-4b52-98bc-06d75bf0cf2a
      *
-     * @param string $external External parameter name.
-     * @param string $internal Internal parameter name.
-     * @param mixed $value Value assigned to this parameter.
-     * @param string $castTo Optional value type casting. Defaults to QueryCriteria::CAST_STRING.
+     * @param  string  $external  External parameter name.
+     * @param  string  $internal  Internal parameter name.
+     * @param  mixed  $value  Value assigned to this parameter.
+     * @param  string  $castTo  Optional value type casting. Defaults to QueryCriteria::CAST_STRING.
      *
      * @return self
      * @throws \InvalidArgumentException if the $castTo value is not a valid type.
      */
-    public function addParamToSearch(string $external, string $internal, mixed $value, string $castTo = QueryCriteria::CAST_STRING): self
-    {
+    public function addParamToSearch(
+        string $external,
+        string $internal,
+        mixed $value,
+        string $castTo = QueryCriteria::CAST_STRING,
+    ): self {
         $this->params['search'][$internal] = [
             'external' => $external,
             'value'    => $this->castString(
@@ -221,6 +225,23 @@ final class QueryCriteria
 
     private function castString(string $value, string $castTo): mixed
     {
+        $integerRangePattern  = "/^\d+-\d+$/";
+        $floatRangePattern    = "/^\d+\.\d+-\d+\.\d+$/";
+        $timeRangePattern     = "/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]-(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/";
+        $atomDateRangePattern = "/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\+\d{2}:\d{2})?)-(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\+\d{2}:\d{2})?)$/";
+
+        // Search for range type params and protect from casting wrongly.
+        if (
+            $castTo !== QueryCriteria::CAST_STRING && (
+                preg_match($integerRangePattern, $value)
+                || preg_match($floatRangePattern, $value)
+                || preg_match($timeRangePattern, $value)
+                || preg_match($atomDateRangePattern, $value)
+            )
+        ) {
+            $castTo = QueryCriteria::CAST_STRING;
+        }
+
         return match ($castTo) {
             QueryCriteria::CAST_NULL => null,
             QueryCriteria::CAST_INT => (int)$value,
@@ -292,7 +313,7 @@ final class QueryCriteria
             return null;
         }
 
-        $orderBy           = explode(',', $this->orderBy);
+        $orderBy = explode(',', $this->orderBy);
 
         $sortFieldInternal = $this->sortableFields[$orderBy[0]] ?? $orderBy[0];
 
