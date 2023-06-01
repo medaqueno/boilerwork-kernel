@@ -299,12 +299,16 @@ class FilterCriteria
                 $displayValue = $this->getNestedValue($item, $displayValueKey);
             }
 
+            if(is_array($displayValue)){
+                $displayValue = $displayValue[0];
+            }
+
             if (is_array($value)) {
                 foreach ($value as $subValue) {
-                    $values[] = $displayValueKey ? ['id' => $subValue, 'name' => $displayValue[0]] : $subValue;
+                    $values[] = $displayValueKey ? ['id' => $subValue, 'name' => $displayValue] : $subValue;
                 }
             } else {
-                $values[] = $displayValueKey ? ['id' => $value, 'name' => $displayValue[0]] : $value;
+                $values[] = $displayValueKey ? ['id' => $value, 'name' => $displayValue] : $value;
             }
         }
 
