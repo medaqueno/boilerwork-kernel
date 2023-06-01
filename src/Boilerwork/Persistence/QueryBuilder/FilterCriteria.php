@@ -297,11 +297,13 @@ class FilterCriteria
 
             if ($displayValueKey) {
                 $displayValue = $this->getNestedValue($item, $displayValueKey);
+
+                if(is_array($displayValue)){
+                    $displayValue = $displayValue[0];
+                }
             }
 
-            if(is_array($displayValue)){
-                $displayValue = $displayValue[0];
-            }
+
 
             if (is_array($value)) {
                 foreach ($value as $subValue) {
