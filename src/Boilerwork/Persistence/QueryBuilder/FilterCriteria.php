@@ -25,10 +25,12 @@ class FilterCriteria
         $this->postFilter  = $postFilter;
         $transformedFilter = $this->transformFilter($postFilter);
 
-        $this->filteredData = $this->applyPostFilter($this->filteredData, $transformedFilter);
+        // No necesitamos reasignar el resultado a $this->filteredData
+        $this->applyPostFilter($transformedFilter);
 
         return $this;
     }
+
 
     private function transformFilter(array $filterData): array
     {
@@ -46,8 +48,8 @@ class FilterCriteria
     public function orderBy(?array $sorting): self
     {
         if ($sorting) {
-            $order              = $sorting['operator'] ?? 'asc';
-            $this->filteredData = $this->applyOrderBy($this->filteredData, $sorting['sort'], $order);
+            $order = $sorting['operator'] ?? 'asc';
+            $this->applyOrderBy($sorting['sort'], $order);
         }
 
         return $this;
@@ -56,7 +58,7 @@ class FilterCriteria
     public function paginate(?array $paging): self
     {
         if ($paging) {
-            $this->filteredData = $this->applyPaginate($this->filteredData, $paging['page'], $paging['per_page']);
+            $this->applyPaginate($paging['page'], $paging['per_page']);
         }
 
         return $this;
@@ -67,10 +69,10 @@ class FilterCriteria
         return $this->filteredData;
     }
 
-    private function applyPostFilter(array $results, array $postFilter): array
+    private function applyPostFilter(array $postFilter): void
     {
         foreach ($postFilter as $attribute => $conditions) {
-            $results = array_filter($results, function ($item) use ($attribute, $conditions) {
+            $this->filteredData = array_filter($this->filteredData, function ($item) use ($attribute, $conditions) {
                 if (is_array($conditions)) {
                     $conditionMet = false;
                     foreach ($conditions as $condition) {
@@ -121,14 +123,15 @@ class FilterCriteria
 
                 return true;
             });
-        }
 
-        return array_values($results);
+            // Reset the array keys
+            $this->filteredData = array_values($this->filteredData);
+        }
     }
 
-    private function applyOrderBy(array $results, string $attribute, string $order = 'asc'): array
+    private function applyOrderBy(string $attribute, string $order = 'asc'): void
     {
-        usort($results, function ($a, $b) use ($attribute, $order) {
+        usort($this->filteredData, function ($a, $b) use ($attribute, $order) {
             $aValue = $this->getNestedValue($a, $attribute);
             $bValue = $this->getNestedValue($b, $attribute);
 
@@ -142,11 +145,9 @@ class FilterCriteria
                 return ($aValue > $bValue) ? -1 : 1;
             }
         });
-
-        return $results;
     }
 
-    private function applyPaginate(array $results, int $page, int $perPage): array
+    private function applyPaginate(int $page, int $perPage): void
     {
         if ($perPage < 1) {
             throw new PagingException(
@@ -158,14 +159,15 @@ class FilterCriteria
             );
         }
 
-        $totalResults = count($results);
+        $totalResults = count($this->filteredData);
         $totalPages   = ceil($totalResults / $perPage);
 
         $pagingDto = new PagingDto(perPage: $perPage, page: $page);
         $pagingDto->setTotalCount($totalResults);
 
         if ($totalResults === 0) {
-            return [];
+            $this->filteredData = [];
+            return;
         }
 
         if ($page < 1 || $page > $totalPages) {
@@ -182,7 +184,7 @@ class FilterCriteria
 
         $start = ($page - 1) * $perPage;
 
-        return array_slice($results, $start, $perPage);
+        $this->filteredData = array_slice($this->filteredData, $start, $perPage);
     }
 
     public function evaluateCondition($row, $column, $operator, $value): bool
@@ -216,7 +218,6 @@ class FilterCriteria
             default => throw new \InvalidArgumentException("Unsupported operator: $operator"),
         };
     }
-
 
     private function getNestedValue(array $array, string $key): mixed
     {
@@ -287,9 +288,8 @@ class FilterCriteria
         return $metaFilters;
     }
 
-    private function getUniqueValues(array $data, string $attribute, array $conditions): array
+    private function generateValues(array $data, string $attribute, array $conditions): \Generator
     {
-        $values          = [];
         $displayValueKey = $conditions['displayValue'] ?? null;
 
         foreach ($data as $item) {
@@ -297,37 +297,43 @@ class FilterCriteria
 
             if ($displayValueKey) {
                 $displayValue = $this->getNestedValue($item, $displayValueKey);
-
                 if(is_array($displayValue)){
                     $displayValue = $displayValue[0];
                 }
             }
 
-
-
             if (is_array($value)) {
                 foreach ($value as $subValue) {
-                    $values[] = $displayValueKey ? ['id' => $subValue, 'name' => $displayValue] : $subValue;
+                    yield $displayValueKey ? ['id' => $subValue, 'name' => $displayValue] : $subValue;
                 }
             } else {
-                $values[] = $displayValueKey ? ['id' => $value, 'name' => $displayValue] : $value;
+                yield $displayValueKey ? ['id' => $value, 'name' => $displayValue] : $value;
+            }
+        }
+    }
+
+    private function getUniqueValues(array $data, string $attribute, array $conditions): array
+    {
+        $valuesGenerator = $this->generateValues($data, $attribute, $conditions);
+
+        $uniqueValues = [];
+        foreach ($valuesGenerator as $value) {
+            if (!in_array($value, $uniqueValues, true)) {
+                $uniqueValues[] = $value;
             }
         }
 
-        // Remove duplicate arrays in values
-        $values = array_map("unserialize", array_unique(array_map("serialize", $values)));
-
         // Check if condition is a range
         if (is_string($conditions['value']) && str_contains($conditions['value'], '-')) {
-            $minValue = min($values);
-            $maxValue = max($values);
+            $minValue = min($uniqueValues);
+            $maxValue = max($uniqueValues);
 
             return [$minValue, $maxValue];
         }
 
-        sort($values);
+        sort($uniqueValues);
 
-        return array_values($values);
+        return array_values($uniqueValues);
     }
 
     private function resolveInternalParameterName($externalParameter): ?string
