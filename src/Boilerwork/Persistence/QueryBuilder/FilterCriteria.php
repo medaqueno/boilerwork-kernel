@@ -266,10 +266,7 @@ class FilterCriteria
         if (is_array($currentValue) && count($currentValue) === 1) {
             $currentValue = reset($currentValue);
         }
-
-        var_dump($currentValue);
-        echo "\n\n";
-
+        
         return $currentValue;
     }
 
