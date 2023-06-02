@@ -249,7 +249,7 @@ class FilterCriteria
                 $tempArray = [];
 
                 foreach ($currentValue as $item) {
-                    if (is_array($item) && isset($item[$key])) {
+                    if (is_array($item) && isset($item[$key]) && !in_array($item[$key], $tempArray)) {
                         $tempArray[] = $item[$key];
                     }
                 }
@@ -266,10 +266,9 @@ class FilterCriteria
         if (is_array($currentValue) && count($currentValue) === 1) {
             $currentValue = reset($currentValue);
         }
-        
+
         return $currentValue;
     }
-
 
     protected function parseRangeCondition(string $condition): array
     {
