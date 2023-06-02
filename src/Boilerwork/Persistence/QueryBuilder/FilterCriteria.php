@@ -7,6 +7,7 @@ namespace Boilerwork\Persistence\QueryBuilder;
 
 use Boilerwork\Http\QueryCriteria;
 use Boilerwork\Persistence\Exceptions\PagingException;
+use Ds\Set;
 
 class FilterCriteria
 {
@@ -316,24 +317,24 @@ class FilterCriteria
     {
         $valuesGenerator = $this->generateValues($data, $attribute, $conditions);
 
-        $uniqueValues = [];
+        $uniqueValues = new Set();
         foreach ($valuesGenerator as $value) {
-            if (!in_array($value, $uniqueValues, true)) {
-                $uniqueValues[] = $value;
-            }
+            $uniqueValues->add($value);
         }
+
+        $uniqueValuesArray = $uniqueValues->toArray();
 
         // Check if condition is a range
         if (is_string($conditions['value']) && str_contains($conditions['value'], '-')) {
-            $minValue = min($uniqueValues);
-            $maxValue = max($uniqueValues);
+            $minValue = min($uniqueValuesArray);
+            $maxValue = max($uniqueValuesArray);
 
             return [$minValue, $maxValue];
         }
 
-        sort($uniqueValues);
+        sort($uniqueValuesArray);
 
-        return array_values($uniqueValues);
+        return $uniqueValuesArray;
     }
 
     private function resolveInternalParameterName($externalParameter): ?string
