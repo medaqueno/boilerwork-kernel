@@ -8,6 +8,7 @@ namespace Boilerwork\Persistence\QueryBuilder;
 use Boilerwork\Http\QueryCriteria;
 use Boilerwork\Persistence\Exceptions\PagingException;
 use Ds\Set;
+use Ds\PriorityQueue;
 
 class FilterCriteria
 {
@@ -132,20 +133,27 @@ class FilterCriteria
 
     private function applyOrderBy(string $attribute, string $order = 'asc'): void
     {
-        usort($this->filteredData, function ($a, $b) use ($attribute, $order) {
-            $aValue = $this->getNestedValue($a, $attribute);
-            $bValue = $this->getNestedValue($b, $attribute);
+        $queue = new \Ds\PriorityQueue();
 
-            if ($aValue == $bValue) {
-                return 0;
-            }
+        foreach ($this->filteredData as $data) {
+            $value = $this->getNestedValue($data, $attribute);
 
-            if ($order === 'asc') {
-                return ($aValue < $bValue) ? -1 : 1;
-            } else {
-                return ($aValue > $bValue) ? -1 : 1;
-            }
-        });
+            $priority = match (gettype($value)) {
+                'NULL' => $order === 'asc' ? PHP_INT_MAX : PHP_INT_MIN,
+                'integer', 'double', 'boolean' => $order === 'asc' ? -(float)$value : (float)$value,
+                'string' => $order === 'asc' ? 255 - ord($value) : ord($value),
+                default => throw new \InvalidArgumentException(
+                    'The attribute value must be a number, a boolean, a string, or null.'
+                ),
+            };
+
+            $queue->push($data, $priority);
+        }
+
+        $this->filteredData = [];
+        while (! $queue->isEmpty()) {
+            $this->filteredData[] = $queue->pop();
+        }
     }
 
     private function applyPaginate(int $page, int $perPage): void
@@ -168,6 +176,7 @@ class FilterCriteria
 
         if ($totalResults === 0) {
             $this->filteredData = [];
+
             return;
         }
 
@@ -229,7 +238,7 @@ class FilterCriteria
             if (is_array($currentValue) && isset($currentValue[$key])) {
                 $currentValue = $currentValue[$key];
             } elseif (is_array($currentValue) && array_key_exists($key, $currentValue)) {
-                $currentValue = array_column($currentValue, $key);
+                return $currentValue[$key];
             } else {
                 if (! is_array($currentValue)) {
                     throw new \InvalidArgumentException(
@@ -253,8 +262,17 @@ class FilterCriteria
             }
         }
 
+        // Si el valor es un array con un solo elemento, se extrae ese elemento.
+        if (is_array($currentValue) && count($currentValue) === 1) {
+            $currentValue = reset($currentValue);
+        }
+
+        var_dump($currentValue);
+        echo "\n\n";
+
         return $currentValue;
     }
+
 
     protected function parseRangeCondition(string $condition): array
     {
@@ -298,9 +316,6 @@ class FilterCriteria
 
             if ($displayValueKey) {
                 $displayValue = $this->getNestedValue($item, $displayValueKey);
-                if(is_array($displayValue)){
-                    $displayValue = $displayValue[0];
-                }
             }
 
             if (is_array($value)) {
