@@ -120,7 +120,7 @@ final class RedisAdapter
      * Set the value of a key with an optional timeout.
      *
      * @param  string  $key  The key to set the value for.
-     * @param  string  $value  The value to set for the key.
+     * @param  mixed|string  $value  The value to set for the key.
      * @param  int|null  $timeout  The optional timeout in seconds. If not provided, the key will not expire.
      *
      * @return bool True if the operation was successful, false otherwise.
@@ -128,7 +128,7 @@ final class RedisAdapter
      * @example
      * $redisClient->set('example_key', 'example_value', 3600);
      */
-    public function set(string $key, string $value, int $timeout = null): bool
+    public function set(string $key, mixed $value, int|array $timeout = null): bool
     {
         return $this->execute(function (Redis $conn) use ($key, $value, $timeout) {
             return $conn->set($key, $value, $timeout);
@@ -265,6 +265,13 @@ final class RedisAdapter
     {
         return $this->execute(function (Redis $conn) use ($key, $ttl) {
             return $conn->expire($key, $ttl);
+        });
+    }
+
+    public function ttl(string $key): bool|int|Redis
+    {
+        return $this->execute(function (Redis $conn) use ($key) {
+            return $conn->ttl($key);
         });
     }
 
