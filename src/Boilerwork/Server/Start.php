@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Boilerwork\Server;
 
 use Boilerwork\Authorization\AuthorizationsMiddleware;
+use Boilerwork\Server\Middleware\UpkeepMiddleware;
 use Boilerwork\Tracking\TrackingMiddleware;
 use Boilerwork\Router\Adapter\FastRoute;
 use Boilerwork\Server\Events\ServerStartHandler;
@@ -31,7 +32,7 @@ final class Start
         $this->server = new HttpServer(
             host: env('SERVER_IP'),
             port: intval(env('SERVER_PORT')),
-            mode: Server::SIMPLE_MODE
+            mode: Server::POOL_MODE
         );
 
         $this->loadServerConfig($customConfig);
@@ -64,6 +65,7 @@ final class Start
         $config = array_merge([
             'worker_num'      => Util::getCPUNum(),
             'task_worker_num' => Util::getCPUNum(),
+            'max_request' => 1000,
             // 'max_conn' => CONFIGURE IF NEEDED AS DOCS RECOMMENDS,
             'debug_mode'      => false,
             'log_level'       => 0,
