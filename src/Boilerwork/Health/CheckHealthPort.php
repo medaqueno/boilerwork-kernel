@@ -11,16 +11,20 @@ use Boilerwork\Persistence\Adapters\ElasticSearch\ElasticSearchAdapter;
 use Boilerwork\Persistence\Adapters\Redis\RedisAdapter;
 use Boilerwork\Persistence\Repositories\ReadsRepository;
 use Boilerwork\Persistence\Repositories\WritesRepository;
+use OpenSwoole\Core\Coroutine\WaitGroup;
+use OpenSwoole\Coroutine;
 use Psr\Http\Message\ResponseInterface;
+
 
 final class CheckHealthPort
 {
     public function __construct(
-        private readonly WritesRepository $writes,
-        private readonly ReadsRepository $reads,
-        private readonly RedisAdapter $redis,
+        private readonly WritesRepository     $writes,
+        private readonly ReadsRepository      $reads,
+        private readonly RedisAdapter         $redis,
         private readonly ElasticSearchAdapter $elastic,
-    ) {
+    )
+    {
     }
 
     public function __invoke(Request $request, array $vars): ResponseInterface
@@ -32,23 +36,39 @@ final class CheckHealthPort
             'check_elastic' => fn() => $this->checkElastic(),
         ];
 
+        $timeout = 10;
         $status = [];
         $overallStatus = 'OK';
 
+        $wg = new WaitGroup();
+
         foreach ($checks as $checkName => $checkFunction) {
-            $result = $this->executeCheck($checkFunction);
-            $status[$checkName] = $result ? 'ok' : 'ko';
-            if ($result instanceof \Exception) {
-                $status['error'][$checkName] = $result->getMessage();
-                $overallStatus = 'KO';
+            $wg->add();
+            go(function () use ($wg, $checkName, $checkFunction, &$status, &$overallStatus) {
+                $result = $this->executeCheck($checkFunction);
+                $status[$checkName] = $result ? 'ok' : 'ko';
+                if ($result instanceof \Exception) {
+                    $status['error'][$checkName] = $result->getMessage();
+                    $overallStatus = 'KO';
+                }
+                $wg->done();
+            });
+        }
+
+        $start = microtime(true);
+        while (!$wg->wait($timeout)) {
+            if (microtime(true) - $start >= $timeout) {
+                $overallStatus = 'TimeOut';
+                break;
             }
         }
 
         return Response::json([
             'appName' => env('APP_NAME'),
-            'data'    => $status,
-            'status'  => $overallStatus,
-        ], $overallStatus === 'OK' ? 200 : 500);
+            'data' => $status,
+            'status' => $overallStatus,
+        ], $overallStatus === 'OK' ? 200 : ($overallStatus === 'TimeOut' ? 504 : 500)
+        );
     }
 
     private function executeCheck(callable $checkFunction): bool|\Exception
