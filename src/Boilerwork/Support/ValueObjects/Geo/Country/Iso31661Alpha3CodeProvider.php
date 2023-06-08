@@ -256,6 +256,7 @@ readonly class Iso31661Alpha3CodeProvider
     public const ZAF  = 'ZAF';
     public const ZMB  = 'ZMB';
     public const ZWE  = 'ZWE';
+    public const XXK  = 'XXK';
 
     public static function toArray(): array
     {

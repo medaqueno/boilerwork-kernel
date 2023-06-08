@@ -261,6 +261,7 @@ readonly class Iso31661Alpha2CodeProvider
     public const ZM  = 'ZM';
     public const ZR  = 'ZR';
     public const ZW  = 'ZW';
+    public const XK  = 'XK';
 
     public static function toArray(): array
     {
