@@ -5,9 +5,9 @@ declare(strict_types=1);
 
 namespace Boilerwork\Support\Services\FeesCalculator;
 
-interface FeesCalculatorData
+interface IFeesDataProvider
 {
-    static public function dataProvider(
+    public function dataProvider(
         string $serviceType,
         string $idTenant,
         ?string $idCart = null,

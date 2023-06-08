@@ -26,7 +26,7 @@ final class FeesCalculator
     {
         // var_dump('applyFee');
         // TODO: mirar esto $fee->$fee->type()($this->valuePrice)
-        $this->valuePrice = match($fee->type()) {
+        $this->valuePrice = match ($fee->type()) {
             'total' => $fee->total($this->valuePrice),
             'percent' => $fee->percent($this->valuePrice),
         };
@@ -60,8 +60,7 @@ final class FeesCalculator
 
     private function exchangeForexFee(): FeeForex
     {
-        if ($this->dataProvider->tenantCurrency === $this->purchasePrice->iso3())
-        {
+        if ($this->dataProvider->tenantCurrency === $this->purchasePrice->iso3()) {
             // devolvemos el por defecto con exchange 1
             return $this->dataProvider->forexFee;
         }
@@ -90,7 +89,7 @@ final class FeesCalculator
 
     public function saleWithFees(Price $price, ?ServiceType $serviceType = null): RetailDTO
     {
-        $serviceFeeType = isset($serviceType)? $serviceType->serviceFeeType(): null;
+        $serviceFeeType = isset($serviceType) ? $serviceType->serviceFeeType() : null;
 
         $salePrice = $this->setPrice($price)
             ->applyForexFee()
@@ -112,11 +111,11 @@ final class FeesCalculator
         string $idTenant,
         ?string $idCart = null,
         ?array $servicesInCart = []
-    ):self
-    {
+    ): self {
+        $redisProvider = new DataProviderRedis();
         return new static(
             // data source
-            DataProviderRedis::dataProvider(
+            $redisProvider->dataProvider(
                 $serviceType,
                 $idTenant,
                 $idCart,

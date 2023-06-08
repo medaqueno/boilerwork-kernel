@@ -5,32 +5,49 @@ declare(strict_types=1);
 
 namespace Boilerwork\Support\Services\FeesCalculator;
 
+use Boilerwork\Persistence\Adapters\Redis\RedisAdapter;
+use Boilerwork\Persistence\Pools\RedisPool;
 use Boilerwork\Support\Services\FeesCalculator\Fees\FeeForex;
-use Boilerwork\Support\Services\FeesCalculator\FeeToApplyProvider;
-use Boilerwork\Persistence\Adapters\Redis\RedisClient;
-use Boilerwork\Support\Services\FeesCalculator\ValueObjects\ServiceType\ServiceType;
 use Boilerwork\Support\Services\FeesCalculator\Fees\FeeAgency;
 use Boilerwork\Support\Services\FeesCalculator\Fees\FeeOperator;
-use Boilerwork\Support\Services\FeesCalculator\ExchangeRates\RedisExchangeRates;
-use Boilerwork\Support\Services\FeesCalculator\ValueObjects\ServiceType\ServiceFeeTypeProvider;
-use Boilerwork\Support\Services\FeesCalculator\FeesCalculatorTenantCacheException;
+use Boilerwork\Support\Services\FeesCalculator\FeeToApplyProvider;
 use Boilerwork\Support\Services\FeesCalculator\FeesCalculatorDataProvider;
+use Boilerwork\Support\Services\FeesCalculator\ExchangeRates\RedisExchangeRates;
+use Boilerwork\Support\Services\FeesCalculator\FeesCalculatorTenantCacheException;
+use Boilerwork\Support\Services\FeesCalculator\ValueObjects\ServiceType\ServiceType;
+use Boilerwork\Support\Services\FeesCalculator\ValueObjects\ServiceType\ServiceFeeTypeProvider;
 
-class DataProviderRedis implements FeesCalculatorData
+class DataProviderRedis implements IFeesDataProvider
 {
-    static public function dataProvider(
+    private readonly RedisAdapter $redis;
+    public function __construct()
+    {
+        $this->redis = new RedisAdapter(new RedisPool());
+    }
+
+    private function keyServices(string $cartId): string
+    {
+        return sprintf('crm:travel:%s:services', $cartId);
+    }
+
+    private function keyTenantCurrency(string $tenantId): string
+    {
+        return sprintf('clients:tenant:%s:currency', $tenantId);
+    }
+
+    private function keyTenantFees(string $tenantId): string
+    {
+        return sprintf('clients:tenant:%s:fees', $tenantId);
+    }
+
+    public function dataProvider(
         string $serviceType,
         string $idTenant,
         ?string $idCart = null,
         ?array $servicesInCart = [],
-    ): FeesCalculatorDataProvider
-    {
-        $sss = new Static();
-        $redisClient = new RedisClient();
-        $redisClient->getConnection();
-
+    ): FeesCalculatorDataProvider {
         $serviceFeeType = (new ServiceType($serviceType))->serviceFeeType();
-        $tenantCurrency = $redisClient->get(sprintf('tenantdata_%s_currency', $idTenant));
+        $tenantCurrency = $this->redis->get($this->keyTenantCurrency($idTenant));
         if (!$tenantCurrency) {
             throw new FeesCalculatorTenantCacheException(
                 $idTenant,
@@ -40,19 +57,19 @@ class DataProviderRedis implements FeesCalculatorData
             );
         }
 
-        $servicesInCart = $sss->servicesInCart($serviceFeeType, $servicesInCart);
+        $servicesInCart = $this->servicesInCart($serviceFeeType, $servicesInCart);
         $feesToGetFromCache = $servicesInCart;
-        if ($idCart){
-            $cartServices = $redisClient->get(sprintf('cart:%s:services', $idCart));
-            $servicesInCart = $cartServices? json_decode($cartServices): [];
+        if ($idCart) {
+            $cartServices = $this->redis->get($this->keyServices($idCart));
+            $servicesInCart = $cartServices ? json_decode($cartServices) : [];
             $feesToGetFromCache = [$serviceFeeType];
         }
 
-        $feesTopApply = $sss->feesToApply($servicesInCart);
+        $feesTopApply = $this->feesToApply($servicesInCart);
         //var_dump($feesTopApply);
         $operatorFees = [];
         $agencyFees = [];
-        foreach ($feesToGetFromCache as $service){
+        foreach ($feesToGetFromCache as $service) {
             $keyAgencyFee = sprintf('$.agency.%s.%s', $service, $feesTopApply);
             $agencyFees[$keyAgencyFee] = $service;
             $keyOperatorFee = sprintf('$.operator.%s.%s', $service, $feesTopApply);
@@ -60,14 +77,13 @@ class DataProviderRedis implements FeesCalculatorData
         }
         $keyForexFee = '$.forex';
 
-        $fees = $redisClient->rawCommand(
+        $fees = $this->redis->rawCommand(
             'JSON.GET',
-            sprintf('tenantdata_%s_fees', $idTenant),
+            $this->keyTenantFees($idTenant),
             $keyForexFee,
-            ...array_keys(empty($agencyFees)? []: $agencyFees),
-            ...array_keys(empty($operatorFees)? []: $operatorFees),
+            ...array_keys(empty($agencyFees) ? [] : $agencyFees),
+            ...array_keys(empty($operatorFees) ? [] : $operatorFees),
         );
-        $redisClient->putConnection();
 
         if (!$fees) {
             throw new FeesCalculatorTenantCacheException(
@@ -105,10 +121,10 @@ class DataProviderRedis implements FeesCalculatorData
 
     private function servicesInCart(string $serviceFeeType, array $servicesInCart): array
     {
-        return array_unique(array_merge( $servicesInCart, [$serviceFeeType]));
+        return array_unique(array_merge($servicesInCart, [$serviceFeeType]));
     }
 
-    private function feesToApply( array $servicesInCart): string
+    private function feesToApply(array $servicesInCart): string
     {
         if (count($servicesInCart) == 1) {
             return FeeToApplyProvider::SINGLE->value;
@@ -118,5 +134,4 @@ class DataProviderRedis implements FeesCalculatorData
         }
         return FeeToApplyProvider::COMBINED->value;
     }
-
 }
