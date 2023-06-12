@@ -146,3 +146,13 @@ if (!function_exists('attrsToSnakeCase')) {
         return $result;
     }
 }
+
+if (!function_exists('qd')) {
+    function qd(mixed $var): ?string
+    {
+        $cloner = new VarCloner();
+        $dumper = new CliDumper();
+
+        return $dumper->dump($cloner->cloneVar($var), true);
+    }
+}
