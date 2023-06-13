@@ -6,6 +6,8 @@ declare(strict_types=1);
 use Boilerwork\Container\IsolatedContainer;
 use Boilerwork\Support\Logs\Logger;
 use Boilerwork\Messaging\MessagePublisher;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
+use Symfony\Component\VarDumper\Dumper\CliDumper;
 
 if (!function_exists('env')) {
     function env(string $name, mixed $defaultValue = null): mixed
