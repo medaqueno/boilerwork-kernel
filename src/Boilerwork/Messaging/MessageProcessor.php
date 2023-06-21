@@ -49,14 +49,14 @@ final class MessageProcessor
             try {
                 $this->consumeMessage($consumer);
             } catch (\Throwable $th) {
-                $errorMessage = sprintf(
-                    'ERROR HANDLED CONSUMING MESSAGE: %s',
-                    $th->getMessage(),
-                );
+//                $errorMessage = sprintf(
+//                    'ERROR HANDLED CONSUMING MESSAGE: %s',
+//                    $th->getMessage(),
+//                );
 
-                $exception = new \Exception($errorMessage, 500, $th);
+//                $exception = new \Exception($errorMessage, 500, $th);
 
-                $this->exceptionHandler->handle($exception);
+                $this->exceptionHandler->handle($th);
 
                 continue;
             }
@@ -109,14 +109,14 @@ final class MessageProcessor
                 try {
                     call_user_func($class, $message);
                 } catch (\Throwable $th) {
-                    $errorMessage = sprintf(
-                        'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
-                        $th->getMessage(),
-                        PHP_EOL,
-                        json_encode($messageReceived, JSON_PRETTY_PRINT),
-                    );
-
-                    $exception = new \Exception($errorMessage, 500, $th);
+//                    $errorMessage = sprintf(
+//                        'ERROR HANDLED PROCESSING MESSAGE: %s ||%sMESSAGE RECEIVED: %s',
+//                        $th->getMessage(),
+//                        PHP_EOL,
+//                        json_encode($messageReceived, JSON_PRETTY_PRINT),
+//                    );
+//
+//                    $exception = new \Exception($errorMessage, 500, $th);
 
                     $this->exceptionHandler->handle($exception);
                     continue;
