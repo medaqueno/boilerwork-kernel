@@ -5,8 +5,10 @@ declare(strict_types=1);
 
 namespace Boilerwork\Http;
 
+use Assert\InvalidArgumentException;
 use Boilerwork\Authorization\AuthInfo;
 use Boilerwork\Persistence\QueryBuilder\PagingDto;
+use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Support\ValueObjects\Language\Iso6391Code;
 use Boilerwork\Support\ValueObjects\Language\Language;
 use Psr\Http\Message\ServerRequestInterface;
@@ -98,5 +100,13 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
     public function authInfo(): AuthInfo
     {
         return $this->authInfo;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function tenantId(): Identity
+    {
+        return Identity::fromString($this->getHeaderLine('x-tenant-id'));
     }
 }
