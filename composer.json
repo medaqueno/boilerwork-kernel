@@ -34,7 +34,8 @@
     "openswoole/ide-helper": "^22",
     "phpunit/phpunit": "^9.5",
     "ukko/phpredis-phpdoc": "5.0.1-beta8",
-    "kwn/php-rdkafka-stubs": "^2.2"
+    "kwn/php-rdkafka-stubs": "^2.2",
+    "symfony/var-dumper": "^6.2"
   },
   "config": {
     "optimize-autoloader": true,

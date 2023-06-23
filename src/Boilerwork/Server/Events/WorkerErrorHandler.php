@@ -11,7 +11,7 @@ class WorkerErrorHandler
 {
     public function __invoke(Server $server, int $workerId,): void
     {
-        echo sprintf('Error in Worker %d: %s', $workerId, $server->getLastError());
+        echo sprintf('Error in Worker %d', $workerId);
         echo PHP_EOL;
     }
 }
