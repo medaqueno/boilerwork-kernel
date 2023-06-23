@@ -38,14 +38,20 @@ final class CommandBus
      */
     public function handle(CommandInterface $command): void
     {
-        Coroutine::create(function () use ($command) {
-            go(function () use ($command) {
-                Coroutine::sleep(1);
-                $this->executeHandler($command);
+        $executionMode = (string)env('APP_EXECUTION_MODE', 'Live');
+
+        if ($executionMode === 'Test') {
+            $this->syncHandle($command);
+        } else {
+            Coroutine::create(function () use ($command) {
+                go(function () use ($command) {
+                    Coroutine::sleep(1);
+                    $this->executeHandler($command);
+                });
+                // Coroutine::sleep(1);
+                // echo "co[1] end\n";
             });
-            // Coroutine::sleep(1);
-            // echo "co[1] end\n";
-        });
+        }
     }
 
     private function executeHandler(CommandInterface $command): void
