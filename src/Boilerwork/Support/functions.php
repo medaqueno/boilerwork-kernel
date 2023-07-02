@@ -50,7 +50,7 @@ if (!function_exists('container')) {
      * Return Container instance to be used in local/isolated requests/jobs/messages
      * @return IsolatedContainer
      */
-    function container(): \Boilerwork\Container\Container
+    function container()
     {
         return (\Boilerwork\Container\Container::getInstance())->getIsolatedContainer();
     }
@@ -61,7 +61,7 @@ if (!function_exists('globalContainer')) {
      * Return Global Container instance with shared data across application memory
      *
      **/
-    function globalContainer(): \Boilerwork\Container\Container
+    function globalContainer()
     {
         return \Boilerwork\Container\Container::getInstance();
     }
