@@ -251,8 +251,12 @@ final class Response
 //        return ['pagination' => $pagingContainer->serialize()];
     }
 
-    public static function error(array $payload, int $status = 500): ResponseInterface
+    public static function error(\JsonSerializable|array $payload, int $status = 500): ResponseInterface
     {
+        if ($payload instanceof \JsonSerializable){
+            $payload = $payload->jsonSerialize();
+        }
+
         return (new JsonResponse(
             data: $payload,
             status: $status,
