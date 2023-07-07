@@ -156,7 +156,7 @@ if (!function_exists('qd')) {
         $cloner = new VarCloner();
         $dumper = new CliDumper();
 
-        if ($host = env('DUMPER_HOST')){
+        if ($host = env('VAR_DUMPER_SERVER')){
             $dumper = new ServerDumper($host, $dumper);
         }
 
