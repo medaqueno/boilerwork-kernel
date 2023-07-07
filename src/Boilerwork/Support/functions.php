@@ -151,7 +151,7 @@ if (!function_exists('attrsToSnakeCase')) {
 }
 
 if (!function_exists('qd')) {
-    function qd(mixed $var): ?string
+    function qd(mixed $var, bool|string $output = true): ?string
     {
         $cloner = new VarCloner();
         $dumper = new CliDumper();
@@ -160,6 +160,6 @@ if (!function_exists('qd')) {
             $dumper = new ServerDumper($host, $dumper);
         }
 
-        return $dumper->dump($cloner->cloneVar($var), true);
+        return $dumper->dump($cloner->cloneVar($var), $output);
     }
 }
