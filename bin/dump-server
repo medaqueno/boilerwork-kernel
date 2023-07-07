@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 $descriptor = new CliDescriptor(new CliDumper);
 
 if (!$host = env('DUMPER_HOST')){
-    throw new \BadMethodCallException('Cannot launch server without env(DUMPER_HOST). Ex "tcp://127.0.0.1:9912"');
+    trigger_error('Cannot launch server without env(DUMPER_HOST). Ex "tcp://127.0.0.1:9912"',E_USER_ERROR);
 }
 
 $server = new DumpServer($host);
