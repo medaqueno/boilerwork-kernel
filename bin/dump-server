@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+require_once("vendor/autoload.php");
+
+use Symfony\Component\VarDumper\Command\Descriptor\CliDescriptor;
+use Symfony\Component\VarDumper\Dumper\CliDumper;
+use Symfony\Component\VarDumper\Server\DumpServer;
+use Symfony\Component\VarDumper\Cloner\Data;
+use Symfony\Component\Console\Style\SymfonyStyle;
+
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
+$descriptor = new CliDescriptor(new CliDumper);
+
+if (!$host = env('DUMPER_HOST')){
+    throw new \BadMethodCallException('Cannot launch server without env(DUMPER_HOST). Ex "tcp://127.0.0.1:9912"');
+}
+
+$server = new DumpServer($host);
+
+$input = new ArgvInput();
+$output = new ConsoleOutput();
+$io = new SymfonyStyle($input, $output);
+$server->start();
+$output->writeln(sprintf('Server listening on %s', $server->getHost()));
+$server->listen(function (Data $data, array $context, int $clientId) use ($descriptor, $io) {
+    $descriptor->describe($io, $data, $context, $clientId);
+});
