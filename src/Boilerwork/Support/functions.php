@@ -8,6 +8,7 @@ use Boilerwork\Support\Logs\Logger;
 use Boilerwork\Messaging\MessagePublisher;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
+use Symfony\Component\VarDumper\Dumper\ServerDumper;
 
 if (!function_exists('env')) {
     function env(string $name, mixed $defaultValue = null): mixed
@@ -154,6 +155,10 @@ if (!function_exists('qd')) {
     {
         $cloner = new VarCloner();
         $dumper = new CliDumper();
+
+        if ($host = env('DUMPER_HOST')){
+            $dumper = new ServerDumper($host, $dumper);
+        }
 
         return $dumper->dump($cloner->cloneVar($var), true);
     }
