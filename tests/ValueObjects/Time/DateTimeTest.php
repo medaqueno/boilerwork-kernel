@@ -8,11 +8,11 @@ use PHPUnit\Framework\TestCase;
 
 final class DateTimeTest extends TestCase
 {
+
     public function testFromString(): void
     {
-        $dateTimeString = '2023-04-08T12:34:56+00:00';
+        $dateTimeString = '2023-04-08T12:34:56+02:00';
         $dateTime = DateTime::fromString($dateTimeString);
-
         $this->assertInstanceOf(DateTime::class, $dateTime);
         $this->assertSame($dateTimeString, $dateTime->toAtom());
     }
@@ -89,4 +89,14 @@ final class DateTimeTest extends TestCase
         $this->assertSame($dateTimeString, $dateTime->toDateTime()->format(DateTimeImmutable::ATOM));
     }
 
+    public function testConvertToUtc(): void
+    {
+        $dateTimeString = '2023-04-08T12:34:56+02:00';
+        $dateTime = DateTime::fromString($dateTimeString);
+
+        $utcDateTime = $dateTime->convertToUtc();
+
+        $this->assertInstanceOf(DateTime::class, $utcDateTime);
+        $this->assertSame('2023-04-08T10:34:56+00:00', $utcDateTime->toAtom());
+    }
 }
