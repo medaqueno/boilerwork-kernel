@@ -24,14 +24,14 @@ final class EmailAddressTest extends TestCase
         yield 'valid@emailaddress.com' => [
             'valid@emailaddress.com'
         ];
-        yield 'VAlid@emailAddress.com' => [
-            'VAlid@emailAddress.com'
-        ];
         yield 'another@pangea.es' => [
             'another@pangea.es'
         ];
         yield 'gmail+like@gmail.com' => [
             'another@pangea.es'
+        ];
+        yield 'UPPERCASE@emailAddress.com' => [
+            'UPPERCASE@emailAddress.com'
         ];
     }
 
@@ -56,7 +56,7 @@ final class EmailAddressTest extends TestCase
      * @dataProvider providerEmail
      * @covers \Boilerwork\Support\ValueObjects\EmailAddress
      **/
-    public function testNewEmail($email): void
+    public function testNewEmail(string $email): void
     {
         $emailAddress = $this->testedClass($email);
 
