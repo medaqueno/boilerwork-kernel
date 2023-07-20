@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Boilerwork\Support\ValueObjects\EmailAddress;
 use Boilerwork\Validation\CustomAssertionFailedException;
 use PHPUnit\Framework\TestCase;
+
 // use Deminy\Counit\TestCase;
 
 final class EmailAddressTest extends TestCase
@@ -21,16 +22,18 @@ final class EmailAddressTest extends TestCase
     public function providerEmail(): iterable
     {
         yield 'valid@emailaddress.com' => [
-            $this->testedClass('valid@emailaddress.com')
+            'valid@emailaddress.com'
+        ];
+        yield 'VAlid@emailAddress.com' => [
+            'VAlid@emailAddress.com'
         ];
         yield 'another@pangea.es' => [
-            $this->testedClass('another@pangea.es'),
+            'another@pangea.es'
         ];
         yield 'gmail+like@gmail.com' => [
-            $this->testedClass('another@pangea.es'),
+            'another@pangea.es'
         ];
     }
-
 
     public function providerInvalidEmail(): iterable
     {
@@ -47,16 +50,24 @@ final class EmailAddressTest extends TestCase
             'as++-"·dad@asdf.com',
         ];
     }
+
     /**
      * @test
      * @dataProvider providerEmail
      * @covers \Boilerwork\Support\ValueObjects\EmailAddress
      **/
-    public function testNewEmail(EmailAddress $email): void
+    public function testNewEmail($email): void
     {
+        $emailAddress = $this->testedClass($email);
+
         $this->assertInstanceOf(
             EmailAddress::class,
-            $email
+            $emailAddress
+        );
+
+        $this->assertSame(
+            $emailAddress->toString(),
+            mb_strtolower($email)
         );
     }
 

@@ -7,20 +7,19 @@ namespace Boilerwork\Support\ValueObjects;
 
 use Boilerwork\Foundation\ValueObjects\ValueObject;
 use Boilerwork\Validation\Assert;
-use mb_substr;
 
 /**
- * 
+ *
  **/
 abstract class EmailAddress extends ValueObject
 {
     public function __construct(
         private string $value
     ) {
-        $value = mb_strtolower($value);
+        $this->value = mb_strtolower($value);
 
         Assert::lazy()->tryAll()
-            ->that($value)
+            ->that($this->value)
             ->email('Value must be a valid email', 'email.invalidFormat')
             ->verifyNow();
     }
