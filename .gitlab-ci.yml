@@ -1,6 +1,19 @@
-deploy_composer:
-  only:
-    - tags
-  stage: test
+stages:
+  - changelog:common
+  - deploy:composer
+
+changelog-common:
+  stage: changelog:common
+  image: 946241444896.dkr.ecr.eu-west-1.amazonaws.com/quadrant/devops/gitlab:tools-php-8.2.8-cli-20230724-1
   script:
-    - curl -sS --show-error --fail --data tag=${CI_COMMIT_TAG} "https://__token__:${DEPLOY_TOKEN}@gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/composer"
+    - /usr/local/bin/changelog.sh
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+-(dev|integration|qa|rc|release)/'
+
+deploy-composer:
+  image: 946241444896.dkr.ecr.eu-west-1.amazonaws.com/quadrant/devops/gitlab:tools-php-8.2.8-cli-20230724-1
+  stage: deploy:composer
+  script:
+    - /usr/local/bin/add-gitlab-composer-registry.sh
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+-(dev|integration|qa|rc|release)/'
