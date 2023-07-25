@@ -119,8 +119,6 @@ final class RedisTable
      */
     public function insertMultiple(iterable $data, bool $overwriteById = false): bool
     {
-        $this->redis->keepConnection();
-
         $result = true;
         foreach ($data as $item) {
             $result = $this->insert($item, $overwriteById);
@@ -128,7 +126,6 @@ final class RedisTable
                 break;
             }
         }
-        $this->redis->releasePersistentConnection();
 
         return $result;
     }
