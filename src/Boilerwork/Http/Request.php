@@ -47,11 +47,13 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
 
     public function acceptLanguage(): string
     {
-        $langRequest = $this->getHeaderLine('x-content-language');
+        $header = $this->getHeaderLine('x-content-language');
 
-        return ($langRequest != null && in_array($langRequest, Language::ACCEPTED_LANGUAGES) === true) ?
-            mb_strtoupper(Language::fromIso6391Code(new Iso6391Code($langRequest))->toString())
-            : Language::FALLBACK;
+        $language = mb_strtoupper($header);
+
+        return in_array($language, Language::ACCEPTED_LANGUAGES)
+            ? $language
+            :Language::FALLBACK;
     }
 
     private function parseBody(ServerRequestInterface $request): array|null|object
