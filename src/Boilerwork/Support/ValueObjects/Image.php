@@ -17,7 +17,6 @@ final class Image extends ValueObject
     ) {
         Assert::lazy()->tryAll()
             ->that($url)
-            ->url('Url must be a valid URL format', 'image.invalidFormat')
             ->maxLength(2048, 'Value must have a maximum length of 2048 characters', 'image.invalidLength')
             ->verifyNow();
     }
