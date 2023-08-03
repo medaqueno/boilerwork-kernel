@@ -11,6 +11,7 @@ use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Support\ValueObjects\Language\Iso6391Code;
 use Boilerwork\Support\ValueObjects\Language\Language;
+use Boilerwork\Validation\Assert;
 use Psr\Http\Message\ServerRequestInterface;
 use OpenSwoole\Core\Psr\ServerRequest as OpenSwooleRequest;
 
@@ -107,6 +108,7 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
      */
     public function tenantId(): Identity
     {
+        Assert::that($this->getHeaderLine('x-tenant-id'))->notBlank('x-tenant-id cannot be blank');
         return Identity::fromString($this->getHeaderLine('x-tenant-id'));
     }
 }
