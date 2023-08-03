@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 declare(strict_types=1);
@@ -11,6 +10,7 @@ use Boilerwork\Persistence\QueryBuilder\PagingDto;
 use Boilerwork\Support\ValueObjects\Identity;
 use Boilerwork\Support\ValueObjects\Language\Iso6391Code;
 use Boilerwork\Support\ValueObjects\Language\Language;
+use Boilerwork\Validation\Assert;
 use Psr\Http\Message\ServerRequestInterface;
 use OpenSwoole\Core\Psr\ServerRequest as OpenSwooleRequest;
 
@@ -47,13 +47,11 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
 
     public function acceptLanguage(): string
     {
-        $header = $this->getHeaderLine('x-content-language');
+        $langRequest = $this->getHeaderLine('x-content-language');
 
-        $language = mb_strtoupper($header);
-
-        return in_array($language, Language::ACCEPTED_LANGUAGES)
-            ? $language
-            :Language::FALLBACK;
+        return ($langRequest != null && in_array($langRequest, Language::ACCEPTED_LANGUAGES) === true) ?
+            mb_strtoupper(Language::fromIso6391Code(new Iso6391Code($langRequest))->toString())
+            : Language::FALLBACK;
     }
 
     private function parseBody(ServerRequestInterface $request): array|null|object
@@ -109,6 +107,7 @@ class Request extends OpenSwooleRequest implements ServerRequestInterface
      */
     public function tenantId(): Identity
     {
+        Assert::that($this->getHeaderLine('x-tenant-id'))->notBlank('x-tenant-id cannot be blank');
         return Identity::fromString($this->getHeaderLine('x-tenant-id'));
     }
 }
