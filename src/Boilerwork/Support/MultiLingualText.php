@@ -167,13 +167,12 @@ readonly class MultiLingualText
     /**
      * Returns the default text, which is the first available text in the array.
      *
-     * @return string|null The default text or null if no texts are available
+     * @return string The default text or empty if no texts are available
      */
-    private function getDefaultText(): ?string
+    private function getDefaultText(): string
     {
-        return current(array_values($this->texts)) ?: null;
+        return current(array_values($this->texts)) ?: '';
     }
-
 
     /**
      * Returns the text in the required language

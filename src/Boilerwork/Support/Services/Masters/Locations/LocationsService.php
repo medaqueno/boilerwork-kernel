@@ -110,6 +110,14 @@ final class LocationsService implements LocationsInterface
                                                                     ],
                                                                 ],
                                                             ],
+                                                            [
+                                                                'match_phrase' => [
+                                                                    'location_alternate' => [
+                                                                        'query' => $locationName,
+                                                                        'boost' => 10,
+                                                                    ],
+                                                                ],
+                                                            ],
                                                         ],
                                                     ],
                                                 ],
@@ -127,6 +135,14 @@ final class LocationsService implements LocationsInterface
                                                             [
                                                                 'match' => [
                                                                     'location_en' => [
+                                                                        'query' => $locationName,
+                                                                        'boost' => 5,
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                            [
+                                                                'match' => [
+                                                                    'location_alternate' => [
                                                                         'query' => $locationName,
                                                                         'boost' => 5,
                                                                     ],
