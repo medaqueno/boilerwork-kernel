@@ -110,14 +110,6 @@ final class LocationsService implements LocationsInterface
                                                                     ],
                                                                 ],
                                                             ],
-                                                            [
-                                                                'match_phrase' => [
-                                                                    'location_alternate' => [
-                                                                        'query' => $locationName,
-                                                                        'boost' => 10,
-                                                                    ],
-                                                                ],
-                                                            ],
                                                         ],
                                                     ],
                                                 ],
@@ -135,14 +127,6 @@ final class LocationsService implements LocationsInterface
                                                             [
                                                                 'match' => [
                                                                     'location_en' => [
-                                                                        'query' => $locationName,
-                                                                        'boost' => 5,
-                                                                    ],
-                                                                ],
-                                                            ],
-                                                            [
-                                                                'match' => [
-                                                                    'location_alternate' => [
                                                                         'query' => $locationName,
                                                                         'boost' => 5,
                                                                     ],
@@ -214,7 +198,7 @@ final class LocationsService implements LocationsInterface
                     //                    ['population' => ['order' => 'desc']],
                 ],
             ],
-            'size'  => 1,
+            'size'  => 2,
         ];
 
 
@@ -235,10 +219,12 @@ final class LocationsService implements LocationsInterface
 
     private function buildLocationEntity($hits): LocationEntity
     {
+        echo "\nBUILD\n";
+        var_dump($hits);
         if (count($hits) > 0) {
+
             // Retrieve first result, assuming it is the best result
             $hit = $hits[0]['_source'];
-
             return new LocationEntity(
                 id: Identity::fromString($hit['id']),
                 location: Location::fromScalars(
