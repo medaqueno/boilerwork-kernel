@@ -219,8 +219,6 @@ final class LocationsService implements LocationsInterface
 
     private function buildLocationEntity($hits): LocationEntity
     {
-        echo "\nBUILD\n";
-        var_dump($hits);
         if (count($hits) > 0) {
 
             // Retrieve first result, assuming it is the best result
