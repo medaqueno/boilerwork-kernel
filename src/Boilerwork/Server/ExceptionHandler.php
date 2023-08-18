@@ -86,11 +86,11 @@ final class ExceptionHandler
 
     private static function handleCustomException(CustomException $th): array
     {
-        $parse = json_decode($th->getMessage());
+        $parse = $th->jsonSerialize();
 
         $status  = $th->getCode();
-        $code    = $parse->error->code;
-        $message = $parse->error->message;
+        $code    = $parse['error']['code'] ?? $th::class;
+        $message = $parse['error']['message'] ?? null;
         $errors  = [];
 
         return [$status, $code, $message, $errors];
